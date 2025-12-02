@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unlimitedplug-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - unlimitedplug
+
+  webserver:
+    image: nginx:alpine
+    container_name: unlimitedplug-webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - unlimitedplug
+
+  db:
+    image: mysql:8.0
+    container_name: unlimitedplug-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: unlimitedplug
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: password
+      MYSQL_USER: laravel
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - unlimitedplug
+
+  redis:
+    image: redis:alpine
+    container_name: unlimitedplug-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    networks:
+      - unlimitedplug
+
+networks:
+  unlimitedplug:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
