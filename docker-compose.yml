@@ -51,6 +51,40 @@ services:
     networks:
       - unlimitedplug
 
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unlimitedplug-queue
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    command: php artisan queue:work --sleep=3 --tries=3
+    depends_on:
+      - db
+      - redis
+    networks:
+      - unlimitedplug
+
+  reverb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unlimitedplug-reverb
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - unlimitedplug
+
 networks:
   unlimitedplug:
     driver: bridge
