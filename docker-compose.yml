@@ -19,7 +19,7 @@ services:
     container_name: unlimitedplug-webserver
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "8001:80"
     volumes:
       - ./:/var/www
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
@@ -78,7 +78,7 @@ services:
       - ./:/var/www
     command: php artisan reverb:start --host=0.0.0.0 --port=8080
     ports:
-      - "8080:8080"
+      - "8082:8080"
     depends_on:
       - db
       - redis
