@@ -9,8 +9,13 @@ use App\Models\Payment;
 
 class PaymentController extends Controller
 {
-    private $apiKey = '0JRGGXJ-9HS4MSW-NXSC4AB-4PMN020';
+    private $apiKey;
     private $baseUrl = 'https://api.nowpayments.io/v1';
+
+    public function __construct()
+    {
+        $this->apiKey = config('payment.nowpayments.api_key');
+    }
 
     public function createPayment(Request $request)
     {
