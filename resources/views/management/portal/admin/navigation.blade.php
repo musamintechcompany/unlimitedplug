@@ -40,6 +40,9 @@ class="bg-white border-b border-gray-100 fixed top-0 w-full z-40 transition-tran
                     <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')" class="text-gray-600 hover:text-gray-900">
                         {{ __('Categories') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('admin.payments.index')" :active="request()->routeIs('admin.payments.*')" class="text-gray-600 hover:text-gray-900">
+                        {{ __('Payment History') }}
+                    </x-nav-link>
                 </div>
             </div>
 

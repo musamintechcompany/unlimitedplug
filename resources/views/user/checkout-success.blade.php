@@ -14,8 +14,8 @@
                 
                 <div class="border-t pt-6">
                     <div class="space-y-3">
-                        <a href="{{ route('dashboard') }}" class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold">
-                            Go to Dashboard
+                        <a href="{{ route('purchases.index') }}" class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold">
+                            View My Purchases
                         </a>
                         <a href="{{ route('marketplace') }}" class="block w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold">
                             Continue Shopping

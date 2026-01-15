@@ -6,7 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Models\Cart;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Payment;
+use App\Mail\PurchaseConfirmation;
 
 class PaystackController extends Controller
 {
@@ -90,7 +95,8 @@ class PaystackController extends Controller
             $data = $response->json();
             
             if ($data['data']['status'] === 'success') {
-                // Payment successful - clear cart and process order
+                // Payment successful - create order and clear cart
+                $this->createOrder($data['data']);
                 $this->clearUserCart();
                 return redirect()->route('checkout.success')->with('success', 'Payment successful!');
             }
@@ -130,6 +136,74 @@ class PaystackController extends Controller
     {
         // Process the successful payment
         Log::info('Processing successful payment', $data);
+        $this->createOrder($data);
+    }
+    
+    private function createOrder($paymentData)
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            Log::error('Cannot create order: User not authenticated');
+            return;
+        }
+
+        // Get cart items
+        $cartItems = Cart::with('digitalAsset')
+            ->where('user_id', $userId)
+            ->get();
+
+        if ($cartItems->isEmpty()) {
+            Log::warning('Cart is empty, cannot create order');
+            return;
+        }
+
+        // Calculate total
+        $total = $cartItems->sum(function($item) {
+            return $item->price * $item->quantity;
+        });
+
+        // Create payment record
+        $payment = Payment::create([
+            'user_id' => $userId,
+            'payment_id' => $paymentData['reference'] ?? uniqid('PAY-'),
+            'amount' => $total,
+            'currency' => $paymentData['currency'] ?? 'NGN',
+            'pay_currency' => $paymentData['currency'] ?? 'NGN',
+            'status' => 'confirmed',
+            'actually_paid' => $paymentData['amount'] / 100 ?? $total,
+            'pay_amount' => $paymentData['amount'] / 100 ?? $total,
+        ]);
+
+        // Create order
+        $order = Order::create([
+            'user_id' => $userId,
+            'order_number' => Order::generateOrderNumber(),
+            'payment_id' => $payment->id,
+            'total_amount' => $total,
+            'currency' => $paymentData['currency'] ?? 'NGN',
+            'payment_method' => 'paystack',
+            'payment_status' => 'completed',
+            'status' => 'completed',
+        ]);
+
+        // Create order items
+        foreach ($cartItems as $cartItem) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'digital_asset_id' => $cartItem->digital_asset_id,
+                'asset_name' => $cartItem->digitalAsset->name,
+                'quantity' => $cartItem->quantity,
+                'price' => $cartItem->price,
+            ]);
+        }
+
+        Log::info('Order created successfully', ['order_id' => $order->id]);
+        
+        // Load relationships for email
+        $order->load(['user', 'items']);
+        
+        // Send purchase confirmation email
+        Mail::to($order->user->email)->send(new PurchaseConfirmation($order));
     }
     
     private function clearUserCart()

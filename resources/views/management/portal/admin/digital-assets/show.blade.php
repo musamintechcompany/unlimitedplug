@@ -1,5 +1,5 @@
 <x-admin.app-layout>
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="{ showDownloadsModal: false, showPurchasesModal: false }">
     <div class="mb-6">
         <a href="{{ route('admin.digital-assets.index') }}" 
            class="text-blue-600 hover:text-blue-800">&larr; Back to Digital Assets</a>
@@ -106,16 +106,58 @@
                     <div><strong>Featured:</strong> {{ $digitalAsset->is_featured ? 'Yes' : 'No' }}</div>
                     <div><strong>Author:</strong> {{ $digitalAsset->user ? $digitalAsset->user->name : 'Admin Created' }}</div>
                     <div><strong>Created:</strong> {{ $digitalAsset->created_at->format('M j, Y g:i A') }}</div>
-                    <div><strong>Downloads:</strong> {{ $digitalAsset->downloads }}</div>
+                    <div><strong>Downloads:</strong> 
+                        <button @click="showDownloadsModal = true" class="text-blue-600 hover:text-blue-800 hover:underline">
+                            {{ $digitalAsset->downloads }}
+                        </button>
+                    </div>
+                    <div><strong>Purchases:</strong> 
+                        <button @click="showPurchasesModal = true" class="text-blue-600 hover:text-blue-800 hover:underline">
+                            {{ $purchases }}
+                        </button>
+                    </div>
+                    <div><strong>Revenue:</strong> ${{ number_format($revenue, 2) }}</div>
                     <div><strong>Rating:</strong> {{ $digitalAsset->rating ?? 'No rating' }}/5 ({{ $digitalAsset->reviews_count ?? 0 }} reviews)</div>
                     @if($digitalAsset->demo_url)
                         <div><strong>Demo:</strong> <a href="{{ $digitalAsset->demo_url }}" target="_blank" class="text-blue-600 hover:underline">View Demo</a></div>
                     @endif
                 </div>
                 
+                @if($digitalAsset->file && count($digitalAsset->file) > 0)
+                    <div class="mt-6 pt-6 border-t">
+                        <h3 class="text-lg font-semibold mb-3">Attached Files</h3>
+                        <div class="space-y-2">
+                            @foreach($digitalAsset->file as $index => $file)
+                                @php
+                                    $fullPath = storage_path('app/public/' . $file);
+                                    $fileSize = file_exists($fullPath) ? filesize($fullPath) : 0;
+                                    $fileSizeMB = number_format($fileSize / 1048576, 2);
+                                    $fileName = basename($file);
+                                @endphp
+                                <div class="flex items-center justify-between bg-gray-50 p-3 rounded">
+                                    <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                        <svg class="w-5 h-5 text-gray-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-gray-900 truncate" title="{{ $fileName }}">{{ $fileName }}</p>
+                                            <p class="text-xs text-gray-500">{{ $fileSizeMB }} MB</p>
+                                        </div>
+                                    </div>
+                                    <a href="{{ Storage::url($file) }}" download class="ml-3 flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                        Download
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
             </div>
         </div>
     </div>
+    
+    @include('modals.admin.downloads-modal')
+    @include('modals.admin.purchases-modal')
 </div>
 </x-admin.app-layout>

@@ -1,0 +1,53 @@
+<!-- Downloads Modal -->
+<div x-show="showDownloadsModal" 
+     x-cloak
+     @click.self="showDownloadsModal = false"
+     class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+        <div class="flex items-center justify-between p-6 border-b">
+            <h3 class="text-xl font-semibold text-gray-900">Download History</h3>
+            <button @click="showDownloadsModal = false" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="p-6 overflow-y-auto max-h-[60vh]">
+            @if($downloadDetails->isEmpty())
+                <p class="text-center text-gray-500 py-8">No downloads yet</p>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Downloads</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Downloaded</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($downloadDetails as $detail)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ $detail->order->user->name }}</div>
+                                        <div class="text-sm text-gray-500">{{ $detail->order->user->email }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-sm font-semibold text-blue-800 bg-blue-100 rounded">
+                                            {{ $detail->download_count }}x
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $detail->last_downloaded_at->format('M d, Y h:i A') }}
+                                        <span class="text-xs text-gray-400">({{ $detail->last_downloaded_at->diffForHumans() }})</span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>

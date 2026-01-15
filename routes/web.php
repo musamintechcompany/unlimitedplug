@@ -30,13 +30,6 @@ Route::post('/cart/remove', [App\Http\Controllers\CartController::class, 'remove
 // Currency switching
 Route::post('/currency/set', [App\Http\Controllers\CurrencyController::class, 'setCurrency'])->name('currency.set');
 
-// Payment History (public)
-Route::get('/payment-history', function () {
-    return view('user.payment-methods');
-})->name('payment-history');
-
-
-
 // Payment Routes (public)
 Route::post('/payment/create', [App\Http\Controllers\PaymentController::class, 'createPayment'])->name('payment.create');
 Route::get('/payment/currencies', [App\Http\Controllers\PaymentController::class, 'getAvailableCurrencies'])->name('payment.currencies');
@@ -52,10 +45,8 @@ Route::post('/payment/webhook', [App\Http\Controllers\PaymentController::class, 
 Route::post('/paystack/initialize', [App\Http\Controllers\PaystackController::class, 'initializePayment'])->name('paystack.initialize');
 Route::get('/paystack/callback', [App\Http\Controllers\PaystackController::class, 'handleCallback'])->name('paystack.callback');
 Route::post('/paystack/webhook', [App\Http\Controllers\PaystackController::class, 'webhook'])->name('paystack.webhook');
-Route::get('/checkout/success', function () { return view('user.checkout-success'); })->name('checkout.success');
 
-// Payment Success/Cancel Pages
-Route::get('/payment/success', function () { return view('user.payment-success'); })->name('payment.success');
+// Payment Cancel Page
 Route::get('/payment/cancel', function () { return view('user.payment-cancel'); })->name('payment.cancel');
 
 
@@ -128,6 +119,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout', function () {
         return view('user.checkout');
     })->name('checkout');
+
+    // My Purchases
+    Route::get('/my-purchases', [App\Http\Controllers\PurchaseController::class, 'index'])->name('purchases.index');
+    Route::get('/my-purchases/{digitalAsset}', [App\Http\Controllers\PurchaseController::class, 'show'])->name('purchases.show');
+    
+    // Download
+    Route::get('/download/{orderItem}', [App\Http\Controllers\DownloadController::class, 'download'])->name('download');
+    
+    // Payment Success Page (requires auth to see purchases)
+    Route::get('/checkout/success', function () { return view('user.checkout-success'); })->name('checkout.success');
 
     // Logout
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');

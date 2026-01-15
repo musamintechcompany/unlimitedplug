@@ -41,4 +41,12 @@ Route::prefix('management/portal/admin')->middleware('auth:admin')->name('admin.
     Route::put('/categories/subcategory/{subcategory}', [\App\Http\Controllers\Admin\CategoryController::class, 'updateSubcategory'])->name('categories.update-subcategory');
     Route::delete('/categories/category/{category}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroyCategory'])->name('categories.destroy-category');
     Route::delete('/categories/subcategory/{subcategory}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroySubcategory'])->name('categories.destroy-subcategory');
+    
+    // Payment History (Admin Only)
+    Route::get('/payments', function () {
+        $payments = \App\Models\Payment::with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+        return view('management.portal.admin.payments.index', compact('payments'));
+    })->name('payments.index');
 });

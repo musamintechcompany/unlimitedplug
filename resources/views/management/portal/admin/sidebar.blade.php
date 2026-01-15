@@ -32,6 +32,13 @@
             </svg>
             Categories
         </a>
+        <a href="{{ route('admin.payments.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('admin.payments.*') ? 'text-gray-700 bg-gray-100 border-r-4 border-blue-500' : 'text-gray-600 hover:bg-gray-100' }}">
+            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+                <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+            </svg>
+            Payment History
+        </a>
     </nav>
     
     <!-- Admin Profile Section - Sticky to Bottom -->

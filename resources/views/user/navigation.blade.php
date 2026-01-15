@@ -41,8 +41,8 @@ class="bg-white border-b border-gray-100 fixed top-0 w-full z-40 transition-tran
                     <x-nav-link :href="route('marketplace')" :active="request()->routeIs('marketplace')">
                         {{ __('Marketplace') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('payment-history')" :active="request()->routeIs('payment-history')">
-                        {{ __('Payment History') }}
+                    <x-nav-link :href="route('purchases.index')" :active="request()->routeIs('purchases.index')">
+                        {{ __('My Purchases') }}
                     </x-nav-link>
                 </div>
             </div>

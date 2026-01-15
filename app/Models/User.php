@@ -104,6 +104,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(DigitalAsset::class);
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function orderItems()
+    {
+        return $this->hasManyThrough(OrderItem::class, Order::class);
+    }
+
     public static function generateUsername($name)
     {
         $baseUsername = strtolower(str_replace(' ', '', $name));

@@ -1,0 +1,94 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('My Purchases') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    @if($orders->isEmpty())
+                        <div class="text-center py-12">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
+                            <p class="mt-4 text-gray-500">You haven't made any purchases yet.</p>
+                            <a href="{{ route('marketplace') }}" class="mt-4 inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                                Browse Marketplace
+                            </a>
+                        </div>
+                    @else
+                        <div class="space-y-6">
+                            @foreach($orders as $order)
+                                <div class="border rounded-lg overflow-hidden">
+                                    <!-- Order Header -->
+                                    <div class="bg-gray-50 px-6 py-4 border-b">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <h3 class="font-bold text-lg text-gray-900">Order #{{ $order->order_number }}</h3>
+                                                <p class="text-sm text-gray-500">{{ $order->created_at->format('M d, Y') }} • {{ $order->currency }} {{ number_format($order->total_amount, 2) }} • {{ $order->items->count() }} {{ Str::plural('item', $order->items->count()) }}</p>
+                                            </div>
+                                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                {{ ucfirst($order->payment_status) }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Order Items -->
+                                    <div class="divide-y">
+                                        @foreach($order->items as $item)
+                                            <div class="p-6 hover:bg-gray-50 transition">
+                                                <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4">
+                                                    <!-- Thumbnail -->
+                                                    <div class="flex-shrink-0 w-full sm:w-auto">
+                                                        @if($item->digitalAsset && $item->digitalAsset->banner)
+                                                            <img src="{{ Storage::url($item->digitalAsset->banner) }}" 
+                                                                 alt="{{ $item->asset_name }}" 
+                                                                 class="w-full sm:w-20 h-48 sm:h-20 object-cover rounded border">
+                                                        @else
+                                                            <div class="w-full sm:w-20 h-48 sm:h-20 bg-gray-200 rounded border flex items-center justify-center">
+                                                                <svg class="w-12 sm:w-8 h-12 sm:h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                                                </svg>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+
+                                                    <!-- Item Details -->
+                                                    <div class="flex-1 min-w-0 w-full">
+                                                        <h4 class="font-semibold text-gray-900 mb-1">{{ $item->asset_name }}</h4>
+                                                        <p class="text-sm text-gray-600 mb-2">{{ $order->currency }} {{ number_format($item->price, 2) }}</p>
+                                                        <p class="text-xs text-gray-500">
+                                                            Downloaded {{ $item->download_count }} {{ Str::plural('time', $item->download_count) }}
+                                                            @if($item->last_downloaded_at)
+                                                                • Last: {{ $item->last_downloaded_at->diffForHumans() }}
+                                                            @endif
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- Action Button -->
+                                                    <div class="flex-shrink-0 w-full sm:w-auto">
+                                                        @if($item->digitalAsset)
+                                                            <a href="{{ route('purchases.show', $item->digitalAsset->id) }}" 
+                                                               class="block w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-center">
+                                                                View Details
+                                                            </a>
+                                                        @else
+                                                            <span class="text-gray-400 text-sm">File unavailable</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

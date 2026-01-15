@@ -23,7 +23,40 @@ class DigitalAssetController extends Controller
     public function show(DigitalAsset $digitalAsset)
     {
         $digitalAsset->load('user');
-        return view('management.portal.admin.digital-assets.show', compact('digitalAsset'));
+        
+        // Calculate purchases and revenue
+        $purchases = \App\Models\OrderItem::where('digital_asset_id', $digitalAsset->id)
+            ->whereHas('order', function($query) {
+                $query->where('payment_status', 'completed');
+            })
+            ->count();
+            
+        $revenue = \App\Models\OrderItem::where('digital_asset_id', $digitalAsset->id)
+            ->whereHas('order', function($query) {
+                $query->where('payment_status', 'completed');
+            })
+            ->sum('price');
+        
+        // Get download details (most recent first)
+        $downloadDetails = \App\Models\OrderItem::where('digital_asset_id', $digitalAsset->id)
+            ->with(['order.user'])
+            ->whereHas('order', function($query) {
+                $query->where('payment_status', 'completed');
+            })
+            ->where('download_count', '>', 0)
+            ->orderBy('last_downloaded_at', 'desc')
+            ->get();
+        
+        // Get purchase details (most recent first)
+        $purchaseDetails = \App\Models\OrderItem::where('digital_asset_id', $digitalAsset->id)
+            ->with(['order.user'])
+            ->whereHas('order', function($query) {
+                $query->where('payment_status', 'completed');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('management.portal.admin.digital-assets.show', compact('digitalAsset', 'purchases', 'revenue', 'downloadDetails', 'purchaseDetails'));
     }
 
     public function create()
