@@ -86,6 +86,15 @@
                         </p>
                     </div>
 
+                    <!-- License Info -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                        <p class="text-sm text-blue-900 font-semibold mb-1">📜 Regular License Included</p>
+                        <p class="text-xs text-blue-800">
+                            You can use this for one project. Cannot resell or redistribute.
+                            <a href="{{ route('license.terms') }}" class="underline font-medium">View full terms</a>
+                        </p>
+                    </div>
+
                     <!-- Actions -->
                     <div class="flex flex-col sm:flex-row gap-4">
                         <a href="{{ route('download', $orderItem->id) }}" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition text-center font-semibold">

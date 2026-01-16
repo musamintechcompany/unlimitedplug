@@ -12,7 +12,7 @@ Route::prefix('management/portal/admin')->group(function () {
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('admin.onboarding.store');
 });
 
-// Admin Authentication Routes (No middleware - public access)
+// Admin Authentication Routes (No middleware to avoid redirect issues)
 Route::prefix('management/portal/admin')->group(function () {
     Route::get('/login', [LoginController::class, 'showLogin'])->name('admin.login');
     Route::post('/login', [LoginController::class, 'authenticate'])->name('admin.authenticate');

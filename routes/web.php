@@ -15,9 +15,7 @@ use Illuminate\Support\Facades\Route;
 // ============================================================================
 // PUBLIC ROUTES
 // ============================================================================
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace');
 Route::get('/marketplace/search', [MarketplaceController::class, 'search'])->name('marketplace.search');
@@ -26,25 +24,20 @@ Route::get('/cart/count', [App\Http\Controllers\CartController::class, 'getCount
 Route::get('/cart/items', [App\Http\Controllers\CartController::class, 'getItems'])->name('cart.items');
 Route::post('/cart/update', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
 
 // Currency switching
 Route::post('/currency/set', [App\Http\Controllers\CurrencyController::class, 'setCurrency'])->name('currency.set');
-
-// Payment Routes (public)
-Route::post('/payment/create', [App\Http\Controllers\PaymentController::class, 'createPayment'])->name('payment.create');
-Route::get('/payment/currencies', [App\Http\Controllers\PaymentController::class, 'getAvailableCurrencies'])->name('payment.currencies');
-Route::get('/payment/status/{id}', [App\Http\Controllers\PaymentController::class, 'paymentStatus'])->name('payment.status');
-Route::get('/payment/test', function() {
-    return response()->json(['status' => 'Payment system is working', 'timestamp' => now()]);
-})->name('payment.test');
-
-// Payment Webhook (public route)
-Route::post('/payment/webhook', [App\Http\Controllers\PaymentController::class, 'webhook'])->name('payment.webhook');
 
 // Paystack Routes
 Route::post('/paystack/initialize', [App\Http\Controllers\PaystackController::class, 'initializePayment'])->name('paystack.initialize');
 Route::get('/paystack/callback', [App\Http\Controllers\PaystackController::class, 'handleCallback'])->name('paystack.callback');
 Route::post('/paystack/webhook', [App\Http\Controllers\PaystackController::class, 'webhook'])->name('paystack.webhook');
+
+// Flutterwave Routes
+Route::post('/flutterwave/initialize', [App\Http\Controllers\FlutterwaveController::class, 'initializePayment'])->name('flutterwave.initialize');
+Route::get('/flutterwave/callback', [App\Http\Controllers\FlutterwaveController::class, 'handleCallback'])->name('flutterwave.callback');
+Route::post('/flutterwave/webhook', [App\Http\Controllers\FlutterwaveController::class, 'webhook'])->name('flutterwave.webhook');
 
 // Payment Cancel Page
 Route::get('/payment/cancel', function () { return view('user.payment-cancel'); })->name('payment.cancel');
@@ -60,6 +53,10 @@ Route::get('/software', function () {
 Route::get('/how-it-works', function () {
     return view('how-it-works');
 })->name('how-it-works');
+
+Route::get('/license-terms', function () {
+    return view('license-terms');
+})->name('license.terms');
 
 // ============================================================================
 // GUEST ROUTES (Not logged in)
@@ -84,9 +81,7 @@ Route::middleware('guest')->group(function () {
 // ============================================================================
 Route::middleware('auth')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('user.dashboard');
-    })->middleware('verified')->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->middleware('verified')->name('dashboard');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

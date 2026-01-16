@@ -13,7 +13,7 @@ class CartController extends Controller
         $assetId = $request->input('asset_id');
         $asset = DigitalAsset::findOrFail($assetId);
         
-        $currency = session('currency', 'NGN');
+        $currency = session('currency', 'USD');
         $price = $asset->getPriceForCurrency($currency);
         
         $userId = auth()->id();
@@ -65,10 +65,10 @@ class CartController extends Controller
     {
         $userId = auth()->id();
         $sessionId = session()->getId();
-        $currency = session('currency', 'NGN');
+        $currency = session('currency', 'USD');
         $currencySymbol = config('payment.currencies.' . $currency . '.symbol');
         
-        $cartItems = Cart::with('digitalAsset')
+        $cartItems = Cart::with('digitalAsset.prices')
             ->where(function($query) use ($userId, $sessionId) {
                 if ($userId) {
                     $query->where('user_id', $userId);
@@ -87,7 +87,7 @@ class CartController extends Controller
                 'id' => $item->id,
                 'name' => $asset->name,
                 'type' => $asset->type,
-                'price' => number_format($currentPrice, 2),
+                'price' => (float) $currentPrice,
                 'quantity' => $item->quantity,
                 'currencySymbol' => $currencySymbol,
                 'image' => $image,
@@ -139,5 +139,59 @@ class CartController extends Controller
             'success' => true,
             'cartCount' => $cartCount
         ]);
+    }
+    
+    public function clear()
+    {
+        $userId = auth()->id();
+        $sessionId = session()->getId();
+        
+        Cart::where(function($query) use ($userId, $sessionId) {
+            if ($userId) {
+                $query->where('user_id', $userId);
+            } else {
+                $query->where('session_id', $sessionId);
+            }
+        })->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Cart cleared successfully',
+            'cartCount' => 0
+        ]);
+    }
+    
+    /**
+     * Merge guest cart to user cart after login/register
+     */
+    public static function mergeGuestCart($userId, $sessionId)
+    {
+        // Get guest cart items
+        $guestCartItems = Cart::where('session_id', $sessionId)
+            ->whereNull('user_id')
+            ->get();
+        
+        if ($guestCartItems->isEmpty()) {
+            return;
+        }
+        
+        foreach ($guestCartItems as $guestItem) {
+            // Check if user already has this item
+            $existingItem = Cart::where('user_id', $userId)
+                ->where('digital_asset_id', $guestItem->digital_asset_id)
+                ->first();
+            
+            if ($existingItem) {
+                // Merge quantities
+                $existingItem->increment('quantity', $guestItem->quantity);
+                $guestItem->delete();
+            } else {
+                // Transfer to user
+                $guestItem->update([
+                    'user_id' => $userId,
+                    'session_id' => null
+                ]);
+            }
+        }
     }
 }

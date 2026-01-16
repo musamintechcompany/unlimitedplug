@@ -55,114 +55,29 @@
                 </div>
             </section>
 
-            <!-- Featured Products Section -->
+            <!-- Products by Category Section -->
             <section class="py-20 bg-white dark:bg-gray-900">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-                    
-                    <div id="featured-products" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Products will be loaded here -->
-                    </div>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+                    @forelse($categorizedProducts as $type => $products)
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ ucfirst($type) }}</h2>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                @foreach($products as $product)
+                                    <a href="{{ route('product.detail', $product['id']) }}" class="block group">
+                                        <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-40 object-cover rounded-lg mb-2 group-hover:opacity-75 transition">
+                                        <h3 class="text-sm font-medium text-gray-900 dark:text-white line-clamp-2 mb-1">{{ $product['title'] }}</h3>
+                                        <div class="text-lg font-bold text-blue-600">{{ $product['currencySymbol'] }}{{ number_format($product['price'], 2) }}</div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center">
+                            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Coming Soon</h2>
+                            <p class="text-gray-600 dark:text-gray-400">Exciting products will be available here soon!</p>
+                        </div>
+                    @endforelse
                 </div>
             </section>
-
-            <script>
-                const featuredProducts = [
-                    {
-                        id: 1,
-                        title: "Adobe Photoshop 2024",
-                        description: "Professional photo editing software with AI features and advanced tools.",
-                        type: "software",
-                        price: 299,
-                        oldPrice: 399,
-                        rating: 4.8,
-                        reviews: 156,
-                        image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop",
-                        badge: "POPULAR"
-                    },
-                    {
-                        id: 2,
-                        title: "Business Website Template",
-                        description: "Modern responsive template for business websites with clean design.",
-                        type: "template",
-                        price: 49,
-                        oldPrice: 79,
-                        rating: 4.6,
-                        reviews: 89,
-                        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
-                        badge: "NEW"
-                    },
-                    {
-                        id: 3,
-                        title: "Microsoft Office 365",
-                        description: "Complete productivity suite with cloud storage and collaboration tools.",
-                        type: "software",
-                        price: 149,
-                        oldPrice: 199,
-                        rating: 4.7,
-                        reviews: 234,
-                        image: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=400&h=300&fit=crop"
-                    }
-                ];
-
-                document.addEventListener('DOMContentLoaded', () => {
-                    renderFeaturedProducts();
-                });
-
-                function renderFeaturedProducts() {
-                    const grid = document.getElementById('featured-products');
-                    
-                    featuredProducts.forEach(product => {
-                        const card = document.createElement('div');
-                        card.className = 'cursor-pointer';
-                        
-                        const starsHTML = createStarsHTML(product.rating);
-                        const badgeHTML = product.badge ? `<span class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs font-bold rounded">${product.badge}</span>` : '';
-                        
-                        card.innerHTML = `
-                            <div class="relative mb-3">
-                                ${badgeHTML}
-                                <img src="${product.image}" alt="${product.title}" class="w-full h-40 object-cover">
-                            </div>
-                            <span class="text-xs font-semibold text-blue-600 uppercase tracking-wide">${product.type}</span>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mt-1 mb-2">${product.title}</h3>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">${product.description}</p>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    ${starsHTML}
-                                    <span class="text-sm text-gray-500 ml-1">(${product.reviews})</span>
-                                </div>
-                                <div class="text-right">
-                                    ${product.oldPrice ? `<span class="text-sm text-gray-500 line-through">$${product.oldPrice}</span>` : ''}
-                                    <div class="text-lg font-bold text-blue-600">$${product.price}</div>
-                                </div>
-                            </div>
-                        `;
-                        
-                        grid.appendChild(card);
-                    });
-                }
-
-                function createStarsHTML(rating) {
-                    const fullStars = Math.floor(rating);
-                    const hasHalfStar = rating % 1 >= 0.5;
-                    let starsHTML = '';
-                    
-                    for (let i = 0; i < fullStars; i++) {
-                        starsHTML += '<span class="text-yellow-400">★</span>';
-                    }
-                    
-                    if (hasHalfStar) {
-                        starsHTML += '<span class="text-yellow-400">☆</span>';
-                    }
-                    
-                    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-                    for (let i = 0; i < emptyStars; i++) {
-                        starsHTML += '<span class="text-gray-300">☆</span>';
-                    }
-                    
-                    return starsHTML;
-                }
-            </script>
     </div>
 </x-guest1-layout>

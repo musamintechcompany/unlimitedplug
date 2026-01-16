@@ -78,17 +78,24 @@ class DigitalAssetController extends Controller
             'subcategory_id' => 'nullable|exists:subcategories,id',
             'usd_price' => 'required|numeric|min:0',
             'usd_list_price' => 'nullable|numeric|min:0',
-            'ngn_price' => 'nullable|numeric|min:0',
-            'ngn_list_price' => 'nullable|numeric|min:0',
             'badge' => 'nullable|string|in:NEW,HOT,BESTSELLER,POPULAR,TRENDING,PREMIUM,EXCLUSIVE,LIMITED,FEATURED,TOP RATED,EDITOR\'S CHOICE,UPDATED,FREE',
             'banner' => 'nullable|image|max:5120',
-            'media.*' => 'nullable|file|max:5120', // 5MB per media file
-            'file.*' => 'nullable|file|max:20480', // 20MB per asset file
+            'media.*' => 'nullable|file|max:5120',
+            'file.*' => 'nullable|file|max:20480',
             'demo_url' => 'nullable|url',
             'tags' => 'nullable|string',
             'features' => 'nullable|string',
             'requirements' => 'nullable|string',
         ]);
+        
+        // Dynamically validate all currency prices (all required)
+        foreach (array_keys(config('payment.currencies')) as $currencyCode) {
+            $lowerCode = strtolower($currencyCode);
+            $request->validate([
+                "{$lowerCode}_price" => 'required|numeric|min:0',
+                "{$lowerCode}_list_price" => 'nullable|numeric|min:0',
+            ]);
+        }
 
         // Handle banner image
         $bannerPath = null;
@@ -153,13 +160,21 @@ class DigitalAssetController extends Controller
             'list_price' => $validated['usd_list_price'],
         ]);
         
-        // Save NGN pricing if provided
-        if ($validated['ngn_price'] || $validated['ngn_list_price']) {
-            $asset->prices()->create([
-                'currency_code' => 'NGN',
-                'price' => $validated['ngn_price'],
-                'list_price' => $validated['ngn_list_price'],
-            ]);
+        // Save all other currency pricing
+        foreach (array_keys(config('payment.currencies')) as $currencyCode) {
+            if ($currencyCode === 'USD') continue; // Already saved
+            
+            $lowerCode = strtolower($currencyCode);
+            $price = $request->input("{$lowerCode}_price");
+            $listPrice = $request->input("{$lowerCode}_list_price");
+            
+            if ($price || $listPrice) {
+                $asset->prices()->create([
+                    'currency_code' => $currencyCode,
+                    'price' => $price,
+                    'list_price' => $listPrice,
+                ]);
+            }
         }
 
         return redirect()->route('admin.digital-assets.index')->with('success', 'Digital asset created successfully!');
@@ -192,8 +207,6 @@ class DigitalAssetController extends Controller
             'subcategory_id' => 'nullable|exists:subcategories,id',
             'usd_price' => 'required|numeric|min:0',
             'usd_list_price' => 'nullable|numeric|min:0',
-            'ngn_price' => 'nullable|numeric|min:0',
-            'ngn_list_price' => 'nullable|numeric|min:0',
             'is_featured' => 'boolean',
             'badge' => 'nullable|string|in:NEW,HOT,BESTSELLER,POPULAR,TRENDING,PREMIUM,EXCLUSIVE,LIMITED,FEATURED,TOP RATED,EDITOR\'S CHOICE,UPDATED,FREE',
             'banner' => 'nullable|image|max:5120',
@@ -203,6 +216,15 @@ class DigitalAssetController extends Controller
             'features' => 'nullable|string',
             'requirements' => 'nullable|string',
         ]);
+        
+        // Dynamically validate all currency prices (all required)
+        foreach (array_keys(config('payment.currencies')) as $currencyCode) {
+            $lowerCode = strtolower($currencyCode);
+            $request->validate([
+                "{$lowerCode}_price" => 'required|numeric|min:0',
+                "{$lowerCode}_list_price" => 'nullable|numeric|min:0',
+            ]);
+        }
 
         // Handle banner upload
         $bannerPath = $digitalAsset->banner;
@@ -261,18 +283,26 @@ class DigitalAssetController extends Controller
             ]
         );
         
-        // Update NGN pricing
-        if ($validated['ngn_price'] || $validated['ngn_list_price']) {
-            $digitalAsset->prices()->updateOrCreate(
-                ['currency_code' => 'NGN'],
-                [
-                    'price' => $validated['ngn_price'],
-                    'list_price' => $validated['ngn_list_price'],
-                ]
-            );
-        } else {
-            // Remove NGN pricing if both fields are empty
-            $digitalAsset->prices()->where('currency_code', 'NGN')->delete();
+        // Update all other currency pricing
+        foreach (array_keys(config('payment.currencies')) as $currencyCode) {
+            if ($currencyCode === 'USD') continue; // Already updated
+            
+            $lowerCode = strtolower($currencyCode);
+            $price = $request->input("{$lowerCode}_price");
+            $listPrice = $request->input("{$lowerCode}_list_price");
+            
+            if ($price || $listPrice) {
+                $digitalAsset->prices()->updateOrCreate(
+                    ['currency_code' => $currencyCode],
+                    [
+                        'price' => $price,
+                        'list_price' => $listPrice,
+                    ]
+                );
+            } else {
+                // Remove pricing if both fields are empty
+                $digitalAsset->prices()->where('currency_code', $currencyCode)->delete();
+            }
         }
 
         return redirect()->route('admin.digital-assets.index')

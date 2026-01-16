@@ -110,14 +110,14 @@
             document.getElementById('main-image').alt = product.title;
             document.getElementById('product-type').textContent = product.type.toUpperCase();
             document.getElementById('product-title').textContent = product.title;
-            document.getElementById('product-price').textContent = `$${product.price}`;
+            document.getElementById('product-price').textContent = `${product.currencySymbol}${product.price.toFixed(2)}`;
             document.getElementById('product-description').textContent = product.description;
             document.getElementById('detailed-description').textContent = product.description;
 
             // Set old price if exists
             if (product.oldPrice) {
                 const oldPriceEl = document.getElementById('old-price');
-                oldPriceEl.textContent = `$${product.oldPrice}`;
+                oldPriceEl.textContent = `${product.currencySymbol}${product.oldPrice.toFixed(2)}`;
                 oldPriceEl.classList.remove('hidden');
             }
 

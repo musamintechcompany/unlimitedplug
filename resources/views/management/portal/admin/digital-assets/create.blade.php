@@ -54,25 +54,30 @@
                 <textarea name="description" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-md">{{ old('description') }}</textarea>
             </div>
 
-            <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium mb-2">USD Price ($) *</label>
-                    <input type="number" name="usd_price" value="{{ old('usd_price') }}" step="0.01" min="0" required class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-2">USD List Price ($)</label>
-                    <input type="number" name="usd_list_price" value="{{ old('usd_list_price') }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium mb-2">NGN Price (₦)</label>
-                    <input type="number" name="ngn_price" value="{{ old('ngn_price') }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-2">NGN List Price (₦)</label>
-                    <input type="number" name="ngn_list_price" value="{{ old('ngn_list_price') }}" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+            <!-- Currency Pricing -->
+            <div>
+                <label class="block text-sm font-medium mb-2">Pricing (All currency prices required)</label>
+                <div class="overflow-x-auto">
+                    <div class="inline-flex flex-col gap-2 min-w-full">
+                        <!-- Price Row -->
+                        <div class="flex gap-3">
+                            @foreach(config('payment.currencies') as $code => $currency)
+                                <div class="flex-shrink-0 w-32">
+                                    <label class="block text-xs font-medium mb-1">{{ $code }} Price *</label>
+                                    <input type="number" name="{{ strtolower($code) }}_price" value="{{ old(strtolower($code) . '_price') }}" step="0.01" min="0" required class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded" placeholder="0.00">
+                                </div>
+                            @endforeach
+                        </div>
+                        <!-- List Price Row -->
+                        <div class="flex gap-3">
+                            @foreach(config('payment.currencies') as $code => $currency)
+                                <div class="flex-shrink-0 w-32">
+                                    <label class="block text-xs font-medium mb-1">{{ $code }} List Price</label>
+                                    <input type="number" name="{{ strtolower($code) }}_list_price" value="{{ old(strtolower($code) . '_list_price') }}" step="0.01" min="0" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded" placeholder="0.00">
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -146,10 +151,7 @@
             <!-- Submit -->
             <div class="flex justify-end space-x-4 pt-6 border-t">
                 <a href="{{ route('admin.digital-assets.index') }}" class="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancel</a>
-                <button type="submit" :disabled="uploading" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50">
-                    <span x-show="!uploading">Create Asset</span>
-                    <span x-show="uploading">Uploading...</span>
-                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Create Asset</button>
             </div>
         </div>
     </form>

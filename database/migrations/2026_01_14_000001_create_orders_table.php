@@ -13,6 +13,7 @@ return new class extends Migration
             $table->uuid('user_id');
             $table->string('order_number')->unique();
             $table->uuid('payment_id')->nullable();
+            $table->string('transaction_reference')->nullable();
             $table->decimal('total_amount', 10, 2);
             $table->string('currency', 3)->default('USD');
             $table->string('payment_method'); // paystack, nowpayments
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('payment_id')->references('id')->on('payments')->onDelete('set null');
             $table->index('order_number');
+            $table->index('transaction_reference');
             $table->index(['user_id', 'status']);
         });
     }

@@ -26,5 +26,28 @@
         
         @include('modals.login')
         @include('components.cart-sidebar')
+        
+        <script>
+            function setCurrency(currency) {
+                fetch('/currency/set', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ currency: currency })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('selected-currency').textContent = currency;
+                        const mobileCurrency = document.getElementById('selected-currency-mobile');
+                        if (mobileCurrency) mobileCurrency.textContent = currency;
+                        location.reload();
+                    }
+                })
+                .catch(error => console.error('Error setting currency:', error));
+            }
+        </script>
     </body>
 </html>

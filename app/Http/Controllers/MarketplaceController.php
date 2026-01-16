@@ -10,10 +10,10 @@ class MarketplaceController extends Controller
 {
     public function index()
     {
-        $currency = session('currency', 'NGN');
+        $currency = session('currency', 'USD');
         $currencySymbol = config('payment.currencies.' . $currency . '.symbol');
         
-        $assets = DigitalAsset::with('category')
+        $assets = DigitalAsset::with(['category', 'prices'])
             ->where('status', 'approved')
             ->orderBy('is_featured', 'desc')
             ->orderBy('created_at', 'desc')
@@ -57,6 +57,8 @@ class MarketplaceController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('q', '');
+        $currency = session('currency', 'USD');
+        $currencySymbol = config('payment.currencies.' . $currency . '.symbol');
         
         $products = DigitalAsset::where('status', 'approved')
             ->when($query, function($q) use ($query) {
@@ -70,18 +72,23 @@ class MarketplaceController extends Controller
             ->orderBy('is_featured', 'desc')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function($asset) {
+            ->map(function($asset) use ($currency, $currencySymbol) {
+                $price = $asset->getPriceForCurrency($currency);
+                $listPrice = $asset->getListPriceForCurrency($currency);
+                
                 return [
                     'id' => $asset->id,
                     'title' => $asset->name,
                     'description' => $asset->description,
                     'type' => $asset->type,
-                    'price' => (float) $asset->price,
-                    'oldPrice' => $asset->list_price ? (float) $asset->list_price : null,
-                    'rating' => 4.5, // Default rating for now
+                    'price' => (float) $price,
+                    'currency' => $currency,
+                    'currencySymbol' => $currencySymbol,
+                    'oldPrice' => $listPrice ? (float) $listPrice : null,
+                    'rating' => 4.5,
                     'reviews' => $asset->downloads,
                     'image' => $asset->banner ? Storage::url($asset->banner) : ($asset->media && count($asset->media) > 0 ? Storage::url($asset->media[0]) : 'https://via.placeholder.com/400x300?text=No+Image'),
-                    'badge' => $asset->is_featured ? 'FEATURED' : ($asset->list_price && $asset->list_price > $asset->price ? 'SALE' : null)
+                    'badge' => $asset->badge ? strtoupper($asset->badge) : null
                 ];
             });
 
@@ -90,7 +97,13 @@ class MarketplaceController extends Controller
 
     public function show($id)
     {
+        $currency = session('currency', 'USD');
+        $currencySymbol = config('payment.currencies.' . $currency . '.symbol');
+        
         $asset = DigitalAsset::where('status', 'approved')->findOrFail($id);
+        
+        $price = $asset->getPriceForCurrency($currency);
+        $listPrice = $asset->getListPriceForCurrency($currency);
         
         $product = [
             'id' => $asset->id,
@@ -98,8 +111,10 @@ class MarketplaceController extends Controller
             'description' => $asset->description,
             'type' => $asset->type,
             'subcategory' => $asset->subcategory,
-            'price' => (float) $asset->price,
-            'oldPrice' => $asset->list_price ? (float) $asset->list_price : null,
+            'price' => (float) $price,
+            'currency' => $currency,
+            'currencySymbol' => $currencySymbol,
+            'oldPrice' => $listPrice ? (float) $listPrice : null,
             'rating' => 4.5,
             'reviews' => $asset->downloads,
             'image' => $asset->banner ? Storage::url($asset->banner) : ($asset->media && count($asset->media) > 0 ? Storage::url($asset->media[0]) : 'https://via.placeholder.com/400x300?text=No+Image'),

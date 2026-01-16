@@ -1,12 +1,10 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('My Purchases') }}
-        </h2>
-    </x-slot>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <h2 class="font-semibold text-2xl text-gray-800 mb-6 px-4 sm:px-0">
+                My Purchases
+            </h2>
+            
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @if($orders->isEmpty())
@@ -40,16 +38,16 @@
                                     <div class="divide-y">
                                         @foreach($order->items as $item)
                                             <div class="p-6 hover:bg-gray-50 transition">
-                                                <div class="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4">
+                                                <div class="flex items-center space-x-4">
                                                     <!-- Thumbnail -->
-                                                    <div class="flex-shrink-0 w-full sm:w-auto">
+                                                    <div class="flex-shrink-0">
                                                         @if($item->digitalAsset && $item->digitalAsset->banner)
                                                             <img src="{{ Storage::url($item->digitalAsset->banner) }}" 
                                                                  alt="{{ $item->asset_name }}" 
-                                                                 class="w-full sm:w-20 h-48 sm:h-20 object-cover rounded border">
+                                                                 class="w-20 h-20 object-cover rounded border">
                                                         @else
-                                                            <div class="w-full sm:w-20 h-48 sm:h-20 bg-gray-200 rounded border flex items-center justify-center">
-                                                                <svg class="w-12 sm:w-8 h-12 sm:h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                            <div class="w-20 h-20 bg-gray-200 rounded border flex items-center justify-center">
+                                                                <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                                                     <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
                                                                 </svg>
                                                             </div>
@@ -57,26 +55,27 @@
                                                     </div>
 
                                                     <!-- Item Details -->
-                                                    <div class="flex-1 min-w-0 w-full">
+                                                    <div class="flex-1 min-w-0">
                                                         <h4 class="font-semibold text-gray-900 mb-1">{{ $item->asset_name }}</h4>
-                                                        <p class="text-sm text-gray-600 mb-2">{{ $order->currency }} {{ number_format($item->price, 2) }}</p>
-                                                        <p class="text-xs text-gray-500">
-                                                            Downloaded {{ $item->download_count }} {{ Str::plural('time', $item->download_count) }}
-                                                            @if($item->last_downloaded_at)
-                                                                • Last: {{ $item->last_downloaded_at->diffForHumans() }}
-                                                            @endif
-                                                        </p>
-                                                    </div>
-
-                                                    <!-- Action Button -->
-                                                    <div class="flex-shrink-0 w-full sm:w-auto">
+                                                        <p class="text-sm text-gray-600">{{ $order->currency }} {{ number_format($item->price, 2) }}</p>
+                                                        <!-- Mobile Link -->
                                                         @if($item->digitalAsset)
                                                             <a href="{{ route('purchases.show', $item->digitalAsset->id) }}" 
-                                                               class="block w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-center">
+                                                               class="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2 inline-block sm:hidden">
+                                                                View Details →
+                                                            </a>
+                                                        @endif
+                                                    </div>
+
+                                                    <!-- Desktop Button -->
+                                                    <div class="hidden sm:block flex-shrink-0">
+                                                        @if($item->digitalAsset)
+                                                            <a href="{{ route('purchases.show', $item->digitalAsset->id) }}" 
+                                                               class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium">
                                                                 View Details
                                                             </a>
                                                         @else
-                                                            <span class="text-gray-400 text-sm">File unavailable</span>
+                                                            <span class="text-gray-400 text-sm">Unavailable</span>
                                                         @endif
                                                     </div>
                                                 </div>

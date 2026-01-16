@@ -46,6 +46,8 @@
             .then(data => {
                 if (data.success) {
                     document.getElementById('selected-currency').textContent = currency;
+                    const mobileCurrency = document.getElementById('selected-currency-mobile');
+                    if (mobileCurrency) mobileCurrency.textContent = currency;
                     location.reload(); // Reload to show new prices
                 }
             })

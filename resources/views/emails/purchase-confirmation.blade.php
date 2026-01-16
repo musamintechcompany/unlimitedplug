@@ -22,6 +22,14 @@
             <p>Hi {{ $order->user->name }},</p>
             <p>Your order has been confirmed and is ready for download.</p>
             
+            <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; color: #1976D2; font-weight: bold;">📜 License Information</p>
+                <p style="margin: 5px 0 0 0; color: #555; font-size: 14px;">
+                    Your purchase includes a <strong>Regular License</strong>. You can use this for one project.
+                    <a href="{{ route('license.terms') }}" style="color: #2196F3;">View full license terms</a>
+                </p>
+            </div>
+            
             <h3>Order Details</h3>
             <p><strong>Order Number:</strong> {{ $order->order_number }}</p>
             <p><strong>Date:</strong> {{ $order->created_at->format('M d, Y') }}</p>

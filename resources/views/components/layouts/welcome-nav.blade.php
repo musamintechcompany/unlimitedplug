@@ -43,6 +43,24 @@ class="w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-g
                     <a href="{{ route('how-it-works') }}" class="{{ request()->is('how-it-works') ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }} transition-colors pb-1">
                         How It Works
                     </a>
+                    
+                    <!-- Currency Selector -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors px-3 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <span id="selected-currency">{{ session('currency', 'USD') }}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 max-h-96 overflow-y-auto">
+                            @foreach(config('payment.currencies') as $code => $currency)
+                                <button onclick="setCurrency('{{ $code }}')" class="block w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    {{ $code }} - {{ $currency['symbol'] }}
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+                    
                     <button onclick="toggleCartSidebar()" class="relative text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
@@ -60,8 +78,25 @@ class="w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-g
                     @endauth
                 </div>
                 
-                <!-- Mobile Cart -->
-                <div class="md:hidden flex items-center">
+                <!-- Mobile Currency & Cart -->
+                <div class="md:hidden flex items-center space-x-2">
+                    <!-- Mobile Currency Selector -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" class="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors px-2 py-1 rounded-lg">
+                            <span class="text-sm" id="selected-currency-mobile">{{ session('currency', 'USD') }}</span>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 max-h-64 overflow-y-auto">
+                            @foreach(config('payment.currencies') as $code => $currency)
+                                <button onclick="setCurrency('{{ $code }}')" class="block w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    {{ $code }}
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+                    
                     <button onclick="toggleCartSidebar()" class="relative text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white p-2">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>

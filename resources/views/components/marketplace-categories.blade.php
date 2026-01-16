@@ -18,7 +18,6 @@
         <div class="relative">
             <button id="mobile-categories-btn" class="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded text-gray-700 hover:bg-gray-200 text-sm font-medium" onclick="toggleMobileDropdown()">
                 All
-                <span class="text-gray-500">></span>
             </button>
             
             <!-- Mobile Categories Dropdown -->
@@ -33,15 +32,10 @@
                     @foreach($categories as $category)
                         @if($category->subcategories->count() > 0)
                             <div class="mt-2">
-                                <button class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded" onclick="toggleMobileSubcategory('dropdown-mobile-{{ $category->id }}'); setActiveMobileDropdown(this); window.filterByCategory('{{ $category->name }}')">
-                                    <span>{{ $category->name }}</span>
-                                    <svg id="dropdown-mobile-{{ $category->id }}-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
-                                </button>
-                                <div id="dropdown-mobile-{{ $category->id }}-sub" class="hidden ml-4 mt-1">
+                                <a href="#" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded" onclick="setActiveMobileDropdown(this); window.filterByCategory('{{ $category->name }}'); return false;">{{ $category->name }}</a>
+                                <div class="ml-4 mt-1 space-y-1">
                                     @foreach($category->subcategories as $subcategory)
-                                        <a href="#" class="block px-3 py-1 text-xs text-gray-600 hover:bg-gray-50 rounded" onclick="setActiveMobileDropdown(this); window.filterBySubcategory('{{ $subcategory->name }}'); return false;">{{ $subcategory->name }}</a>
+                                        <a href="#" class="block px-3 py-1 text-xs text-gray-600 hover:bg-gray-50 rounded" onclick="setActiveMobileDropdown(this); window.filterBySubcategory('{{ $subcategory->name }}'); return false;">• {{ $subcategory->name }}</a>
                                     @endforeach
                                 </div>
                             </div>
@@ -146,7 +140,7 @@
             // Search on Enter key
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    performSearch(e.target);
+                    window.performSearch(e.target);
                 }
             });
             
@@ -154,15 +148,18 @@
             let searchTimeout;
             searchInput.addEventListener('input', (e) => {
                 clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => performSearch(e.target), 300);
+                searchTimeout = setTimeout(() => window.performSearch(e.target), 300);
             });
         });
     }
     
-    // Perform search
-    function performSearch(inputElement) {
+    // Perform search - Make it globally available immediately
+    window.performSearch = function(inputElement) {
         const query = inputElement.value.trim();
         const products = window.products || [];
+        
+        console.log('Search query:', query);
+        console.log('Products available:', products.length);
         
         // Sync both search inputs
         const desktopSearch = document.getElementById('desktop-search-input');
@@ -180,14 +177,18 @@
         
         // Local search through products
         const searchResults = products.filter(product => {
-            return product.title.toLowerCase().includes(query.toLowerCase()) ||
-                   product.description.toLowerCase().includes(query.toLowerCase()) ||
-                   product.type.toLowerCase().includes(query.toLowerCase()) ||
-                   product.subcategory.toLowerCase().includes(query.toLowerCase());
+            const searchText = query.toLowerCase();
+            return product.title.toLowerCase().includes(searchText) ||
+                   product.description.toLowerCase().includes(searchText) ||
+                   product.type.toLowerCase().includes(searchText) ||
+                   (product.subcategory && product.subcategory.toLowerCase().includes(searchText)) ||
+                   (product.tags && product.tags.toLowerCase().includes(searchText));
         });
         
+        console.log('Search results:', searchResults.length);
+        
         if (window.renderProducts) window.renderProducts(searchResults);
-    }
+    };
     
     function toggleSubcategory(category) {
         const submenu = document.getElementById(category + '-sub');
@@ -264,20 +265,20 @@
     // Make sure function is available immediately
     window.toggleMobileDropdown = toggleMobileDropdown;
     
-    function toggleMobileSubcategory(category) {
-        // Find elements within the mobile dropdown specifically
-        const dropdown = document.querySelector('.lg\\:hidden #mobile-categories-dropdown-unique');
-        if (!dropdown) return;
+    function toggleMobileSubcategory(categoryId) {
+        const submenu = document.getElementById(categoryId + '-sub');
+        const icon = document.getElementById(categoryId + '-icon');
         
-        const submenu = dropdown.querySelector('#' + category + '-sub');
-        const icon = dropdown.querySelector('#' + category + '-icon');
+        if (!submenu || !icon) return;
         
-        if (submenu && submenu.classList.contains('hidden')) {
+        const isHidden = submenu.classList.contains('hidden');
+        
+        if (isHidden) {
             submenu.classList.remove('hidden');
-            if (icon) icon.style.transform = 'rotate(90deg)';
-        } else if (submenu) {
+            icon.style.transform = 'rotate(90deg)';
+        } else {
             submenu.classList.add('hidden');
-            if (icon) icon.style.transform = 'rotate(0deg)';
+            icon.style.transform = 'rotate(0deg)';
         }
     }
     

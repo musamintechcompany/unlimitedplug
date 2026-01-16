@@ -37,6 +37,9 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+        
+        // Capture session ID BEFORE creating user
+        $oldSessionId = $request->session()->getId();
 
         $user = User::create([
             'name' => $request->name,
@@ -48,8 +51,8 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
         
-        // Transfer cart items from session to user
-        $this->transferCartItems($request, $user->id);
+        // Transfer cart items from old session to user
+        $this->transferCartItems($oldSessionId, $user->id);
 
         return redirect(route('dashboard', absolute: false));
     }
@@ -57,12 +60,12 @@ class RegisteredUserController extends Controller
     /**
      * Transfer cart items from session to authenticated user
      */
-    private function transferCartItems(Request $request, $userId)
+    private function transferCartItems($sessionId, $userId)
     {
-        $sessionId = $request->session()->getId();
-        
         // Get session cart items
-        $sessionCartItems = Cart::where('session_id', $sessionId)->get();
+        $sessionCartItems = Cart::where('session_id', $sessionId)
+            ->whereNull('user_id')
+            ->get();
         
         foreach ($sessionCartItems as $sessionItem) {
             // Check if user already has this item in cart
@@ -73,6 +76,7 @@ class RegisteredUserController extends Controller
             if ($existingItem) {
                 // Merge quantities
                 $existingItem->increment('quantity', $sessionItem->quantity);
+                $sessionItem->delete();
             } else {
                 // Transfer item to user
                 $sessionItem->update([
@@ -81,8 +85,5 @@ class RegisteredUserController extends Controller
                 ]);
             }
         }
-        
-        // Clean up any remaining session cart items
-        Cart::where('session_id', $sessionId)->delete();
     }
 }

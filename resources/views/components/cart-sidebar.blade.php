@@ -4,11 +4,16 @@
         <!-- Header -->
         <div class="flex items-center justify-between p-4 border-b">
             <h2 class="text-lg font-semibold">Shopping Cart</h2>
-            <button onclick="toggleCartSidebar()" class="text-gray-500 hover:text-gray-700">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+            <div class="flex items-center gap-2">
+                <button id="clear-cart-btn" onclick="clearCart()" class="text-red-500 hover:text-red-700 text-sm font-medium hidden">
+                    Clear All
+                </button>
+                <button onclick="toggleCartSidebar()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
         
         <!-- Cart Items -->
@@ -55,11 +60,14 @@
             .then(data => {
                 const cartItems = document.getElementById('cart-items');
                 const cartTotal = document.getElementById('cart-total');
+                const clearBtn = document.getElementById('clear-cart-btn');
                 
                 if (data.items.length === 0) {
                     cartItems.innerHTML = '<p class="text-gray-500 text-center">Your cart is empty</p>';
                     cartTotal.textContent = `${data.currencySymbol || '$'}0.00`;
+                    clearBtn.classList.add('hidden');
                 } else {
+                    clearBtn.classList.remove('hidden');
                     cartItems.innerHTML = data.items.map(item => `
                         <div class="flex items-center py-3 border-b gap-3">
                             <img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded border flex-shrink-0">
@@ -136,6 +144,29 @@
             }
         })
         .catch(error => console.error('Error removing from cart:', error));
+    }
+    
+    // Clear all cart items
+    function clearCart() {
+        if (!confirm('Are you sure you want to clear all items from your cart?')) {
+            return;
+        }
+        
+        fetch('/cart/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadCartItems();
+                updateCartCount(data.cartCount);
+            }
+        })
+        .catch(error => console.error('Error clearing cart:', error));
     }
     
     // Update cart count in navigation

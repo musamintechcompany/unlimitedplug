@@ -11,6 +11,11 @@ class LoginController extends Controller
 {
     public function showLogin()
     {
+        // Redirect to dashboard if already logged in as admin
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        }
+        
         // Redirect to onboarding if no admins exist
         if (Admin::count() === 0) {
             return redirect()->route('admin.onboarding');

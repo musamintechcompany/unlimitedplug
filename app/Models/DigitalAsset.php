@@ -58,70 +58,21 @@ class DigitalAsset extends Model
 
     public function getPriceForCurrency($currencyCode)
     {
-        // First check if specific currency price exists
         $price = $this->prices()->where('currency_code', $currencyCode)->first();
-        
-        if ($price && $price->price !== null) {
-            return $price->price;
-        }
-        
-        $exchangeRate = config('payment.exchange_rate', 1500);
-        
-        // If requesting NGN but no NGN price, convert USD to NGN
-        if ($currencyCode === 'NGN') {
-            $usdPrice = $this->prices()->where('currency_code', 'USD')->first();
-            if ($usdPrice && $usdPrice->price !== null) {
-                return round($usdPrice->price * $exchangeRate, 2);
-            }
-            // Fallback: convert default price (assume USD) to NGN
-            if ($this->price) {
-                return round($this->price * $exchangeRate, 2);
-            }
-        }
-        
-        // If requesting USD but no USD price, convert NGN to USD
-        if ($currencyCode === 'USD') {
-            $ngnPrice = $this->prices()->where('currency_code', 'NGN')->first();
-            if ($ngnPrice && $ngnPrice->price !== null) {
-                return round($ngnPrice->price / $exchangeRate, 2);
-            }
-        }
-        
-        return $this->price; // Final fallback to default price
+        return $price && $price->price !== null ? $price->price : $this->price;
     }
     
     public function getListPriceForCurrency($currencyCode)
     {
-        // First check if specific currency list_price exists
-        $price = $this->prices()->where('currency_code', $currencyCode)->first();
+        $priceRecord = $this->prices()->where('currency_code', $currencyCode)->first();
         
-        if ($price && $price->list_price !== null) {
-            return $price->list_price;
+        // Only return list price if it exists for THIS specific currency
+        if ($priceRecord && $priceRecord->list_price !== null && $priceRecord->list_price > 0) {
+            return $priceRecord->list_price;
         }
         
-        $listExchangeRate = config('payment.list_exchange_rate', 1500);
-        
-        // If requesting NGN but no NGN list_price, convert USD to NGN
-        if ($currencyCode === 'NGN') {
-            $usdPrice = $this->prices()->where('currency_code', 'USD')->first();
-            if ($usdPrice && $usdPrice->list_price !== null) {
-                return round($usdPrice->list_price * $listExchangeRate, 2);
-            }
-            // Fallback: convert default list_price (assume USD) to NGN
-            if ($this->list_price) {
-                return round($this->list_price * $listExchangeRate, 2);
-            }
-        }
-        
-        // If requesting USD but no USD list_price, convert NGN to USD
-        if ($currencyCode === 'USD') {
-            $ngnPrice = $this->prices()->where('currency_code', 'NGN')->first();
-            if ($ngnPrice && $ngnPrice->list_price !== null) {
-                return round($ngnPrice->list_price / $listExchangeRate, 2);
-            }
-        }
-        
-        return $this->list_price; // Final fallback to default list_price
+        // Don't fallback to default list_price - return null if no list price for this currency
+        return null;
     }
     
     public function hasUsdPrice()
