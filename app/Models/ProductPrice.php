@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AssetPrice extends Model
+class ProductPrice extends Model
 {
     use HasUuids;
     
     protected $fillable = [
-        'asset_id',
+        'product_id',
         'currency_code',
         'price',
         'list_price'
@@ -22,8 +22,8 @@ class AssetPrice extends Model
         'list_price' => 'decimal:2'
     ];
 
-    public function asset(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(DigitalAsset::class, 'asset_id');
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

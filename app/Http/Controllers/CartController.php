@@ -3,52 +3,77 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
-use App\Models\DigitalAsset;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
     public function add(Request $request)
     {
-        $assetId = $request->input('asset_id');
-        $asset = DigitalAsset::findOrFail($assetId);
-        
-        $currency = session('currency', 'USD');
-        $price = $asset->getPriceForCurrency($currency);
-        
-        $userId = auth()->id();
-        $sessionId = session()->getId();
-        
-        // Check if item already in cart
-        $existingItem = Cart::where('digital_asset_id', $assetId)
-            ->where(function($query) use ($userId, $sessionId) {
-                if ($userId) {
-                    $query->where('user_id', $userId);
-                } else {
-                    $query->where('session_id', $sessionId);
-                }
-            })
-            ->first();
-            
-        if ($existingItem) {
-            $existingItem->increment('quantity');
-        } else {
-            Cart::create([
-                'user_id' => $userId,
-                'session_id' => $userId ? null : $sessionId,
-                'digital_asset_id' => $assetId,
-                'quantity' => 1,
-                'price' => $price,
+        try {
+            $request->validate([
+                'asset_id' => 'required|uuid|exists:products,id'
             ]);
+            
+            $assetId = $request->input('asset_id');
+            $asset = Product::with('prices')->findOrFail($assetId);
+            
+            $currency = session('currency', 'USD');
+            $price = $asset->getPriceForCurrency($currency);
+            
+            if (!$price) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Price not available for selected currency'
+                ], 400);
+            }
+            
+            $userId = auth()->id();
+            $sessionId = session()->getId();
+            
+            // Verify user exists if logged in
+            if ($userId && !\App\Models\User::find($userId)) {
+                auth()->logout();
+                $userId = null;
+            }
+            
+            // Check if item already in cart
+            $existingItem = Cart::where('product_id', $assetId)
+                ->where(function($query) use ($userId, $sessionId) {
+                    if ($userId) {
+                        $query->where('user_id', $userId);
+                    } else {
+                        $query->where('session_id', $sessionId);
+                    }
+                })
+                ->first();
+                
+            if ($existingItem) {
+                $existingItem->increment('quantity');
+            } else {
+                Cart::create([
+                    'user_id' => $userId,
+                    'session_id' => $userId ? null : $sessionId,
+                    'product_id' => $assetId,
+                    'quantity' => 1,
+                    'price' => $price,
+                ]);
+            }
+            
+            $cartCount = Cart::getCartCount($userId, $sessionId);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Item added to cart',
+                'cartCount' => $cartCount
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Cart add error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error adding item to cart: ' . $e->getMessage()
+            ], 500);
         }
-        
-        $cartCount = Cart::getCartCount($userId, $sessionId);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Item added to cart',
-            'cartCount' => $cartCount
-        ]);
     }
     
     public function getCount()
@@ -68,7 +93,7 @@ class CartController extends Controller
         $currency = session('currency', 'USD');
         $currencySymbol = config('payment.currencies.' . $currency . '.symbol');
         
-        $cartItems = Cart::with('digitalAsset.prices')
+        $cartItems = Cart::with('product.prices')
             ->where(function($query) use ($userId, $sessionId) {
                 if ($userId) {
                     $query->where('user_id', $userId);
@@ -79,8 +104,8 @@ class CartController extends Controller
             ->get();
             
         $items = $cartItems->map(function($item) use ($currency, $currencySymbol) {
-            $currentPrice = $item->digitalAsset->getPriceForCurrency($currency);
-            $asset = $item->digitalAsset;
+            $currentPrice = $item->product->getPriceForCurrency($currency);
+            $asset = $item->product;
             $image = $asset->banner ? \Storage::url($asset->banner) : ($asset->media && count($asset->media) > 0 ? \Storage::url($asset->media[0]) : 'https://via.placeholder.com/60x60?text=No+Image');
             
             return [
@@ -95,7 +120,7 @@ class CartController extends Controller
         });
         
         $total = $cartItems->sum(function($item) use ($currency) {
-            $currentPrice = $item->digitalAsset->getPriceForCurrency($currency);
+            $currentPrice = $item->product->getPriceForCurrency($currency);
             return $currentPrice * $item->quantity;
         });
         
@@ -178,7 +203,7 @@ class CartController extends Controller
         foreach ($guestCartItems as $guestItem) {
             // Check if user already has this item
             $existingItem = Cart::where('user_id', $userId)
-                ->where('digital_asset_id', $guestItem->digital_asset_id)
+                ->where('product_id', $guestItem->product_id)
                 ->first();
             
             if ($existingItem) {

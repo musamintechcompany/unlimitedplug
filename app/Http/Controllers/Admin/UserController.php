@@ -10,10 +10,30 @@ use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::latest()->paginate(20);
+        $query = User::latest();
+        
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%')
+                  ->orWhere('username', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        $users = $query->paginate(20)->withQueryString();
         return view('management.portal.admin.users.index', compact('users'));
+    }
+
+    public function show(User $user)
+    {
+        $user->load(['products', 'orders.orderItems.product']);
+        return view('management.portal.admin.users.show', compact('user'));
     }
 
     public function store(Request $request)

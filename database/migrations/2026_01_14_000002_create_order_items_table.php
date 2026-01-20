@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('order_id');
-            $table->uuid('digital_asset_id')->nullable();
-            $table->string('asset_name'); // Store name in case asset is deleted
+            $table->uuid('product_id')->nullable();
+            $table->string('product_name'); // Store name in case product is deleted
             $table->integer('quantity')->default(1);
             $table->decimal('price', 10, 2); // Price at time of purchase
             $table->integer('download_count')->default(0);
@@ -20,9 +20,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->foreign('digital_asset_id')->references('id')->on('digital_assets')->onDelete('set null');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('set null');
             $table->index('order_id');
-            $table->index('digital_asset_id');
+            $table->index('product_id');
         });
     }
 

@@ -1,8 +1,5 @@
-@extends('management.portal.admin.layout')
-
-@section('content')
-<div class="py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<x-admin.app-layout>
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-gray-900">Payment History</h1>
             <p class="text-gray-600">View all payment transactions</p>
@@ -19,9 +16,9 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reference</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Currency</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment Method</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                             </tr>
@@ -37,10 +34,17 @@
                                         {{ $payment->payment_id }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                        {{ number_format($payment->amount, 2) }}
+                                        @php
+                                            $currencySymbol = config('payment.currencies.' . $payment->currency . '.symbol', '$');
+                                        @endphp
+                                        {{ $currencySymbol }}{{ number_format($payment->amount, 2) }} {{ $payment->currency }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $payment->currency }}
+                                        @php
+                                            $order = $payment->user ? $payment->user->orders()->where('payment_id', $payment->id)->first() : null;
+                                            $paymentMethod = $order ? ucfirst($order->payment_method) : 'N/A';
+                                        @endphp
+                                        {{ $paymentMethod }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($payment->status === 'confirmed')
@@ -66,5 +70,4 @@
             @endif
         </div>
     </div>
-</div>
-@endsection
+</x-admin.app-layout>

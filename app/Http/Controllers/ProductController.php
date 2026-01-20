@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DigitalAsset;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class DigitalAssetController extends Controller
+class ProductController extends Controller
 {
     public function index()
     {
-        $assets = auth()->user()->digitalAssets()->latest()->paginate(12);
-        return view('digital-assets.index', compact('assets'));
+        $assets = auth()->user()->products()->latest()->paginate(12);
+        return view('products.index', compact('assets'));
     }
 
     public function create()
     {
-        return view('digital-assets.create');
+        return view('products.create');
     }
 
     public function store(Request $request)
@@ -56,7 +56,7 @@ class DigitalAssetController extends Controller
             $downloadPath = $request->file('download_file')->store('assets/downloads', 'private');
         }
 
-        $asset = DigitalAsset::create([
+        $asset = Product::create([
             'user_id' => auth()->id(),
             'name' => $validated['title'],
             'description' => $validated['description'],
@@ -90,28 +90,28 @@ class DigitalAssetController extends Controller
             ]);
         }
 
-        return redirect()->route('digital-assets.index')->with('success', 'Digital asset created successfully!');
+        return redirect()->route('products.index')->with('success', 'Product created successfully!');
     }
 
-    public function show(DigitalAsset $digitalAsset)
+    public function show(Product $product)
     {
-        return view('digital-assets.show', compact('digitalAsset'));
+        return view('products.show', compact('product'));
     }
 
-    public function edit(DigitalAsset $digitalAsset)
+    public function edit(Product $product)
     {
-        $this->authorize('update', $digitalAsset);
+        $this->authorize('update', $product);
         
         // Load existing pricing data
-        $usdPricing = $digitalAsset->prices()->where('currency_code', 'USD')->first();
-        $ngnPricing = $digitalAsset->prices()->where('currency_code', 'NGN')->first();
+        $usdPricing = $product->prices()->where('currency_code', 'USD')->first();
+        $ngnPricing = $product->prices()->where('currency_code', 'NGN')->first();
         
-        return view('digital-assets.edit', compact('digitalAsset', 'usdPricing', 'ngnPricing'));
+        return view('products.edit', compact('product', 'usdPricing', 'ngnPricing'));
     }
 
-    public function update(Request $request, DigitalAsset $digitalAsset)
+    public function update(Request $request, Product $product)
     {
-        $this->authorize('update', $digitalAsset);
+        $this->authorize('update', $product);
         
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -128,7 +128,7 @@ class DigitalAssetController extends Controller
             'requirements' => 'nullable|string',
         ]);
 
-        $digitalAsset->update([
+        $product->update([
             'name' => $validated['title'],
             'description' => $validated['description'],
             'type' => $validated['type'],
@@ -142,7 +142,7 @@ class DigitalAssetController extends Controller
         ]);
         
         // Update USD pricing
-        $digitalAsset->prices()->updateOrCreate(
+        $product->prices()->updateOrCreate(
             ['currency_code' => 'USD'],
             [
                 'price' => $validated['usd_price'],
@@ -152,7 +152,7 @@ class DigitalAssetController extends Controller
         
         // Update NGN pricing
         if ($validated['ngn_price'] || $validated['ngn_list_price']) {
-            $digitalAsset->prices()->updateOrCreate(
+            $product->prices()->updateOrCreate(
                 ['currency_code' => 'NGN'],
                 [
                     'price' => $validated['ngn_price'],
@@ -161,31 +161,31 @@ class DigitalAssetController extends Controller
             );
         } else {
             // Remove NGN pricing if both fields are empty
-            $digitalAsset->prices()->where('currency_code', 'NGN')->delete();
+            $product->prices()->where('currency_code', 'NGN')->delete();
         }
 
-        return redirect()->route('digital-assets.index')->with('success', 'Digital asset updated successfully!');
+        return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
 
-    public function destroy(DigitalAsset $digitalAsset)
+    public function destroy(Product $product)
     {
-        $this->authorize('delete', $digitalAsset);
+        $this->authorize('delete', $product);
         
         // Delete files
-        if ($digitalAsset->preview_image) {
-            Storage::disk('public')->delete($digitalAsset->preview_image);
+        if ($product->preview_image) {
+            Storage::disk('public')->delete($product->preview_image);
         }
-        if ($digitalAsset->gallery_images) {
-            foreach ($digitalAsset->gallery_images as $image) {
+        if ($product->gallery_images) {
+            foreach ($product->gallery_images as $image) {
                 Storage::disk('public')->delete($image);
             }
         }
-        if ($digitalAsset->download_file) {
-            Storage::disk('private')->delete($digitalAsset->download_file);
+        if ($product->download_file) {
+            Storage::disk('private')->delete($product->download_file);
         }
 
-        $digitalAsset->delete();
+        $product->delete();
 
-        return redirect()->route('digital-assets.index')->with('success', 'Digital asset deleted successfully!');
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
     }
 }

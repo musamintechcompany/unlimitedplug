@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class DigitalAsset extends Model
+class Product extends Model
 {
     use HasFactory, HasUuids;
 
@@ -29,6 +29,9 @@ class DigitalAsset extends Model
         'status',
         'is_featured',
         'badge',
+        'admin_id',
+        'reviewed_at',
+        'downloads',
     ];
 
     protected $casts = [
@@ -53,7 +56,34 @@ class DigitalAsset extends Model
 
     public function prices()
     {
-        return $this->hasMany(AssetPrice::class, 'asset_id');
+        return $this->hasMany(ProductPrice::class, 'product_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews()
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
+    public function getAverageRating()
+    {
+        $approved = $this->approvedReviews()->get();
+        if ($approved->isEmpty()) return 0;
+        
+        $sum = $approved->sum(function($review) {
+            return $review->review_data['rating'] ?? 0;
+        });
+        
+        return round($sum / $approved->count(), 1);
+    }
+
+    public function getReviewCount()
+    {
+        return $this->approvedReviews()->count();
     }
 
     public function getPriceForCurrency($currencyCode)

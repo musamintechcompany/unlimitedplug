@@ -95,13 +95,27 @@ class PaystackController extends Controller
             $data = $response->json();
             
             if ($data['data']['status'] === 'success') {
-                // Payment successful - create order and clear cart
-                $this->createOrder($data['data']);
-                $this->clearUserCart();
-                return redirect()->route('checkout.success')->with('success', 'Payment successful!');
+                // Check if order already exists
+                $existingOrder = Order::where('transaction_reference', $reference)->first();
+                
+                if (!$existingOrder) {
+                    // Payment successful - create order and clear cart
+                    $order = $this->createOrder($data['data']);
+                    if ($order) {
+                        $this->clearUserCart();
+                        session(['payment_success' => true]);
+                        return redirect()->route('checkout.success')->with('success', 'Payment successful!');
+                    }
+                } else {
+                    // Order already processed
+                    $this->clearUserCart();
+                    session(['payment_success' => true]);
+                    return redirect()->route('checkout.success')->with('success', 'Payment already processed!');
+                }
             }
         }
 
+        session(['payment_failed' => true]);
         return redirect()->route('checkout')->with('error', 'Payment verification failed');
     }
 
@@ -148,7 +162,7 @@ class PaystackController extends Controller
         }
 
         // Get cart items
-        $cartItems = Cart::with('digitalAsset')
+        $cartItems = Cart::with('product')
             ->where('user_id', $userId)
             ->get();
 
@@ -184,14 +198,15 @@ class PaystackController extends Controller
             'payment_method' => 'paystack',
             'payment_status' => 'completed',
             'status' => 'completed',
+            'transaction_reference' => $paymentData['reference'],
         ]);
 
         // Create order items
         foreach ($cartItems as $cartItem) {
             OrderItem::create([
                 'order_id' => $order->id,
-                'digital_asset_id' => $cartItem->digital_asset_id,
-                'asset_name' => $cartItem->digitalAsset->name,
+                'product_id' => $cartItem->product_id,
+                'product_name' => $cartItem->product->name,
                 'quantity' => $cartItem->quantity,
                 'price' => $cartItem->price,
             ]);
@@ -203,7 +218,13 @@ class PaystackController extends Controller
         $order->load(['user', 'items']);
         
         // Send purchase confirmation email
-        Mail::to($order->user->email)->send(new PurchaseConfirmation($order));
+        try {
+            Mail::to($order->user->email)->send(new PurchaseConfirmation($order));
+        } catch (\Exception $e) {
+            Log::error('Failed to send email: ' . $e->getMessage());
+        }
+        
+        return $order;
     }
     
     private function clearUserCart()

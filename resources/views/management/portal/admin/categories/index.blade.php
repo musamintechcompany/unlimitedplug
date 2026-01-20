@@ -1,5 +1,5 @@
 <x-admin.app-layout>
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <div class="mb-6 md:mb-8">
         <div class="flex flex-col space-y-4 md:flex-row md:justify-between md:items-center md:space-y-0">
             <div>

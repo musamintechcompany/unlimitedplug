@@ -1,14 +1,16 @@
 <x-marketplace-layout>
-    <x-slot name="title">MarketPlace - Unlimited Plug</x-slot>
-    <x-slot name="description">Browse and purchase software, templates, and digital products on Unlimited Plug marketplace.</x-slot>
+    <x-slot name="title">Premium Digital Products Marketplace</x-slot>
+    <x-slot name="description">Browse and purchase premium software, digital assets, and innovative solutions. Find ready-to-use products, tools, plugins and more to enhance your projects.</x-slot>
+    <x-slot name="keywords">digital products, software, digital assets, marketplace, tools, apps, plugins, premium</x-slot>
+    <x-slot name="type">website</x-slot>
 
     <!-- Hero Section -->
     <section class="relative bg-gradient-to-b from-blue-900 via-blue-900 to-gray-900 text-white py-20">
         <div class="absolute inset-0 bg-black opacity-20"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl font-bold mb-6">Premium Digital Products for Your Projects</h1>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Explore. Discover. Collect.</h1>
             <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto opacity-90">
-                Discover our collection of ready-to-use websites, apps, templates, and plugins to kickstart your online presence.
+                Browse unique items from creators worldwide. Find what you need, discover what you love, and be part of a growing community.
             </p>
         </div>
     </section>
@@ -65,7 +67,16 @@
         
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            renderProducts(products);
+            // Check if category was selected from home page
+            const selectedCategory = sessionStorage.getItem('selectedCategory');
+            if (selectedCategory) {
+                // Clear the stored category
+                sessionStorage.removeItem('selectedCategory');
+                // Filter by that category
+                filterByCategory(selectedCategory);
+            } else {
+                renderProducts(products);
+            }
         });
 
         // Render products
@@ -91,32 +102,48 @@
             card.className = 'bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer';
             
             const starsHTML = createStarsHTML(product.rating);
-            const badgeHTML = product.badge ? `<span class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs font-bold rounded">${product.badge}</span>` : '';
+            const badgeHTML = product.badge ? `<span class="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 text-xs font-bold rounded">${product.badge}</span>` : '';
             const percentageOffHTML = product.percentageOff ? `<span class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 text-xs font-bold rounded">${product.percentageOff}% OFF</span>` : '';
             
             card.innerHTML = `
-                <div class="relative">
+                <div class="relative aspect-video">
                     ${percentageOffHTML}
                     ${badgeHTML}
-                    <img src="${product.image}" alt="${product.title}" class="w-full h-40 object-cover">
+                    <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover">
                 </div>
                 <div class="p-3">
-                    <span class="text-xs font-semibold text-blue-600 uppercase tracking-wide">${product.type}</span>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mt-1 mb-2">${product.title}</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">${product.description}</p>
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-1">${product.title}</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs mb-2 line-clamp-2">${product.description}</p>
                     <div class="flex items-center justify-between mb-3">
+                        ${product.reviews > 0 ? `
                         <div class="flex items-center">
                             ${starsHTML}
                             <span class="text-sm text-gray-500 ml-1">(${product.reviews})</span>
                         </div>
+                        ` : '<div></div>'}
                         <div class="text-right">
                             ${product.oldPrice ? `<span class="text-sm text-gray-500 line-through">${product.currencySymbol}${product.oldPrice}</span>` : ''}
                             <div class="text-lg font-bold text-blue-600">${product.currencySymbol}${product.price}</div>
                         </div>
                     </div>
-                    <button onclick="addToCart('${product.id}'); event.stopPropagation();" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded text-sm font-medium transition-colors">
-                        Add to Cart
-                    </button>
+                    ${product.demo_url ? `
+                        <div class="space-y-1.5">
+                            <a href="${product.demo_url}" target="_blank" onclick="event.stopPropagation();" class="w-full border border-gray-300 hover:bg-gray-50 text-gray-700 py-1.5 px-3 rounded text-xs font-medium transition-colors flex items-center justify-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                Preview
+                            </a>
+                            <button onclick="addToCart('${product.id}'); event.stopPropagation();" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded text-xs font-medium transition-colors">
+                                Add to Cart
+                            </button>
+                        </div>
+                    ` : `
+                        <button onclick="addToCart('${product.id}'); event.stopPropagation();" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded text-xs font-medium transition-colors">
+                            Add to Cart
+                        </button>
+                    `}
                 </div>
             `;
             

@@ -1,14 +1,63 @@
 <x-admin.app-layout>
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="mb-8 flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">User Management</h1>
-            <p class="text-gray-600 mt-2">Manage all users in the system</p>
+<div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
+                <p class="text-gray-600 mt-2">Manage all users in the system</p>
+            </div>
+            <button onclick="openCreateUserModal()" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
+                + Create User
+            </button>
         </div>
-        <button onclick="openCreateUserModal()" 
-                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-            Create User
-        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <x-widgets.stats.total-users />
+        <x-widgets.stats.active-users />
+        <x-widgets.stats.pending-users />
+        <x-widgets.stats.suspended-users />
+    </div>
+
+    <!-- Search and Filter -->
+    <div id="filters" class="flex flex-col sm:flex-row gap-4 mb-6">
+        <div class="flex-1">
+            <form method="GET" action="{{ route('admin.users.index') }}#filters">
+                <input type="hidden" name="status" value="{{ request('status') }}">
+                <div class="relative">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search users..." 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </form>
+        </div>
+        <div x-data="{ open: false }" class="relative">
+            <button @click="open = !open" type="button"
+                    class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white flex items-center justify-between gap-2">
+                <span>{{ request('status') ? ucfirst(request('status')) : 'All Status' }}</span>
+                <svg class="w-4 h-4 text-gray-600 transition-transform duration-200" :class="open ? 'rotate-90' : ''"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+            <div x-show="open" @click.away="open = false" x-transition
+                 class="absolute left-0 sm:right-0 sm:left-auto mt-2 w-full sm:w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                <a href="{{ route('admin.users.index', ['search' => request('search')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Status</a>
+                <a href="{{ route('admin.users.index', ['status' => 'pending', 'search' => request('search')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pending</a>
+                <a href="{{ route('admin.users.index', ['status' => 'active', 'search' => request('search')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Active</a>
+                <a href="{{ route('admin.users.index', ['status' => 'suspended', 'search' => request('search')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Suspended</a>
+                <a href="{{ route('admin.users.index', ['status' => 'blocked', 'search' => request('search')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Blocked</a>
+            </div>
+        </div>
     </div>
 
     <!-- Users Table -->
@@ -17,29 +66,29 @@
             <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assets</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">User</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Assets</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Joined</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($users as $user)
+                @forelse($users as $user)
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-6 py-4 whitespace-nowrap border-r border-gray-200">
                         <div class="flex items-center">
-                            <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                            <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
                                 <span class="text-sm font-medium text-gray-700">{{ substr($user->name, 0, 2) }}</span>
                             </div>
-                            <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                <div class="text-sm text-gray-500">{{ $user->email }}</div>
-                                <div class="text-xs text-gray-400">@{{ $user->username }}</div>
+                            <div class="ml-4 min-w-0 flex-1">
+                                <div class="text-sm font-medium text-gray-900 truncate">{{ $user->name }}</div>
+                                <div class="text-sm text-gray-500 truncate">{{ $user->email }}</div>
+                                <div class="text-xs text-gray-400 truncate">{{ '@' . $user->username }}</div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-6 py-4 whitespace-nowrap border-r border-gray-200">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                             @if($user->status === 'active') bg-green-100 text-green-800
                             @elseif($user->status === 'pending') bg-yellow-100 text-yellow-800
@@ -48,13 +97,14 @@
                             {{ ucfirst($user->status) }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ $user->digitalAssets()->count() }}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                        {{ $user->products()->count() }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
                         {{ $user->created_at->format('M d, Y') }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{{ route('admin.users.show', $user) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">View</a>
                         <button onclick="editUser('{{ $user->id }}', '{{ $user->name }}', '{{ $user->email }}', '{{ $user->status }}')" 
                                 class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
                         <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="inline">
@@ -64,7 +114,13 @@
                         </form>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                        No users found.
+                    </td>
+                </tr>
+                @endforelse
             </tbody>
             </table>
         </div>

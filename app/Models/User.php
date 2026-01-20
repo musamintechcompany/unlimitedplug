@@ -99,9 +99,9 @@ class User extends Authenticatable implements MustVerifyEmail
         Mail::to($this->email)->send(new EmailVerificationCode($code));
     }
 
-    public function digitalAssets()
+    public function products()
     {
-        return $this->hasMany(DigitalAsset::class);
+        return $this->hasMany(Product::class);
     }
 
     public function orders()

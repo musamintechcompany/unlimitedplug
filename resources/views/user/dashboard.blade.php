@@ -3,7 +3,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Welcome Section -->
             <div class="pb-6 border-b border-gray-200">
-                <h1 class="text-3xl font-bold text-gray-900">Welcome back, {{ auth()->user()->name }}!</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Welcome back, {{ auth()->user()->name }}!</h1>
                 <p class="mt-2 text-gray-600">You have <span class="font-semibold text-blue-600">{{ $totalPurchases }}</span> {{ Str::plural('purchase', $totalPurchases) }}</p>
             </div>
 
@@ -19,28 +19,12 @@
                         <h3 class="font-semibold text-gray-900 text-sm">Browse Marketplace</h3>
                     </a>
 
-                    <!-- Software -->
-                    <a href="{{ route('software') }}" class="flex-shrink-0 w-40 p-6 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition">
-                        <svg class="w-8 h-8 text-green-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
-                        </svg>
-                        <h3 class="font-semibold text-gray-900 text-sm">Software</h3>
-                    </a>
-
                     <!-- My Purchases -->
                     <a href="{{ route('purchases.index') }}" class="flex-shrink-0 w-40 p-6 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition">
                         <svg class="w-8 h-8 text-purple-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                         </svg>
                         <h3 class="font-semibold text-gray-900 text-sm">My Purchases</h3>
-                    </a>
-
-                    <!-- How It Works -->
-                    <a href="{{ route('how-it-works') }}" class="flex-shrink-0 w-40 p-6 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition">
-                        <svg class="w-8 h-8 text-orange-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <h3 class="font-semibold text-gray-900 text-sm">How It Works</h3>
                     </a>
 
                     <!-- Account Settings -->
@@ -67,9 +51,9 @@
                                 <div class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:border-blue-500 transition">
                                     <!-- Thumbnail -->
                                     <div class="flex-shrink-0">
-                                        @if($item->digitalAsset && $item->digitalAsset->banner)
-                                            <img src="{{ Storage::url($item->digitalAsset->banner) }}" 
-                                                 alt="{{ $item->asset_name }}" 
+                                        @if($item->product && $item->product->banner)
+                                            <img src="{{ Storage::url($item->product->banner) }}" 
+                                                 alt="{{ $item->product_name }}" 
                                                  class="w-16 h-16 object-cover rounded border">
                                         @else
                                             <div class="w-16 h-16 bg-gray-200 rounded border flex items-center justify-center">
@@ -82,13 +66,13 @@
 
                                     <!-- Details -->
                                     <div class="flex-1 min-w-0">
-                                        <h4 class="font-semibold text-gray-900 truncate">{{ $item->asset_name }}</h4>
+                                        <h4 class="font-semibold text-gray-900 truncate">{{ $item->product_name }}</h4>
                                         <p class="text-sm text-gray-500">{{ $order->created_at->format('M d, Y') }}</p>
                                     </div>
 
                                     <!-- Action -->
-                                    @if($item->digitalAsset)
-                                        <a href="{{ route('purchases.show', $item->digitalAsset->id) }}" 
+                                    @if($item->product)
+                                        <a href="{{ route('purchases.show', $item->product->id) }}" 
                                            class="flex-shrink-0 text-blue-600 hover:text-blue-800 text-sm font-medium">
                                             View →
                                         </a>

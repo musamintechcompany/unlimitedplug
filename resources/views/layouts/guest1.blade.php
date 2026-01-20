@@ -5,7 +5,19 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <!-- SEO Meta Tags -->
+        <x-seo 
+            :title="$title ?? null"
+            :description="$description ?? null"
+            :keywords="$keywords ?? null"
+            :image="$image ?? null"
+            :url="$url ?? null"
+            :type="$type ?? 'website'"
+        />
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{{ asset('images/logos/favicon.png') }}">
+        <link rel="shortcut icon" type="image/png" href="{{ asset('images/logos/favicon.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

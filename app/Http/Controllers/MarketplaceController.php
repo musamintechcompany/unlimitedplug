@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DigitalAsset;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,7 +13,7 @@ class MarketplaceController extends Controller
         $currency = session('currency', 'USD');
         $currencySymbol = config('payment.currencies.' . $currency . '.symbol');
         
-        $assets = DigitalAsset::with(['category', 'prices'])
+        $assets = Product::with(['category', 'prices'])
             ->where('status', 'approved')
             ->orderBy('is_featured', 'desc')
             ->orderBy('created_at', 'desc')
@@ -44,10 +44,11 @@ class MarketplaceController extends Controller
                 'currencySymbol' => $currencySymbol,
                 'oldPrice' => $listPrice ? (float) $listPrice : null,
                 'percentageOff' => $percentageOff,
-                'rating' => 4.5,
-                'reviews' => $asset->downloads,
+                'rating' => $asset->getAverageRating(),
+                'reviews' => $asset->getReviewCount(),
                 'image' => $asset->banner ? Storage::url($asset->banner) : ($asset->media && count($asset->media) > 0 ? Storage::url($asset->media[0]) : 'https://via.placeholder.com/400x300?text=No+Image'),
-                'badge' => $badge
+                'badge' => $badge,
+                'demo_url' => $asset->demo_url
             ];
         });
             
@@ -60,7 +61,7 @@ class MarketplaceController extends Controller
         $currency = session('currency', 'USD');
         $currencySymbol = config('payment.currencies.' . $currency . '.symbol');
         
-        $products = DigitalAsset::where('status', 'approved')
+        $products = Product::where('status', 'approved')
             ->when($query, function($q) use ($query) {
                 $q->where(function($subQuery) use ($query) {
                     $subQuery->where('name', 'like', "%{$query}%")
@@ -85,8 +86,8 @@ class MarketplaceController extends Controller
                     'currency' => $currency,
                     'currencySymbol' => $currencySymbol,
                     'oldPrice' => $listPrice ? (float) $listPrice : null,
-                    'rating' => 4.5,
-                    'reviews' => $asset->downloads,
+                    'rating' => $asset->getAverageRating(),
+                    'reviews' => $asset->getReviewCount(),
                     'image' => $asset->banner ? Storage::url($asset->banner) : ($asset->media && count($asset->media) > 0 ? Storage::url($asset->media[0]) : 'https://via.placeholder.com/400x300?text=No+Image'),
                     'badge' => $asset->badge ? strtoupper($asset->badge) : null
                 ];
@@ -100,7 +101,7 @@ class MarketplaceController extends Controller
         $currency = session('currency', 'USD');
         $currencySymbol = config('payment.currencies.' . $currency . '.symbol');
         
-        $asset = DigitalAsset::where('status', 'approved')->findOrFail($id);
+        $asset = Product::where('status', 'approved')->findOrFail($id);
         
         $price = $asset->getPriceForCurrency($currency);
         $listPrice = $asset->getListPriceForCurrency($currency);
@@ -115,8 +116,8 @@ class MarketplaceController extends Controller
             'currency' => $currency,
             'currencySymbol' => $currencySymbol,
             'oldPrice' => $listPrice ? (float) $listPrice : null,
-            'rating' => 4.5,
-            'reviews' => $asset->downloads,
+            'rating' => $asset->getAverageRating(),
+            'reviews' => $asset->getReviewCount(),
             'image' => $asset->banner ? Storage::url($asset->banner) : ($asset->media && count($asset->media) > 0 ? Storage::url($asset->media[0]) : 'https://via.placeholder.com/400x300?text=No+Image'),
             'allImages' => array_merge(
                 $asset->banner ? [Storage::url($asset->banner)] : [],
@@ -128,6 +129,15 @@ class MarketplaceController extends Controller
             'badge' => $asset->is_featured ? 'FEATURED' : ($asset->list_price && $asset->list_price > $asset->price ? 'SALE' : null)
         ];
         
-        return view('marketplace.product-detail', compact('product'));
+        $reviews = $asset->approvedReviews()->with('user')->latest()->get()->map(function($review) {
+            return [
+                'user_name' => $review->user->name,
+                'rating' => $review->review_data['rating'] ?? 0,
+                'comment' => $review->review_data['comment'] ?? '',
+                'created_at' => $review->created_at->format('M d, Y')
+            ];
+        });
+        
+        return view('marketplace.product-detail', compact('product', 'reviews'));
     }
 }

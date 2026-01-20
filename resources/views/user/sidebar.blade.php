@@ -8,26 +8,26 @@
         <span class="ml-2 text-xl font-bold text-gray-800 truncate">{{ config('app.name') }}</span>
     </div>
     <nav class="mt-6 flex-1">
-        <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 text-gray-700 bg-gray-100 border-r-4 border-blue-500">
+        <a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('dashboard') ? 'text-gray-700 bg-gray-100 border-r-4 border-blue-500' : 'text-gray-600 hover:bg-gray-100' }}">
             <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
             </svg>
             Dashboard
         </a>
-        <a href="{{ route('marketplace') }}" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100">
+        <a href="{{ route('marketplace') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('marketplace') ? 'text-gray-700 bg-gray-100 border-r-4 border-blue-500' : 'text-gray-600 hover:bg-gray-100' }}">
             <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 6.707 6.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l4-4z"></path>
             </svg>
             Marketplace
         </a>
-        <a href="{{ route('purchases.index') }}" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100">
+        <a href="{{ route('purchases.index') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('purchases.*') ? 'text-gray-700 bg-gray-100 border-r-4 border-blue-500' : 'text-gray-600 hover:bg-gray-100' }}">
             <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
             </svg>
             My Purchases
         </a>
 
-        <a href="{{ route('profile.edit') }}" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100">
+        <a href="{{ route('profile.edit') }}" class="flex items-center px-6 py-3 {{ request()->routeIs('profile.*') ? 'text-gray-700 bg-gray-100 border-r-4 border-blue-500' : 'text-gray-600 hover:bg-gray-100' }}">
             <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
             </svg>

@@ -1,6 +1,8 @@
 <x-guest1-layout>
-    <x-slot name="title">Unlimited Plug - Your Gateway to Everything</x-slot>
-    <x-slot name="description">Unlimited Plug - A versatile platform that handles everything you need and more. Built for the future.</x-slot>
+    <x-slot name="title">Unlimited Plug - Premium Digital Products & Software Marketplace</x-slot>
+    <x-slot name="description">Your gateway to premium digital products. Buy software, digital assets, and innovative solutions with crypto payments. Modern platform with unlimited possibilities.</x-slot>
+    <x-slot name="keywords">digital marketplace, software, digital products, crypto payments, premium products, unlimited plug</x-slot>
+    <x-slot name="type">website</x-slot>
 
     @if (!file_exists(public_path('build/manifest.json')) && !file_exists(public_path('hot')))
             <style>
@@ -16,68 +18,148 @@
                     <div class="mb-12">
                         <h1 class="text-4xl md:text-5xl font-bold mb-6">
                             <span class="bg-gradient-to-r from-blue-200 via-purple-200 to-blue-100 bg-clip-text text-transparent">
-                                Unlimited
+                                Unlimited Plug
                             </span>
-                            <span class="text-white ml-2">Possibilities</span>
+                            <span class="text-white ml-2" id="typing-text">Unlimited Possibilities</span><span class="text-white" id="cursor">|</span>
                         </h1>
                         <p class="text-base md:text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-                            Your gateway to everything. A versatile platform built to handle anything you need, 
-                            with crypto payments, modern features, and unlimited potential.
+                            A global online marketplace where people come together to buy and collect unique items. 
+                            We're also a community pushing for positive change, connecting creators with buyers, 
+                            fostering innovation, and building opportunities for everyone to discover, trade, and grow.
                         </p>
                     </div>
 
-                    <!-- Services Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-md mx-auto">
-                        <!-- Software -->
-                        <a href="{{ route('software') }}" class="text-center block hover:transform hover:scale-105 transition-all duration-200 cursor-pointer">
-                            <div class="w-16 h-16 bg-slate-600 rounded-xl flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2">Software</h3>
-                            <p class="text-sm text-gray-200">Buy and rent software</p>
-                        </a>
+                    <script>
+                        const phrases = [
+                            'Unlimited Possibilities',
+                            'Your Platform For Everything'
+                        ];
+                        let phraseIndex = 0;
+                        let charIndex = 0;
+                        let isDeleting = false;
+                        const typingElement = document.getElementById('typing-text');
+                        const cursorElement = document.getElementById('cursor');
+                        const typingSpeed = 100;
+                        const deletingSpeed = 50;
+                        const pauseTime = 3000;
 
-                        <!-- Templates -->
-                        <a href="#" class="text-center block hover:transform hover:scale-105 transition-all duration-200 cursor-pointer">
-                            <div class="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-3">
-                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2">Templates</h3>
-                            <p class="text-sm text-gray-200">Browse multiple templates</p>
-                        </a>
-                    </div>
+                        // Blinking cursor
+                        setInterval(() => {
+                            cursorElement.style.opacity = cursorElement.style.opacity === '0' ? '1' : '0';
+                        }, 500);
+
+                        function type() {
+                            const currentPhrase = phrases[phraseIndex];
+                            
+                            if (isDeleting) {
+                                typingElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                                charIndex--;
+                            } else {
+                                typingElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                                charIndex++;
+                            }
+
+                            let speed = isDeleting ? deletingSpeed : typingSpeed;
+
+                            if (!isDeleting && charIndex === currentPhrase.length) {
+                                speed = pauseTime;
+                                isDeleting = true;
+                            } else if (isDeleting && charIndex === 0) {
+                                isDeleting = false;
+                                phraseIndex = (phraseIndex + 1) % phrases.length;
+                                speed = 500;
+                            }
+
+                            setTimeout(type, speed);
+                        }
+
+                        document.addEventListener('DOMContentLoaded', () => {
+                            setTimeout(type, 1000);
+                        });
+                    </script>
 
 
                 </div>
             </section>
 
             <!-- Products by Category Section -->
-            <section class="py-20 bg-white dark:bg-gray-900">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-                    @forelse($categorizedProducts as $type => $products)
-                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ ucfirst($type) }}</h2>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                @foreach($products as $product)
-                                    <a href="{{ route('product.detail', $product['id']) }}" class="block group">
-                                        <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-40 object-cover rounded-lg mb-2 group-hover:opacity-75 transition">
-                                        <h3 class="text-sm font-medium text-gray-900 dark:text-white line-clamp-2 mb-1">{{ $product['title'] }}</h3>
-                                        <div class="text-lg font-bold text-blue-600">{{ $product['currencySymbol'] }}{{ number_format($product['price'], 2) }}</div>
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-center">
-                            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Coming Soon</h2>
+            <section class="py-20 bg-gray-100 dark:bg-gray-900">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    @if($categorizedProducts->isEmpty())
+                        <!-- Empty state -->
+                        <div class="text-center py-12">
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Coming Soon</h3>
                             <p class="text-gray-600 dark:text-gray-400">Exciting products will be available here soon!</p>
                         </div>
-                    @endforelse
+                    @else
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            @foreach($categorizedProducts as $categoryName => $products)
+                                @php
+                                    $productCount = $products->count();
+                                @endphp
+                                
+                                <!-- Card with dynamic grid based on product count -->
+                                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col justify-between min-h-[420px]">
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">{{ $categoryName }}</h3>
+                                        
+                                        @if($productCount == 1)
+                                            <!-- Single product - large image -->
+                                            <a href="{{ route('product.detail', $products->first()['id']) }}" class="block mb-4">
+                                                <img src="{{ $products->first()['image'] }}" alt="{{ $products->first()['title'] }}" class="w-full h-64 object-cover rounded">
+                                            </a>
+                                        @elseif($productCount == 2)
+                                            <!-- Two products - 2 column grid -->
+                                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                                @foreach($products as $product)
+                                                    <a href="{{ route('product.detail', $product['id']) }}" class="block">
+                                                        <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-32 object-cover rounded mb-2">
+                                                        <span class="text-xs text-gray-700 dark:text-gray-300 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        @elseif($productCount == 3)
+                                            <!-- Three products - first large, then 2 small -->
+                                            <div class="mb-4">
+                                                <a href="{{ route('product.detail', $products->first()['id']) }}" class="block mb-3">
+                                                    <img src="{{ $products->first()['image'] }}" alt="{{ $products->first()['title'] }}" class="w-full h-40 object-cover rounded">
+                                                </a>
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    @foreach($products->skip(1) as $product)
+                                                        <a href="{{ route('product.detail', $product['id']) }}" class="block">
+                                                            <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-24 object-cover rounded mb-1">
+                                                            <span class="text-xs text-gray-700 dark:text-gray-300 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
+                                                        </a>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @else
+                                            <!-- Four or more products - 2x2 grid -->
+                                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                                @foreach($products->take(4) as $product)
+                                                    <a href="{{ route('product.detail', $product['id']) }}" class="block">
+                                                        <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-28 object-cover rounded mb-2">
+                                                        <span class="text-xs text-gray-700 dark:text-gray-300 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <a href="javascript:void(0)" onclick="filterByCategory('{{ $categoryName }}')" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Explore {{ $categoryName }}</a>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </section>
+            
+            <script>
+                function filterByCategory(category) {
+                    // Store category in sessionStorage
+                    sessionStorage.setItem('selectedCategory', category);
+                    // Redirect to marketplace
+                    window.location.href = '{{ route("marketplace") }}';
+                }
+            </script>
     </div>
 </x-guest1-layout>

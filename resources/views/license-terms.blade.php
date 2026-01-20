@@ -7,7 +7,7 @@
                     
                     <div class="prose max-w-none">
                         <p class="text-lg text-gray-600 mb-8">
-                            When you buy something from UnlimitedPlug, you get a <strong>Regular License</strong>. 
+                            When you purchase a digital product from UnlimitedPlug, you receive a <strong>Regular License</strong>. 
                             Here's what you can and cannot do:
                         </p>
 
@@ -20,11 +20,11 @@
                                 What You CAN Do ✅
                             </h2>
                             <ul class="space-y-2 text-gray-700">
-                                <li>✅ Use it for <strong>ONE website or project</strong></li>
-                                <li>✅ Use it for yourself or for a client</li>
-                                <li>✅ Modify and customize the code however you want</li>
-                                <li>✅ Get free updates for 6 months</li>
-                                <li>✅ Get support from the seller</li>
+                                <li>✅ Use it for <strong>ONE project or end product</strong></li>
+                                <li>✅ Use it for personal or commercial purposes</li>
+                                <li>✅ Use it for yourself or for a client project</li>
+                                <li>✅ Modify and customize the product as needed</li>
+                                <li>✅ Create derivative works based on the product</li>
                             </ul>
                         </div>
 
@@ -37,11 +37,12 @@
                                 What You CANNOT Do ❌
                             </h2>
                             <ul class="space-y-2 text-gray-700">
-                                <li>❌ Resell or give away the source code</li>
+                                <li>❌ Resell, redistribute, or share the product files</li>
                                 <li>❌ Share your download with others</li>
-                                <li>❌ Use it on multiple websites (buy again for each site)</li>
-                                <li>❌ Claim you created it</li>
-                                <li>❌ Get a refund after downloading</li>
+                                <li>❌ Use it on multiple projects (purchase separate licenses for each)</li>
+                                <li>❌ Claim ownership or authorship of the product</li>
+                                <li>❌ Request a refund after downloading the product</li>
+                                <li>❌ Use the product in any way that violates applicable laws</li>
                             </ul>
                         </div>
 
@@ -49,11 +50,13 @@
                         <div class="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6">
                             <h2 class="text-xl font-bold text-blue-900 mb-4">📖 Simple Example</h2>
                             <div class="text-gray-700 space-y-3">
-                                <p><strong>Scenario 1:</strong> You buy a website template for $50.</p>
-                                <p class="text-green-700">✅ <strong>OK:</strong> You use it to build your business website.</p>
-                                <p class="text-green-700">✅ <strong>OK:</strong> You use it to build a website for your client and charge them $500.</p>
-                                <p class="text-red-700">❌ <strong>NOT OK:</strong> You give the template files to your friend.</p>
-                                <p class="text-red-700">❌ <strong>NOT OK:</strong> You sell the template on another website.</p>
+                                <p><strong>Scenario:</strong> You purchase a digital product for $50.</p>
+                                <p class="text-green-700">✅ <strong>OK:</strong> You use it in your personal or business project.</p>
+                                <p class="text-green-700">✅ <strong>OK:</strong> You use it to create a project for your client and charge them for your services.</p>
+                                <p class="text-green-700">✅ <strong>OK:</strong> You modify and customize it to fit your needs.</p>
+                                <p class="text-red-700">❌ <strong>NOT OK:</strong> You share the product files with others.</p>
+                                <p class="text-red-700">❌ <strong>NOT OK:</strong> You resell or redistribute the product on another platform.</p>
+                                <p class="text-red-700">❌ <strong>NOT OK:</strong> You use it in multiple projects without purchasing additional licenses.</p>
                             </div>
                         </div>
 
@@ -61,10 +64,10 @@
                         <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 mb-6">
                             <h2 class="text-xl font-bold text-yellow-900 mb-4">⚠️ Important Notes</h2>
                             <ul class="space-y-2 text-gray-700">
-                                <li><strong>No Refunds:</strong> Digital products cannot be returned after download</li>
-                                <li><strong>Updates:</strong> Free updates for 6 months, then optional renewal</li>
-                                <li><strong>Support:</strong> Contact the seller directly for help</li>
-                                <li><strong>Multiple Sites:</strong> Need to use on 3 websites? Buy 3 licenses</li>
+                                <li><strong>No Refunds:</strong> Digital products cannot be returned or refunded after download</li>
+                                <li><strong>One License Per Project:</strong> Each project requires a separate license</li>
+                                <li><strong>Ownership:</strong> You receive a license to use the product, not ownership of it</li>
+                                <li><strong>Compliance:</strong> You are responsible for ensuring your use complies with all applicable laws</li>
                             </ul>
                         </div>
 

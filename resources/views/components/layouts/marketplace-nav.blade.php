@@ -66,8 +66,11 @@ class="bg-white/95 backdrop-blur-sm border-b border-gray-200 fixed top-0 w-full 
                 @auth
                     <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-blue-600 transition-colors">Dashboard</a>
                 @else
-                    <button @click="$dispatch('open-login-modal')" class="text-gray-700 hover:text-blue-600 transition-colors">
-                        Login
+                    <button @click="$dispatch('open-login-modal')" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <span>Login</span>
                     </button>
                 @endauth
             </div>
@@ -90,6 +93,14 @@ class="bg-white/95 backdrop-blur-sm border-b border-gray-200 fixed top-0 w-full 
                         @endforeach
                     </div>
                 </div>
+                
+                @guest
+                    <button @click="$dispatch('open-login-modal')" class="text-gray-700 hover:text-blue-600 p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </button>
+                @endguest
                 
                 <button onclick="toggleCartSidebar()" class="relative text-gray-700 hover:text-blue-600 p-2">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">

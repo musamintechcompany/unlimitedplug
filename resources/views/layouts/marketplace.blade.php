@@ -6,8 +6,19 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="google-adsense-account" content="ca-pub-9823332712820846">
 
-    <title>{{ $title ?? 'MarketPlace' }} - {{ config('app.name', 'Laravel') }}</title>
-    <meta name="description" content="{{ $description ?? 'Browse and purchase digital products on our marketplace.' }}">
+    <!-- SEO Meta Tags -->
+    <x-seo 
+        :title="$title ?? null"
+        :description="$description ?? null"
+        :keywords="$keywords ?? null"
+        :image="$image ?? null"
+        :url="$url ?? null"
+        :type="$type ?? 'website'"
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/logos/favicon.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logos/favicon.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\OrderItem;
-use App\Models\DigitalAsset;
+use App\Models\Product;
 
 class DownloadController extends Controller
 {
@@ -19,10 +19,10 @@ class DownloadController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $asset = $orderItem->digitalAsset;
+        $asset = $orderItem->product;
         
         if (!$asset || !$asset->file) {
-            abort(404, 'Digital asset or file not found');
+            abort(404, 'Product or file not found');
         }
 
         // Get the first file from the JSON array

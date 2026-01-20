@@ -26,7 +26,10 @@
                                         <div class="flex justify-between items-center">
                                             <div>
                                                 <h3 class="font-bold text-lg text-gray-900">Order #{{ $order->order_number }}</h3>
-                                                <p class="text-sm text-gray-500">{{ $order->created_at->format('M d, Y') }} • {{ $order->currency }} {{ number_format($order->total_amount, 2) }} • {{ $order->items->count() }} {{ Str::plural('item', $order->items->count()) }}</p>
+                                                @php
+                                                    $currencySymbol = config('payment.currencies.' . $order->currency . '.symbol', '$');
+                                                @endphp
+                                                <p class="text-sm text-gray-500">{{ $order->created_at->format('M d, Y') }} • {{ $currencySymbol }}{{ number_format($order->total_amount, 2) }} {{ $order->currency }} • {{ $order->items->count() }} {{ Str::plural('item', $order->items->count()) }}</p>
                                             </div>
                                             <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                                 {{ ucfirst($order->payment_status) }}
@@ -41,9 +44,9 @@
                                                 <div class="flex items-center space-x-4">
                                                     <!-- Thumbnail -->
                                                     <div class="flex-shrink-0">
-                                                        @if($item->digitalAsset && $item->digitalAsset->banner)
-                                                            <img src="{{ Storage::url($item->digitalAsset->banner) }}" 
-                                                                 alt="{{ $item->asset_name }}" 
+                                                        @if($item->product && $item->product->banner)
+                                                            <img src="{{ Storage::url($item->product->banner) }}" 
+                                                                 alt="{{ $item->product_name }}" 
                                                                  class="w-20 h-20 object-cover rounded border">
                                                         @else
                                                             <div class="w-20 h-20 bg-gray-200 rounded border flex items-center justify-center">
@@ -56,11 +59,14 @@
 
                                                     <!-- Item Details -->
                                                     <div class="flex-1 min-w-0">
-                                                        <h4 class="font-semibold text-gray-900 mb-1">{{ $item->asset_name }}</h4>
-                                                        <p class="text-sm text-gray-600">{{ $order->currency }} {{ number_format($item->price, 2) }}</p>
+                                                        <h4 class="font-semibold text-gray-900 mb-1">{{ $item->product_name }}</h4>
+                                                        @php
+                                                            $currencySymbol = config('payment.currencies.' . $order->currency . '.symbol', '$');
+                                                        @endphp
+                                                        <p class="text-sm text-gray-600">{{ $currencySymbol }}{{ number_format($item->price, 2) }} {{ $order->currency }}</p>
                                                         <!-- Mobile Link -->
-                                                        @if($item->digitalAsset)
-                                                            <a href="{{ route('purchases.show', $item->digitalAsset->id) }}" 
+                                                        @if($item->product)
+                                                            <a href="{{ route('purchases.show', $item->product->id) }}" 
                                                                class="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2 inline-block sm:hidden">
                                                                 View Details →
                                                             </a>
@@ -69,8 +75,8 @@
 
                                                     <!-- Desktop Button -->
                                                     <div class="hidden sm:block flex-shrink-0">
-                                                        @if($item->digitalAsset)
-                                                            <a href="{{ route('purchases.show', $item->digitalAsset->id) }}" 
+                                                        @if($item->product)
+                                                            <a href="{{ route('purchases.show', $item->product->id) }}" 
                                                                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium">
                                                                 View Details
                                                             </a>

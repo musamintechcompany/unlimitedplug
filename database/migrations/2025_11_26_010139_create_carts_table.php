@@ -12,13 +12,13 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('user_id')->nullable();
             $table->string('session_id')->nullable();
-            $table->uuid('digital_asset_id');
+            $table->uuid('product_id');
             $table->integer('quantity')->default(1);
             $table->decimal('price', 10, 2);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('digital_asset_id')->references('id')->on('digital_assets')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->index(['user_id', 'session_id']);
         });
     }

@@ -3,42 +3,50 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\DigitalAsset;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
-class DigitalAssetController extends Controller
+class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = DigitalAsset::with('user')->latest();
+        $query = Product::with('user')->latest();
         
         if ($request->status) {
             $query->where('status', $request->status);
         }
         
-        $assets = $query->paginate(20);
-        return view('management.portal.admin.digital-assets.index', compact('assets'));
+        if ($request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%')
+                  ->orWhere('subcategory', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        $assets = $query->paginate(20)->withQueryString();
+        return view('management.portal.admin.products.index', compact('assets'));
     }
 
-    public function show(DigitalAsset $digitalAsset)
+    public function show(Product $product)
     {
-        $digitalAsset->load('user');
+        $product->load('user');
         
         // Calculate purchases and revenue
-        $purchases = \App\Models\OrderItem::where('digital_asset_id', $digitalAsset->id)
+        $purchases = \App\Models\OrderItem::where('product_id', $product->id)
             ->whereHas('order', function($query) {
                 $query->where('payment_status', 'completed');
             })
             ->count();
             
-        $revenue = \App\Models\OrderItem::where('digital_asset_id', $digitalAsset->id)
+        $revenue = \App\Models\OrderItem::where('product_id', $product->id)
             ->whereHas('order', function($query) {
                 $query->where('payment_status', 'completed');
             })
             ->sum('price');
         
         // Get download details (most recent first)
-        $downloadDetails = \App\Models\OrderItem::where('digital_asset_id', $digitalAsset->id)
+        $downloadDetails = \App\Models\OrderItem::where('product_id', $product->id)
             ->with(['order.user'])
             ->whereHas('order', function($query) {
                 $query->where('payment_status', 'completed');
@@ -48,7 +56,7 @@ class DigitalAssetController extends Controller
             ->get();
         
         // Get purchase details (most recent first)
-        $purchaseDetails = \App\Models\OrderItem::where('digital_asset_id', $digitalAsset->id)
+        $purchaseDetails = \App\Models\OrderItem::where('product_id', $product->id)
             ->with(['order.user'])
             ->whereHas('order', function($query) {
                 $query->where('payment_status', 'completed');
@@ -56,12 +64,12 @@ class DigitalAssetController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         
-        return view('management.portal.admin.digital-assets.show', compact('digitalAsset', 'purchases', 'revenue', 'downloadDetails', 'purchaseDetails'));
+        return view('management.portal.admin.products.show', compact('product', 'purchases', 'revenue', 'downloadDetails', 'purchaseDetails'));
     }
 
     public function create()
     {
-        return view('management.portal.admin.digital-assets.create');
+        return view('management.portal.admin.products.create');
     }
 
     public function store(Request $request)
@@ -84,8 +92,8 @@ class DigitalAssetController extends Controller
             'file.*' => 'nullable|file|max:20480',
             'demo_url' => 'nullable|url',
             'tags' => 'nullable|string',
-            'features' => 'nullable|string',
-            'requirements' => 'nullable|string',
+            'features.*' => 'nullable|string',
+            'requirements.*' => 'nullable|string',
         ]);
         
         // Dynamically validate all currency prices (all required)
@@ -128,10 +136,22 @@ class DigitalAssetController extends Controller
             }, $tagArray);
         }
 
+        // Process features array
+        $features = null;
+        if ($request->has('features')) {
+            $features = array_filter($request->input('features'), fn($f) => !empty(trim($f)));
+        }
+
+        // Process requirements array
+        $requirements = null;
+        if ($request->has('requirements')) {
+            $requirements = array_filter($request->input('requirements'), fn($r) => !empty(trim($r)));
+        }
+
         // Get subcategory name for storage
         $subcategory = $validated['subcategory_id'] ? \App\Models\Subcategory::find($validated['subcategory_id']) : null;
         
-        $asset = DigitalAsset::create([
+        $asset = Product::create([
             'user_id' => null, // Admin-created assets don't need user_id
             'name' => $validated['name'],
             'description' => $validated['description'],
@@ -145,8 +165,8 @@ class DigitalAssetController extends Controller
             'file' => $assetFiles,
             'demo_url' => $validated['demo_url'],
             'tags' => $tags,
-            'features' => $validated['features'] ? explode("\n", $validated['features']) : null,
-            'requirements' => $validated['requirements'],
+            'features' => $features,
+            'requirements' => $requirements ? implode("\n", $requirements) : null,
             'badge' => $validated['badge'],
             'status' => 'approved', // Admin-created assets are auto-approved
             'admin_id' => auth()->guard('admin')->id(), // Track which admin created it
@@ -177,15 +197,15 @@ class DigitalAssetController extends Controller
             }
         }
 
-        return redirect()->route('admin.digital-assets.index')->with('success', 'Digital asset created successfully!');
+        return redirect()->route('admin.products.index')->with('success', 'Product created successfully!');
     }
 
-    public function edit(DigitalAsset $digitalAsset)
+    public function edit(Product $product)
     {
-        return view('management.portal.admin.digital-assets.edit', compact('digitalAsset'));
+        return view('management.portal.admin.products.edit', compact('product'));
     }
 
-    public function update(Request $request, DigitalAsset $digitalAsset)
+    public function update(Request $request, Product $product)
     {
         // Check if this is a status update (from show page) or full edit
         if ($request->has('status') && !$request->has('name')) {
@@ -193,9 +213,9 @@ class DigitalAssetController extends Controller
                 'status' => 'required|in:draft,pending,approved,rejected',
                 'is_featured' => 'boolean',
             ]);
-            $digitalAsset->update($validated);
-            return redirect()->route('admin.digital-assets.index')
-                            ->with('success', 'Asset status updated successfully!');
+            $product->update($validated);
+            return redirect()->route('admin.products.index')
+                            ->with('success', 'Product status updated successfully!');
         }
 
         // Full edit update
@@ -211,10 +231,11 @@ class DigitalAssetController extends Controller
             'badge' => 'nullable|string|in:NEW,HOT,BESTSELLER,POPULAR,TRENDING,PREMIUM,EXCLUSIVE,LIMITED,FEATURED,TOP RATED,EDITOR\'S CHOICE,UPDATED,FREE',
             'banner' => 'nullable|image|max:5120',
             'media.*' => 'nullable|file|max:5120',
+            'file.*' => 'nullable|file|max:20480',
             'demo_url' => 'nullable|url',
             'tags' => 'nullable|string',
-            'features' => 'nullable|string',
-            'requirements' => 'nullable|string',
+            'features.*' => 'nullable|string',
+            'requirements.*' => 'nullable|string',
         ]);
         
         // Dynamically validate all currency prices (all required)
@@ -227,7 +248,7 @@ class DigitalAssetController extends Controller
         }
 
         // Handle banner upload
-        $bannerPath = $digitalAsset->banner;
+        $bannerPath = $product->banner;
         if ($request->hasFile('banner')) {
             // Delete old banner if exists
             if ($bannerPath) {
@@ -237,10 +258,18 @@ class DigitalAssetController extends Controller
         }
 
         // Handle new media files
-        $currentMedia = $digitalAsset->media ?? [];
+        $currentMedia = $product->media ?? [];
         if ($request->hasFile('media')) {
             foreach ($request->file('media') as $file) {
                 $currentMedia[] = $file->store('assets/media', 'public');
+            }
+        }
+
+        // Handle new product files
+        $currentFiles = $product->file ?? [];
+        if ($request->hasFile('file')) {
+            foreach ($request->file('file') as $file) {
+                $currentFiles[] = $file->store('assets/files', 'public');
             }
         }
 
@@ -253,29 +282,42 @@ class DigitalAssetController extends Controller
             }, $tagArray);
         }
 
+        // Process features array
+        $features = null;
+        if ($request->has('features')) {
+            $features = array_filter($request->input('features'), fn($f) => !empty(trim($f)));
+        }
+
+        // Process requirements array
+        $requirements = null;
+        if ($request->has('requirements')) {
+            $requirements = array_filter($request->input('requirements'), fn($r) => !empty(trim($r)));
+        }
+
         // Get subcategory name for storage
         $subcategory = $validated['subcategory_id'] ? \App\Models\Subcategory::find($validated['subcategory_id']) : null;
         
-        $digitalAsset->update([
+        $product->update([
             'name' => $validated['name'],
             'description' => $validated['description'],
             'type' => $validated['type'],
             'category_id' => $validated['category_id'],
-            'subcategory' => $subcategory ? $subcategory->name : null, // Store subcategory name for compatibility
-            'price' => $validated['usd_price'], // Default price in USD
+            'subcategory' => $subcategory ? $subcategory->name : null,
+            'price' => $validated['usd_price'],
             'list_price' => $validated['usd_list_price'],
             'is_featured' => $request->has('is_featured'),
             'badge' => $validated['badge'],
             'banner' => $bannerPath,
             'media' => $currentMedia,
+            'file' => $currentFiles,
             'demo_url' => $validated['demo_url'],
             'tags' => $tags,
-            'features' => $validated['features'] ? explode("\n", $validated['features']) : null,
-            'requirements' => $validated['requirements'],
+            'features' => $features,
+            'requirements' => $requirements ? implode("\n", $requirements) : null,
         ]);
         
         // Update USD pricing
-        $digitalAsset->prices()->updateOrCreate(
+        $product->prices()->updateOrCreate(
             ['currency_code' => 'USD'],
             [
                 'price' => $validated['usd_price'],
@@ -292,7 +334,7 @@ class DigitalAssetController extends Controller
             $listPrice = $request->input("{$lowerCode}_list_price");
             
             if ($price || $listPrice) {
-                $digitalAsset->prices()->updateOrCreate(
+                $product->prices()->updateOrCreate(
                     ['currency_code' => $currencyCode],
                     [
                         'price' => $price,
@@ -301,67 +343,67 @@ class DigitalAssetController extends Controller
                 );
             } else {
                 // Remove pricing if both fields are empty
-                $digitalAsset->prices()->where('currency_code', $currencyCode)->delete();
+                $product->prices()->where('currency_code', $currencyCode)->delete();
             }
         }
 
-        return redirect()->route('admin.digital-assets.index')
-                        ->with('success', 'Digital asset updated successfully!');
+        return redirect()->route('admin.products.index')
+                        ->with('success', 'Product updated successfully!');
     }
 
-    public function destroy(DigitalAsset $digitalAsset)
+    public function destroy(Product $product)
     {
         // Delete banner if exists
-        if ($digitalAsset->banner) {
-            Storage::disk('public')->delete($digitalAsset->banner);
+        if ($product->banner) {
+            Storage::disk('public')->delete($product->banner);
         }
         
         // Delete media files if exist
-        if ($digitalAsset->media) {
-            foreach ($digitalAsset->media as $media) {
+        if ($product->media) {
+            foreach ($product->media as $media) {
                 Storage::disk('public')->delete($media);
             }
         }
         
         // Delete asset files if exist
-        if ($digitalAsset->file) {
-            foreach ($digitalAsset->file as $file) {
+        if ($product->file) {
+            foreach ($product->file as $file) {
                 Storage::disk('public')->delete($file);
             }
         }
         
-        $digitalAsset->delete();
-        return redirect()->route('admin.digital-assets.index')
-                        ->with('success', 'Asset deleted successfully!');
+        $product->delete();
+        return redirect()->route('admin.products.index')
+                        ->with('success', 'Product deleted successfully!');
     }
 
-    public function deleteBanner(DigitalAsset $digitalAsset)
+    public function deleteBanner(Product $product)
     {
-        if ($digitalAsset->banner) {
-            Storage::disk('public')->delete($digitalAsset->banner);
-            $digitalAsset->update(['banner' => null]);
+        if ($product->banner) {
+            Storage::disk('public')->delete($product->banner);
+            $product->update(['banner' => null]);
         }
         return response()->json(['success' => true]);
     }
 
-    public function deleteMedia(DigitalAsset $digitalAsset, $index)
+    public function deleteMedia(Product $product, $index)
     {
-        $media = $digitalAsset->media;
+        $media = $product->media;
         if (isset($media[$index])) {
             Storage::disk('public')->delete($media[$index]);
             unset($media[$index]);
-            $digitalAsset->update(['media' => array_values($media)]);
+            $product->update(['media' => array_values($media)]);
         }
         return response()->json(['success' => true]);
     }
 
-    public function deleteFile(DigitalAsset $digitalAsset, $index)
+    public function deleteFile(Product $product, $index)
     {
-        $files = $digitalAsset->file;
+        $files = $product->file;
         if (isset($files[$index])) {
             Storage::disk('public')->delete($files[$index]);
             unset($files[$index]);
-            $digitalAsset->update(['file' => array_values($files)]);
+            $product->update(['file' => array_values($files)]);
         }
         return response()->json(['success' => true]);
     }

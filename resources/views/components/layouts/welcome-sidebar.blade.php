@@ -28,16 +28,4 @@
         </a>
 
     </nav>
-    
-    <!-- Auth Section - Sticky to Bottom -->
-    <div class="border-t border-gray-200 p-6 bg-gray-50">
-        <div class="space-y-3">
-            <a href="{{ route('login') }}" class="block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-                Login
-            </a>
-            <a href="{{ route('register') }}" class="block w-full text-center border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 transition-colors">
-                Register
-            </a>
-        </div>
-    </div>
 </div>

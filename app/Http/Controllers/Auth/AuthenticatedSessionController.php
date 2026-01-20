@@ -51,7 +51,7 @@ class AuthenticatedSessionController extends Controller
         foreach ($sessionCartItems as $sessionItem) {
             // Check if user already has this item in cart
             $existingItem = Cart::where('user_id', $userId)
-                ->where('digital_asset_id', $sessionItem->digital_asset_id)
+                ->where('product_id', $sessionItem->product_id)
                 ->first();
                 
             if ($existingItem) {

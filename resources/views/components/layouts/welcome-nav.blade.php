@@ -72,8 +72,11 @@ class="w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-g
                             Dashboard
                         </a>
                     @else
-                        <button @click="$dispatch('open-login-modal')" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                            Log in
+                        <button @click="$dispatch('open-login-modal')" class="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span>Log in</span>
                         </button>
                     @endauth
                 </div>
@@ -96,6 +99,14 @@ class="w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-g
                             @endforeach
                         </div>
                     </div>
+                    
+                    @guest
+                        <button @click="$dispatch('open-login-modal')" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white p-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </button>
+                    @endguest
                     
                     <button onclick="toggleCartSidebar()" class="relative text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white p-2">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">

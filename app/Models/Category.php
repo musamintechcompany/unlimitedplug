@@ -28,9 +28,9 @@ class Category extends Model
         return $this->hasMany(Subcategory::class)->orderBy('sort_order');
     }
 
-    public function digitalAssets()
+    public function products()
     {
-        return $this->hasManyThrough(DigitalAsset::class, Subcategory::class);
+        return $this->hasManyThrough(Product::class, Subcategory::class);
     }
 
     public function scopeActive($query)

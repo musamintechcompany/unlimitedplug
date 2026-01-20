@@ -12,8 +12,8 @@ class OrderItem extends Model
 
     protected $fillable = [
         'order_id',
-        'digital_asset_id',
-        'asset_name',
+        'product_id',
+        'product_name',
         'quantity',
         'price',
         'download_count',
@@ -30,9 +30,9 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function digitalAsset()
+    public function product()
     {
-        return $this->belongsTo(DigitalAsset::class);
+        return $this->belongsTo(Product::class);
     }
 
     public function incrementDownloadCount()

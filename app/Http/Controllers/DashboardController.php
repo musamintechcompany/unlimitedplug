@@ -18,7 +18,7 @@ class DashboardController extends Controller
             ->count();
         
         // Get recent purchases (last 3)
-        $recentPurchases = Order::with(['items.digitalAsset'])
+        $recentPurchases = Order::with(['items.product'])
             ->where('user_id', $user->id)
             ->where('payment_status', 'completed')
             ->orderBy('created_at', 'desc')

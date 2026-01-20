@@ -158,9 +158,6 @@
         const query = inputElement.value.trim();
         const products = window.products || [];
         
-        console.log('Search query:', query);
-        console.log('Products available:', products.length);
-        
         // Sync both search inputs
         const desktopSearch = document.getElementById('desktop-search-input');
         const mobileSearch = document.getElementById('mobile-search-input');
@@ -181,11 +178,9 @@
             return product.title.toLowerCase().includes(searchText) ||
                    product.description.toLowerCase().includes(searchText) ||
                    product.type.toLowerCase().includes(searchText) ||
-                   (product.subcategory && product.subcategory.toLowerCase().includes(searchText)) ||
-                   (product.tags && product.tags.toLowerCase().includes(searchText));
+                   (product.category && product.category.toLowerCase().includes(searchText)) ||
+                   (product.subcategory && product.subcategory.toLowerCase().includes(searchText));
         });
-        
-        console.log('Search results:', searchResults.length);
         
         if (window.renderProducts) window.renderProducts(searchResults);
     };
@@ -313,4 +308,6 @@
     window.filterByCategory = filterByCategory;
     window.filterBySubcategory = filterBySubcategory;
     window.showAllProducts = showAllProducts;
+    
+
 </script>

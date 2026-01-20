@@ -34,8 +34,8 @@ class="bg-white border-b border-gray-100 fixed top-0 w-full z-40 transition-tran
                     <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-gray-600 hover:text-gray-900">
                         {{ __('Users') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('admin.digital-assets.index')" :active="request()->routeIs('admin.digital-assets.*')" class="text-gray-600 hover:text-gray-900">
-                        {{ __('Digital Assets') }}
+                    <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')" class="text-gray-600 hover:text-gray-900">
+                        {{ __('Products') }}
                     </x-nav-link>
                     <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')" class="text-gray-600 hover:text-gray-900">
                         {{ __('Categories') }}

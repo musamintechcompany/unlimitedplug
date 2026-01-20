@@ -24,6 +24,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order Number</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Currency</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Purchase Date</th>
                             </tr>
                         </thead>
@@ -39,8 +40,14 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="text-sm font-semibold text-green-800">
-                                            ${{ number_format($detail->price, 2) }}
+                                            @php
+                                                $currency = config('payment.currencies')[$detail->order->currency] ?? ['symbol' => '$'];
+                                            @endphp
+                                            {{ $currency['symbol'] }}{{ number_format($detail->price, 2) }}
                                         </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ $detail->order->currency }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $detail->created_at->format('M d, Y h:i A') }}

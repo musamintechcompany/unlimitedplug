@@ -2,8 +2,9 @@
 
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\DigitalAssetController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OnboardingController;
+use App\Http\Controllers\Admin\AnalyticsController;
 use Illuminate\Support\Facades\Route;
 
 // Admin Onboarding Routes (accessible only when no admins exist)
@@ -24,14 +25,17 @@ Route::prefix('management/portal/admin')->middleware('auth:admin')->name('admin.
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
     
-    // Digital Assets Management
-    Route::resource('digital-assets', DigitalAssetController::class);
-    Route::delete('digital-assets/{digital_asset}/delete-banner', [DigitalAssetController::class, 'deleteBanner'])->name('digital-assets.delete-banner');
-    Route::delete('digital-assets/{digital_asset}/delete-media/{index}', [DigitalAssetController::class, 'deleteMedia'])->name('digital-assets.delete-media');
-    Route::delete('digital-assets/{digital_asset}/delete-file/{index}', [DigitalAssetController::class, 'deleteFile'])->name('digital-assets.delete-file');
+    // Products Management
+    Route::get('products/select-type', function () {
+        return view('management.portal.admin.products.select-type');
+    })->name('products.select-type');
+    Route::resource('products', ProductController::class);
+    Route::delete('products/{product}/delete-banner', [ProductController::class, 'deleteBanner'])->name('products.delete-banner');
+    Route::delete('products/{product}/delete-media/{index}', [ProductController::class, 'deleteMedia'])->name('products.delete-media');
+    Route::delete('products/{product}/delete-file/{index}', [ProductController::class, 'deleteFile'])->name('products.delete-file');
     
     // User Management
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     
     // Category Management
     Route::get('/categories', [\App\Http\Controllers\Admin\CategoryController::class, 'index'])->name('categories.index');
@@ -49,4 +53,15 @@ Route::prefix('management/portal/admin')->middleware('auth:admin')->name('admin.
             ->paginate(20);
         return view('management.portal.admin.payments.index', compact('payments'));
     })->name('payments.index');
+    
+    // Reviews Management
+    Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
+    Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])->name('reviews.destroy');
+    
+    // Coupons Management
+    Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class);
+    
+    // Analytics
+    Route::get('/analytics/chart-data', [AnalyticsController::class, 'getChartData'])->name('analytics.chart-data');
 });

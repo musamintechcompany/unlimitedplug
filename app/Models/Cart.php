@@ -13,7 +13,7 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
         'session_id',
-        'digital_asset_id',
+        'product_id',
         'quantity',
         'price',
     ];
@@ -27,14 +27,14 @@ class Cart extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function digitalAsset()
+    public function product()
     {
-        return $this->belongsTo(DigitalAsset::class);
+        return $this->belongsTo(Product::class);
     }
 
     public static function getCartItems($userId = null, $sessionId = null)
     {
-        $query = self::with('digitalAsset');
+        $query = self::with('product');
         
         if ($userId) {
             $query->where('user_id', $userId);

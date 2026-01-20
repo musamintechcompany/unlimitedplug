@@ -9,7 +9,8 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MarketplaceController;
-use App\Http\Controllers\DigitalAssetController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CheckoutController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================================================
@@ -40,15 +41,19 @@ Route::get('/flutterwave/callback', [App\Http\Controllers\FlutterwaveController:
 Route::post('/flutterwave/webhook', [App\Http\Controllers\FlutterwaveController::class, 'webhook'])->name('flutterwave.webhook');
 
 // Payment Cancel Page
-Route::get('/payment/cancel', function () { return view('user.payment-cancel'); })->name('payment.cancel');
+Route::get('/payment/failed', function () {
+    if (!session()->has('payment_failed')) {
+        return redirect()->route('marketplace');
+    }
+    session()->forget('payment_failed');
+    return view('user.payment-failed');
+})->name('payment.failed');
 
 
 
 Route::get('/marketplace/product/{id}', [MarketplaceController::class, 'show'])->name('product.detail');
 
-Route::get('/software', function () {
-    return view('software');
-})->name('software');
+Route::get('/software', [App\Http\Controllers\HomeController::class, 'software'])->name('software');
 
 Route::get('/how-it-works', function () {
     return view('how-it-works');
@@ -107,8 +112,8 @@ Route::middleware('auth')->group(function () {
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
-    // Digital Assets Management
-    Route::resource('digital-assets', DigitalAssetController::class);
+    // Products Management
+    Route::resource('products', ProductController::class);
     
     // Checkout (requires authentication)
     Route::get('/checkout', function () {
@@ -117,13 +122,20 @@ Route::middleware('auth')->group(function () {
 
     // My Purchases
     Route::get('/my-purchases', [App\Http\Controllers\PurchaseController::class, 'index'])->name('purchases.index');
-    Route::get('/my-purchases/{digitalAsset}', [App\Http\Controllers\PurchaseController::class, 'show'])->name('purchases.show');
+    Route::get('/my-purchases/{product}', [App\Http\Controllers\PurchaseController::class, 'show'])->name('purchases.show');
+    
+    // Reviews
+    Route::post('/products/{product}/review', [App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
+    
+    // Coupons
+    Route::post('/coupon/apply', [App\Http\Controllers\CouponController::class, 'apply'])->name('coupon.apply');
+    Route::post('/coupon/remove', [App\Http\Controllers\CouponController::class, 'remove'])->name('coupon.remove');
     
     // Download
     Route::get('/download/{orderItem}', [App\Http\Controllers\DownloadController::class, 'download'])->name('download');
     
     // Payment Success Page (requires auth to see purchases)
-    Route::get('/checkout/success', function () { return view('user.checkout-success'); })->name('checkout.success');
+    Route::get('/checkout/success', [App\Http\Controllers\CheckoutController::class, 'success'])->name('checkout.success');
 
     // Logout
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');

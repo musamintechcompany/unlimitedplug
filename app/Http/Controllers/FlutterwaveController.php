@@ -115,17 +115,20 @@ class FlutterwaveController extends Controller
         // Handle cancelled payment
         if ($status === 'cancelled') {
             Log::info('Payment was cancelled by user');
-            return redirect()->route('payment.cancel')->with('info', 'You cancelled the payment');
+            session(['payment_failed' => true]);
+            return redirect()->route('payment.failed')->with('info', 'You cancelled the payment');
         }
         
         if ($status !== 'successful' && $status !== 'completed') {
             Log::warning('Payment not successful', ['status' => $status]);
-            return redirect()->route('payment.cancel')->with('error', 'Payment was not successful');
+            session(['payment_failed' => true]);
+            return redirect()->route('payment.failed')->with('error', 'Payment was not successful');
         }
         
         if (!$transactionId) {
             Log::error('No transaction ID in callback');
-            return redirect()->route('payment.cancel')->with('error', 'Invalid payment response');
+            session(['payment_failed' => true]);
+            return redirect()->route('payment.failed')->with('error', 'Invalid payment response');
         }
 
         // Verify transaction
@@ -158,14 +161,16 @@ class FlutterwaveController extends Controller
                             // Clear cart
                             $this->clearUserCart($order->user_id);
                             
+                            session(['payment_success' => true]);
                             Log::info('Order created successfully, redirecting to success');
                             return redirect()->route('checkout.success')->with('success', 'Payment successful!');
                         } else {
                             Log::error('Failed to create order');
-                            return redirect()->route('payment.cancel')->with('error', 'Failed to process order');
+                            return redirect()->route('payment.failed')->with('error', 'Failed to process order');
                         }
                     } else {
                         Log::info('Order already exists', ['order_id' => $existingOrder->id]);
+                        session(['payment_success' => true]);
                         return redirect()->route('checkout.success')->with('success', 'Payment already processed!');
                     }
                 } else {
@@ -186,7 +191,8 @@ class FlutterwaveController extends Controller
             ]);
         }
 
-        return redirect()->route('payment.cancel')->with('error', 'Payment verification failed');
+        session(['payment_failed' => true]);
+        return redirect()->route('payment.failed')->with('error', 'Payment verification failed');
     }
 
     public function webhook(Request $request)
@@ -224,7 +230,7 @@ class FlutterwaveController extends Controller
 
         // Get cart items with currency
         $currency = session('currency', 'USD');
-        $cartItems = Cart::with('digitalAsset.prices')
+        $cartItems = Cart::with('product.prices')
             ->where('user_id', $userId)
             ->get();
 
@@ -235,7 +241,7 @@ class FlutterwaveController extends Controller
 
         // Calculate total using current currency
         $total = $cartItems->sum(function($item) use ($currency) {
-            $price = $item->digitalAsset->getPriceForCurrency($currency);
+            $price = $item->product->getPriceForCurrency($currency);
             return $price * $item->quantity;
         });
 
@@ -266,12 +272,12 @@ class FlutterwaveController extends Controller
 
         // Create order items
         foreach ($cartItems as $cartItem) {
-            $price = $cartItem->digitalAsset->getPriceForCurrency($currency);
+            $price = $cartItem->product->getPriceForCurrency($currency);
             
             OrderItem::create([
                 'order_id' => $order->id,
-                'digital_asset_id' => $cartItem->digital_asset_id,
-                'asset_name' => $cartItem->digitalAsset->name,
+                'product_id' => $cartItem->product_id,
+                'product_name' => $cartItem->product->name,
                 'quantity' => $cartItem->quantity,
                 'price' => $price,
             ]);
@@ -280,7 +286,7 @@ class FlutterwaveController extends Controller
         Log::info('Order created successfully', ['order_id' => $order->id]);
         
         // Load relationships for email
-        $order->load(['user', 'items.digitalAsset']);
+        $order->load(['user', 'items.product']);
         
         // Send purchase confirmation email
         try {
