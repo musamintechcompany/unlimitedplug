@@ -12,13 +12,12 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('user_id')->nullable();
             $table->string('session_id')->nullable();
-            $table->uuid('product_id');
+            $table->uuidMorphs('cartable'); // Product, Service, Course, etc.
             $table->integer('quantity')->default(1);
             $table->decimal('price', 10, 2);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->index(['user_id', 'session_id']);
         });
     }

@@ -10,11 +10,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmailVerificationCode;
 use App\Mail\WelcomeEmail;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids;
+    use HasFactory, Notifiable, HasUuids, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -112,6 +113,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function orderItems()
     {
         return $this->hasManyThrough(OrderItem::class, Order::class);
+    }
+
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 
     public static function generateUsername($name)

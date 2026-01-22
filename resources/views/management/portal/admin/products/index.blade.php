@@ -25,6 +25,8 @@
         <div class="flex-1">
             <form method="GET" action="{{ route('admin.products.index') }}#filters">
                 <input type="hidden" name="status" value="{{ request('status') }}">
+                <input type="hidden" name="category" value="{{ request('category') }}">
+                <input type="hidden" name="sort" value="{{ request('sort') }}">
                 <div class="relative">
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products..." 
                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -45,14 +47,58 @@
             </button>
             <div x-show="open" @click.away="open = false" x-transition
                  class="absolute left-0 sm:right-0 sm:left-auto mt-2 w-full sm:w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                <a href="{{ route('admin.products.index', ['search' => request('search')]) }}#filters" 
+                <a href="{{ route('admin.products.index', ['search' => request('search'), 'category' => request('category'), 'sort' => request('sort')]) }}#filters" 
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Status</a>
-                <a href="{{ route('admin.products.index', ['status' => 'pending', 'search' => request('search')]) }}#filters" 
+                <a href="{{ route('admin.products.index', ['status' => 'pending', 'search' => request('search'), 'category' => request('category'), 'sort' => request('sort')]) }}#filters" 
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pending</a>
-                <a href="{{ route('admin.products.index', ['status' => 'approved', 'search' => request('search')]) }}#filters" 
+                <a href="{{ route('admin.products.index', ['status' => 'approved', 'search' => request('search'), 'category' => request('category'), 'sort' => request('sort')]) }}#filters" 
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Approved</a>
-                <a href="{{ route('admin.products.index', ['status' => 'rejected', 'search' => request('search')]) }}#filters" 
+                <a href="{{ route('admin.products.index', ['status' => 'rejected', 'search' => request('search'), 'category' => request('category'), 'sort' => request('sort')]) }}#filters" 
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rejected</a>
+            </div>
+        </div>
+        <div x-data="{ open: false }" class="relative">
+            <button @click="open = !open" type="button"
+                    class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white flex items-center justify-between gap-2">
+                <span>{{ request('category') ? \App\Models\Category::find(request('category'))->name ?? 'Category' : 'All Categories' }}</span>
+                <svg class="w-4 h-4 text-gray-600 transition-transform duration-200" :class="open ? 'rotate-90' : ''"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+            <div x-show="open" @click.away="open = false" x-transition
+                 class="absolute left-0 sm:right-0 sm:left-auto mt-2 w-full sm:w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 max-h-64 overflow-y-auto">
+                <a href="{{ route('admin.products.index', ['search' => request('search'), 'status' => request('status'), 'sort' => request('sort')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Categories</a>
+                @foreach(\App\Models\Category::orderBy('name')->get() as $cat)
+                <a href="{{ route('admin.products.index', ['category' => $cat->id, 'search' => request('search'), 'status' => request('status'), 'sort' => request('sort')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ $cat->name }}</a>
+                @endforeach
+            </div>
+        </div>
+        <div x-data="{ open: false }" class="relative">
+            <button @click="open = !open" type="button"
+                    class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white flex items-center justify-between gap-2">
+                <span>Sort: {{ request('sort') ? ucfirst(str_replace('_', ' ', request('sort'))) : 'Newest' }}</span>
+                <svg class="w-4 h-4 text-gray-600 transition-transform duration-200" :class="open ? 'rotate-90' : ''"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+            <div x-show="open" @click.away="open = false" x-transition
+                 class="absolute left-0 sm:right-0 sm:left-auto mt-2 w-full sm:w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                <a href="{{ route('admin.products.index', ['sort' => 'newest', 'search' => request('search'), 'status' => request('status'), 'category' => request('category')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Newest</a>
+                <a href="{{ route('admin.products.index', ['sort' => 'oldest', 'search' => request('search'), 'status' => request('status'), 'category' => request('category')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Oldest</a>
+                <a href="{{ route('admin.products.index', ['sort' => 'price_high', 'search' => request('search'), 'status' => request('status'), 'category' => request('category')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Price High</a>
+                <a href="{{ route('admin.products.index', ['sort' => 'price_low', 'search' => request('search'), 'status' => request('status'), 'category' => request('category')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Price Low</a>
+                <a href="{{ route('admin.products.index', ['sort' => 'name', 'search' => request('search'), 'status' => request('status'), 'category' => request('category')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Name A-Z</a>
+                <a href="{{ route('admin.products.index', ['sort' => 'downloads', 'search' => request('search'), 'status' => request('status'), 'category' => request('category')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Most Downloads</a>
             </div>
         </div>
     </div>
@@ -64,16 +110,46 @@
     @endif
 
     <!-- Assets Table -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="bg-white shadow rounded-lg overflow-hidden" x-data="{ selected: [], selectAll: false }">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-gray-600" x-show="selected.length > 0" x-text="selected.length + ' selected'"></span>
+                <div x-show="selected.length > 0" class="flex gap-2">
+                    <form method="POST" action="{{ route('admin.products.bulk-action') }}" class="inline">
+                        @csrf
+                        <input type="hidden" name="action" value="approve">
+                        <input type="hidden" name="ids" :value="selected.join(',')">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.products.bulk-action') }}" class="inline">
+                        @csrf
+                        <input type="hidden" name="action" value="reject">
+                        <input type="hidden" name="ids" :value="selected.join(',')">
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs">Reject</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.products.bulk-action') }}" class="inline">
+                        @csrf
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="ids" :value="selected.join(',')">
+                        <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-xs" onclick="return confirm('Delete selected products?')">Delete</button>
+                    </form>
+                </div>
+            </div>
+            <a href="{{ route('admin.products.export', request()->all()) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">Export CSV</a>
+        </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th class="px-6 py-3 text-left border-r border-gray-200">
+                            <input type="checkbox" @change="selectAll = !selectAll; selected = selectAll ? {{ $assets->pluck('id')->toJson() }} : []" class="rounded">
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Product</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Author</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Type</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Price</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Downloads</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Created</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -81,6 +157,9 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($assets as $asset)
                         <tr>
+                            <td class="px-6 py-4 border-r border-gray-200">
+                                <input type="checkbox" :value="'{{ $asset->id }}'" x-model="selected" class="rounded">
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap border-r border-gray-200">
                                 <div class="flex items-center">
                                     @if($asset->banner)
@@ -93,7 +172,15 @@
                                         </div>
                                     @endif
                                     <div class="ml-4 min-w-0 flex-1">
-                                        <div class="text-sm font-medium text-gray-900 truncate">{{ $asset->name }}</div>
+                                        <div class="text-sm font-medium text-gray-900 truncate flex items-center gap-1">
+                                            {{ $asset->name }}
+                                            @if($asset->is_featured)
+                                                <span class="text-xs bg-yellow-100 text-yellow-800 px-1 rounded" title="Featured">⭐</span>
+                                            @endif
+                                            @if($asset->is_active)
+                                                <span class="text-xs bg-green-100 text-green-800 px-1 rounded" title="Active">✓</span>
+                                            @endif
+                                        </div>
                                         <div class="text-sm text-gray-500 truncate">{{ $asset->subcategory ?? 'N/A' }}</div>
                                     </div>
                                 </div>
@@ -124,11 +211,16 @@
                                     {{ ucfirst($asset->status) }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $asset->downloads ?? 0 }}
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 border-r border-gray-200">
                                 {{ $asset->created_at->format('M j, Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-2">
+                                    <a href="/marketplace/product/{{ $asset->id }}" target="_blank"
+                                       class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs" title="View on Marketplace">Preview</a>
                                     <a href="{{ route('admin.products.show', $asset) }}" 
                                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">View</a>
                                     <a href="{{ route('admin.products.edit', $asset) }}" 
@@ -144,7 +236,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="9" class="px-6 py-4 text-center text-gray-500">
                                 No products found.
                             </td>
                         </tr>

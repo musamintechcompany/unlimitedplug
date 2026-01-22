@@ -27,6 +27,14 @@
                         <h3 class="font-semibold text-gray-900 text-sm">My Purchases</h3>
                     </a>
 
+                    <!-- My Favorites -->
+                    <a href="{{ route('favorites.index') }}" class="flex-shrink-0 w-40 p-6 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition">
+                        <svg class="w-8 h-8 text-red-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <h3 class="font-semibold text-gray-900 text-sm">My Favorites</h3>
+                    </a>
+
                     <!-- Account Settings -->
                     <a href="{{ route('profile.edit') }}" class="flex-shrink-0 w-40 p-6 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition">
                         <svg class="w-8 h-8 text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

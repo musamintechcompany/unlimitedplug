@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
+            $table->uuidMorphs('orderable'); // User, Guest, Organization, etc.
             $table->string('order_number')->unique();
             $table->uuid('payment_id')->nullable();
             $table->string('transaction_reference')->nullable();
@@ -21,11 +21,12 @@ return new class extends Migration
             $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('payment_id')->references('id')->on('payments')->onDelete('set null');
             $table->index('order_number');
             $table->index('transaction_reference');
-            $table->index(['user_id', 'status']);
+            $table->index(['orderable_type', 'orderable_id', 'status']);
+            $table->index('payment_status');
+            $table->index('created_at');
         });
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -41,6 +42,10 @@ class OnboardingController extends Controller
             'status' => 'active',
             'email_verified_at' => now(), // Auto-verify super admin
         ]);
+
+        // Create and assign super-admin role to first admin
+        $role = Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'admin']);
+        $admin->assignRole($role);
 
         Auth::guard('admin')->login($admin);
 

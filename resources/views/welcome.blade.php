@@ -1,7 +1,7 @@
 <x-guest1-layout>
-    <x-slot name="title">Unlimited Plug - Premium Digital Products & Software Marketplace</x-slot>
-    <x-slot name="description">Your gateway to premium digital products. Buy software, digital assets, and innovative solutions with crypto payments. Modern platform with unlimited possibilities.</x-slot>
-    <x-slot name="keywords">digital marketplace, software, digital products, crypto payments, premium products, unlimited plug</x-slot>
+    <x-slot name="title">UnlimitedPlug - Your Marketplace for Everything | Buy & Sell Online</x-slot>
+    <x-slot name="description">UnlimitedPlug.com - Your marketplace for everything. Buy and sell digital products, physical goods, and services. Shop unlimited possibilities at Unlimited Plug marketplace.</x-slot>
+    <x-slot name="keywords">unlimitedplug, unlimited plug, unlimitedplug.com, unlimited plug marketplace, marketplace for everything, buy online, sell online, global marketplace</x-slot>
     <x-slot name="type">website</x-slot>
 
     @if (!file_exists(public_path('build/manifest.json')) && !file_exists(public_path('hot')))
@@ -16,23 +16,24 @@
             <section class="relative py-20 bg-gradient-to-b from-blue-900 via-blue-900 via-90% to-gray-800 text-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <div class="mb-12">
-                        <h1 class="text-4xl md:text-5xl font-bold mb-6">
-                            <span class="bg-gradient-to-r from-blue-200 via-purple-200 to-blue-100 bg-clip-text text-transparent">
-                                Unlimited Plug
-                            </span>
-                            <span class="text-white ml-2" id="typing-text">Unlimited Possibilities</span><span class="text-white" id="cursor">|</span>
+                        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">
+                            UnlimitedPlug - Your Marketplace for Everything
                         </h1>
-                        <p class="text-base md:text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-                            A global online marketplace where people come together to buy and collect unique items. 
-                            We're also a community pushing for positive change, connecting creators with buyers, 
-                            fostering innovation, and building opportunities for everyone to discover, trade, and grow.
+                        <p class="text-xl md:text-2xl font-semibold text-blue-100 mb-8">
+                            <span id="typing-text">Digital Products</span><span id="cursor">|</span>
+                        </p>
+                        <p class="text-base md:text-lg text-gray-200 max-w-3xl mx-auto">
+                            Your global marketplace for products and services. Discover unlimited possibilities, connect with sellers worldwide, shop with confidence.
                         </p>
                     </div>
 
                     <script>
                         const phrases = [
+                            'Digital Products',
+                            'Services & Solutions',
                             'Unlimited Possibilities',
-                            'Your Platform For Everything'
+                            'Global Marketplace',
+                            'Everything You Need'
                         ];
                         let phraseIndex = 0;
                         let charIndex = 0;
@@ -83,13 +84,13 @@
             </section>
 
             <!-- Products by Category Section -->
-            <section class="py-20 bg-gray-100 dark:bg-gray-900">
+            <section class="py-20 bg-gray-100">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     @if($categorizedProducts->isEmpty())
                         <!-- Empty state -->
                         <div class="text-center py-12">
-                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Coming Soon</h3>
-                            <p class="text-gray-600 dark:text-gray-400">Exciting products will be available here soon!</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Coming Soon</h3>
+                            <p class="text-gray-600">Exciting products will be available here soon!</p>
                         </div>
                     @else
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -99,9 +100,9 @@
                                 @endphp
                                 
                                 <!-- Card with dynamic grid based on product count -->
-                                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 flex flex-col justify-between min-h-[420px]">
+                                <div class="bg-white rounded-lg p-6 flex flex-col justify-between min-h-[420px]">
                                     <div>
-                                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">{{ $categoryName }}</h3>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-4">{{ $categoryName }}</h3>
                                         
                                         @if($productCount == 1)
                                             <!-- Single product - large image -->
@@ -114,7 +115,7 @@
                                                 @foreach($products as $product)
                                                     <a href="{{ route('product.detail', $product['id']) }}" class="block">
                                                         <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-32 object-cover rounded mb-2">
-                                                        <span class="text-xs text-gray-700 dark:text-gray-300 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
+                                                        <span class="text-xs text-gray-700 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
                                                     </a>
                                                 @endforeach
                                             </div>
@@ -128,7 +129,7 @@
                                                     @foreach($products->skip(1) as $product)
                                                         <a href="{{ route('product.detail', $product['id']) }}" class="block">
                                                             <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-24 object-cover rounded mb-1">
-                                                            <span class="text-xs text-gray-700 dark:text-gray-300 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
+                                                            <span class="text-xs text-gray-700 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
                                                         </a>
                                                     @endforeach
                                                 </div>
@@ -139,13 +140,13 @@
                                                 @foreach($products->take(4) as $product)
                                                     <a href="{{ route('product.detail', $product['id']) }}" class="block">
                                                         <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-28 object-cover rounded mb-2">
-                                                        <span class="text-xs text-gray-700 dark:text-gray-300 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
+                                                        <span class="text-xs text-gray-700 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
                                                     </a>
                                                 @endforeach
                                             </div>
                                         @endif
                                     </div>
-                                    <a href="javascript:void(0)" onclick="filterByCategory('{{ $categoryName }}')" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Explore {{ $categoryName }}</a>
+                                    <a href="javascript:void(0)" onclick="filterByCategory('{{ $categoryName }}')" class="text-sm text-blue-600 hover:underline">Explore {{ $categoryName }}</a>
                                 </div>
                             @endforeach
                         </div>

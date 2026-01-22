@@ -11,7 +11,10 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::with('subcategories')->latest()->get();
+        $categories = Category::with('subcategories')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
         return view('management.portal.admin.categories.index', compact('categories'));
     }
 
@@ -20,7 +23,12 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories',
             'description' => 'nullable|string',
+            'sort_order' => 'nullable|integer|min:0',
+            'is_active' => 'boolean',
         ]);
+
+        $validated['is_active'] = $request->has('is_active');
+        $validated['sort_order'] = $validated['sort_order'] ?? 0;
 
         Category::create($validated);
 
@@ -33,7 +41,12 @@ class CategoryController extends Controller
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'sort_order' => 'nullable|integer|min:0',
+            'is_active' => 'boolean',
         ]);
+
+        $validated['is_active'] = $request->has('is_active');
+        $validated['sort_order'] = $validated['sort_order'] ?? 0;
 
         Subcategory::create($validated);
 
@@ -45,8 +58,12 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string',
+            'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
         ]);
+
+        $validated['is_active'] = $request->has('is_active');
+        $validated['sort_order'] = $validated['sort_order'] ?? $category->sort_order;
 
         $category->update($validated);
 
@@ -59,7 +76,12 @@ class CategoryController extends Controller
             'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'sort_order' => 'nullable|integer|min:0',
+            'is_active' => 'boolean',
         ]);
+
+        $validated['is_active'] = $request->has('is_active');
+        $validated['sort_order'] = $validated['sort_order'] ?? $subcategory->sort_order;
 
         $subcategory->update($validated);
 

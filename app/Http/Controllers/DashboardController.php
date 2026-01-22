@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -13,13 +14,15 @@ class DashboardController extends Controller
         $user = Auth::user();
         
         // Get total purchases count
-        $totalPurchases = Order::where('user_id', $user->id)
+        $totalPurchases = Order::where('orderable_type', User::class)
+            ->where('orderable_id', $user->id)
             ->where('payment_status', 'completed')
             ->count();
         
         // Get recent purchases (last 3)
         $recentPurchases = Order::with(['items.product'])
-            ->where('user_id', $user->id)
+            ->where('orderable_type', User::class)
+            ->where('orderable_id', $user->id)
             ->where('payment_status', 'completed')
             ->orderBy('created_at', 'desc')
             ->take(3)

@@ -1,2 +1,19 @@
+# Allow all search engines to crawl everything
 User-agent: *
-Disallow:
+Allow: /
+
+# Block admin and private areas
+Disallow: /management/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /login
+Disallow: /register
+Disallow: /checkout
+Disallow: /cart
+
+# Block API endpoints
+Disallow: /api/
+
+# Sitemap location
+Sitemap: {{ config('app.url') }}/sitemap.xml

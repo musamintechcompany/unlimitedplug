@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Cart;
+use App\Models\Favorite;
+use App\Models\Admin;
+use App\Models\Notification;
+use App\Events\AdminNotificationCreated;
+use App\Events\AnalyticsUpdated;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,6 +41,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'terms' => ['accepted'],
         ]);
         
         // Capture session ID BEFORE creating user
@@ -51,10 +57,19 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
         
+        // Notify all admins about new user registration
+        $this->notifyAdmins($user);
+        
         // Transfer cart items from old session to user
         $this->transferCartItems($oldSessionId, $user->id);
+        
+        // Transfer favorites from old session to user
+        $this->transferFavorites($oldSessionId, $user->id);
+        
+        // Send welcome email
+        Mail::to($user->email)->send(new WelcomeEmail($user));
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('dashboard', absolute: false))->with('show_newsletter_modal', true);
     }
     
     /**
@@ -85,5 +100,58 @@ class RegisteredUserController extends Controller
                 ]);
             }
         }
+    }
+    
+    /**
+     * Transfer favorites from session to authenticated user
+     */
+    private function transferFavorites($sessionId, $userId)
+    {
+        // Get session favorites
+        $sessionFavorites = Favorite::where('session_id', $sessionId)
+            ->whereNull('user_id')
+            ->get();
+        
+        foreach ($sessionFavorites as $sessionFavorite) {
+            // Check if user already has this favorite
+            $existingFavorite = Favorite::where('user_id', $userId)
+                ->where('favoritable_type', $sessionFavorite->favoritable_type)
+                ->where('favoritable_id', $sessionFavorite->favoritable_id)
+                ->first();
+                
+            if ($existingFavorite) {
+                // Delete duplicate
+                $sessionFavorite->delete();
+            } else {
+                // Transfer favorite to user
+                $sessionFavorite->update([
+                    'user_id' => $userId,
+                    'session_id' => null
+                ]);
+            }
+        }
+    }
+    
+    /**
+     * Notify all admins about new user registration
+     */
+    private function notifyAdmins($user)
+    {
+        $admins = Admin::all();
+        
+        foreach ($admins as $admin) {
+            $notification = Notification::create([
+                'notifiable_type' => Admin::class,
+                'notifiable_id' => $admin->id,
+                'type' => 'user_registered',
+                'title' => 'New User Registration',
+                'message' => $user->name . ' just registered on the platform.',
+                'data' => json_encode(['user_id' => $user->id, 'user_email' => $user->email])
+            ]);
+            
+            broadcast(new AdminNotificationCreated($notification));
+        }
+        
+        broadcast(new AnalyticsUpdated());
     }
 }

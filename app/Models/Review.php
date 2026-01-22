@@ -11,8 +11,10 @@ class Review extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
-        'user_id',
-        'product_id',
+        'reviewer_type',
+        'reviewer_id',
+        'reviewable_type',
+        'reviewable_id',
         'review_data',
         'is_approved',
     ];
@@ -22,13 +24,13 @@ class Review extends Model
         'is_approved' => 'boolean',
     ];
 
-    public function user()
+    public function reviewer()
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 
-    public function product()
+    public function reviewable()
     {
-        return $this->belongsTo(Product::class);
+        return $this->morphTo();
     }
 }

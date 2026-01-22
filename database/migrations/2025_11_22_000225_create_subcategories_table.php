@@ -22,6 +22,8 @@ return new class extends Migration
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->unique(['category_id', 'name']); // Unique within category
             $table->index('category_id');
+            $table->index('is_active');
+            $table->index('sort_order');
         });
     }
 

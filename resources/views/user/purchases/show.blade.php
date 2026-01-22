@@ -94,13 +94,19 @@
                     </div>
 
                     <!-- License Info -->
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                        <p class="text-sm text-blue-900 font-semibold mb-1">📜 Regular License Included</p>
-                        <p class="text-xs text-blue-800">
-                            You can use this for one project. Cannot resell or redistribute.
-                            <a href="{{ route('license.terms') }}" class="underline font-medium">View full terms</a>
-                        </p>
-                    </div>
+                    @if($product->license_type)
+                        @php
+                            $licenseType = $product->license_type;
+                            $license = config('licenses.' . $licenseType, config('licenses.regular'));
+                        @endphp
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                            <p class="text-sm text-blue-900 font-semibold mb-1">{{ $license['icon'] }} {{ $license['name'] }} Included</p>
+                            <p class="text-xs text-blue-800">
+                                {{ $license['description'] }}
+                                <a href="{{ route('license.terms') }}" class="underline font-medium">View full terms</a>
+                            </p>
+                        </div>
+                    @endif
 
                     <!-- Actions -->
                     <div class="flex flex-col sm:flex-row gap-4">

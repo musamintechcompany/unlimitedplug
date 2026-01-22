@@ -10,10 +10,15 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('user')->latest();
+        $query = Product::with('user');
         
+        // Apply filters
         if ($request->status) {
             $query->where('status', $request->status);
+        }
+        
+        if ($request->category) {
+            $query->where('category_id', $request->category);
         }
         
         if ($request->search) {
@@ -24,8 +29,74 @@ class ProductController extends Controller
             });
         }
         
+        // Apply sorting
+        switch ($request->sort) {
+            case 'oldest':
+                $query->oldest();
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'name':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'downloads':
+                $query->orderBy('downloads', 'desc');
+                break;
+            default:
+                $query->latest();
+        }
+        
         $assets = $query->paginate(20)->withQueryString();
         return view('management.portal.admin.products.index', compact('assets'));
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $ids = explode(',', $request->ids);
+        $action = $request->action;
+        
+        switch ($action) {
+            case 'approve':
+                Product::whereIn('id', $ids)->update(['status' => 'approved', 'reviewed_at' => now()]);
+                return back()->with('success', 'Products approved successfully!');
+            case 'reject':
+                Product::whereIn('id', $ids)->update(['status' => 'rejected', 'reviewed_at' => now()]);
+                return back()->with('success', 'Products rejected successfully!');
+            case 'delete':
+                Product::whereIn('id', $ids)->delete();
+                return back()->with('success', 'Products deleted successfully!');
+        }
+        
+        return back();
+    }
+    
+    public function export(Request $request)
+    {
+        $query = Product::with('user');
+        
+        if ($request->status) $query->where('status', $request->status);
+        if ($request->category) $query->where('category_id', $request->category);
+        if ($request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        $products = $query->get();
+        
+        $csv = "ID,Name,Type,Price,Status,Downloads,Created\n";
+        foreach ($products as $product) {
+            $csv .= "{$product->id},\"{$product->name}\",{$product->type},{$product->price},{$product->status},{$product->downloads},{$product->created_at}\n";
+        }
+        
+        return response($csv)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="products-' . date('Y-m-d') . '.csv"');
     }
 
     public function show(Product $product)
@@ -87,6 +158,7 @@ class ProductController extends Controller
             'usd_price' => 'required|numeric|min:0',
             'usd_list_price' => 'nullable|numeric|min:0',
             'badge' => 'nullable|string|in:NEW,HOT,BESTSELLER,POPULAR,TRENDING,PREMIUM,EXCLUSIVE,LIMITED,FEATURED,TOP RATED,EDITOR\'S CHOICE,UPDATED,FREE',
+            'license_type' => 'nullable|string|in:regular,extended,commercial',
             'banner' => 'nullable|image|max:5120',
             'media.*' => 'nullable|file|max:5120',
             'file.*' => 'nullable|file|max:20480',
@@ -136,16 +208,18 @@ class ProductController extends Controller
             }, $tagArray);
         }
 
-        // Process features array
+        // Process features array - filter empty and convert to array or null
         $features = null;
         if ($request->has('features')) {
-            $features = array_filter($request->input('features'), fn($f) => !empty(trim($f)));
+            $filtered = array_values(array_filter($request->input('features'), fn($f) => !empty(trim($f))));
+            $features = !empty($filtered) ? $filtered : null;
         }
 
-        // Process requirements array
+        // Process requirements array - filter empty and convert to array or null
         $requirements = null;
         if ($request->has('requirements')) {
-            $requirements = array_filter($request->input('requirements'), fn($r) => !empty(trim($r)));
+            $filtered = array_values(array_filter($request->input('requirements'), fn($r) => !empty(trim($r))));
+            $requirements = !empty($filtered) ? $filtered : null;
         }
 
         // Get subcategory name for storage
@@ -166,11 +240,14 @@ class ProductController extends Controller
             'demo_url' => $validated['demo_url'],
             'tags' => $tags,
             'features' => $features,
-            'requirements' => $requirements ? implode("\n", $requirements) : null,
+            'requirements' => $requirements,
             'badge' => $validated['badge'],
-            'status' => 'approved', // Admin-created assets are auto-approved
+            'license_type' => $request->input('license_type'),
+            'status' => $request->input('status', 'draft'),
+            'is_featured' => $request->has('is_featured'),
+            'is_active' => $request->has('is_active'),
             'admin_id' => auth()->guard('admin')->id(), // Track which admin created it
-            'reviewed_at' => now(), // Mark as reviewed
+            'reviewed_at' => in_array($request->input('status'), ['approved', 'rejected']) ? now() : null,
         ]);
         
         // Save USD pricing
@@ -195,6 +272,10 @@ class ProductController extends Controller
                     'list_price' => $listPrice,
                 ]);
             }
+        }
+
+        if ($request->input('action') === 'create_another') {
+            return redirect()->route('admin.products.create')->with('success', 'Product created successfully!');
         }
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully!');
@@ -229,6 +310,7 @@ class ProductController extends Controller
             'usd_list_price' => 'nullable|numeric|min:0',
             'is_featured' => 'boolean',
             'badge' => 'nullable|string|in:NEW,HOT,BESTSELLER,POPULAR,TRENDING,PREMIUM,EXCLUSIVE,LIMITED,FEATURED,TOP RATED,EDITOR\'S CHOICE,UPDATED,FREE',
+            'license_type' => 'nullable|string|in:regular,extended,commercial',
             'banner' => 'nullable|image|max:5120',
             'media.*' => 'nullable|file|max:5120',
             'file.*' => 'nullable|file|max:20480',
@@ -282,16 +364,18 @@ class ProductController extends Controller
             }, $tagArray);
         }
 
-        // Process features array
+        // Process features array - filter empty and convert to array or null
         $features = null;
         if ($request->has('features')) {
-            $features = array_filter($request->input('features'), fn($f) => !empty(trim($f)));
+            $filtered = array_values(array_filter($request->input('features'), fn($f) => !empty(trim($f))));
+            $features = !empty($filtered) ? $filtered : null;
         }
 
-        // Process requirements array
+        // Process requirements array - filter empty and convert to array or null
         $requirements = null;
         if ($request->has('requirements')) {
-            $requirements = array_filter($request->input('requirements'), fn($r) => !empty(trim($r)));
+            $filtered = array_values(array_filter($request->input('requirements'), fn($r) => !empty(trim($r))));
+            $requirements = !empty($filtered) ? $filtered : null;
         }
 
         // Get subcategory name for storage
@@ -306,14 +390,16 @@ class ProductController extends Controller
             'price' => $validated['usd_price'],
             'list_price' => $validated['usd_list_price'],
             'is_featured' => $request->has('is_featured'),
+            'is_active' => $request->has('is_active'),
             'badge' => $validated['badge'],
+            'license_type' => $request->input('license_type'),
             'banner' => $bannerPath,
             'media' => $currentMedia,
             'file' => $currentFiles,
             'demo_url' => $validated['demo_url'],
             'tags' => $tags,
             'features' => $features,
-            'requirements' => $requirements ? implode("\n", $requirements) : null,
+            'requirements' => $requirements,
         ]);
         
         // Update USD pricing

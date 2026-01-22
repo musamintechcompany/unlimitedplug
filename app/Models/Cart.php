@@ -13,7 +13,8 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
         'session_id',
-        'product_id',
+        'cartable_type',
+        'cartable_id',
         'quantity',
         'price',
     ];
@@ -27,9 +28,14 @@ class Cart extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function cartable()
+    {
+        return $this->morphTo();
+    }
+
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->morphTo('cartable');
     }
 
     public static function getCartItems($userId = null, $sessionId = null)

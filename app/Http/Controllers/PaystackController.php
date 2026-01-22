@@ -11,6 +11,10 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\Admin;
+use App\Models\Notification;
+use App\Events\AdminNotificationCreated;
+use App\Events\AnalyticsUpdated;
 use App\Mail\PurchaseConfirmation;
 
 class PaystackController extends Controller
@@ -214,6 +218,9 @@ class PaystackController extends Controller
 
         Log::info('Order created successfully', ['order_id' => $order->id]);
         
+        // Notify all admins about new purchase
+        $this->notifyAdmins($order);
+        
         // Load relationships for email
         $order->load(['user', 'items']);
         
@@ -236,5 +243,28 @@ class PaystackController extends Controller
             // Clear cart for guest user (session-based)
             Cart::where('session_id', session()->getId())->delete();
         }
+    }
+    
+    /**
+     * Notify all admins about new purchase
+     */
+    private function notifyAdmins($order)
+    {
+        $admins = Admin::all();
+        
+        foreach ($admins as $admin) {
+            $notification = Notification::create([
+                'notifiable_type' => Admin::class,
+                'notifiable_id' => $admin->id,
+                'type' => 'order_placed',
+                'title' => 'New Order Placed',
+                'message' => 'Order #' . $order->order_number . ' placed by ' . $order->user->name . ' for ' . $order->currency . ' ' . number_format($order->total_amount, 2),
+                'data' => json_encode(['order_id' => $order->id, 'order_number' => $order->order_number])
+            ]);
+            
+            broadcast(new AdminNotificationCreated($notification));
+        }
+        
+        broadcast(new AnalyticsUpdated());
     }
 }

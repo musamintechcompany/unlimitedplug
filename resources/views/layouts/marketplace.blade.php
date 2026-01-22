@@ -30,7 +30,7 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="font-sans antialiased bg-white dark:bg-gray-900" x-data="{ sidebarOpen: false }" :class="{ 'overflow-hidden': sidebarOpen }" @sidebar-toggle.window="sidebarOpen = $event.detail.open">
+<body class="font-sans antialiased bg-white" x-data="{ sidebarOpen: false }" :class="{ 'overflow-hidden': sidebarOpen }" @sidebar-toggle.window="sidebarOpen = $event.detail.open">
     <!-- Navigation -->
     <x-layouts.marketplace-nav />
 
@@ -40,7 +40,12 @@
     </main>
 
     @include('components.cart-sidebar')
+    @auth
+        @include('user.notifications.index')
+    @endauth
     @include('modals.login')
+    @include('modals.cookies')
+    @include('modals.guest-favorite-warning')
     
     <script>
         // Currency switching function

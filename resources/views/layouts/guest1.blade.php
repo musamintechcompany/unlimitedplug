@@ -6,14 +6,14 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <!-- SEO Meta Tags -->
-        <x-seo 
-            :title="$title ?? null"
-            :description="$description ?? null"
-            :keywords="$keywords ?? null"
-            :image="$image ?? null"
-            :url="$url ?? null"
-            :type="$type ?? 'website'"
-        />
+        @include('components.seo', [
+            'title' => $title ?? null,
+            'description' => $description ?? null,
+            'keywords' => $keywords ?? null,
+            'image' => $image ?? null,
+            'url' => $url ?? null,
+            'type' => $type ?? 'website'
+        ])
 
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="{{ asset('images/logos/favicon.png') }}">
@@ -29,15 +29,23 @@
             [x-cloak] { display: none !important; }
         </style>
     </head>
-    <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-sans antialiased" x-data="{ sidebarOpen: false }" :class="{ 'overflow-hidden': sidebarOpen }" @sidebar-toggle.window="sidebarOpen = $event.detail.open">
+    <body class="bg-white text-gray-900 font-sans antialiased" x-data="{ sidebarOpen: false }" :class="{ 'overflow-hidden': sidebarOpen }" @sidebar-toggle.window="sidebarOpen = $event.detail.open">
         <x-layouts.welcome-nav />
         
         <main class="pt-16">
             {{ $slot }}
         </main>
         
+        <x-layouts.footer />
+        
         @include('modals.login')
+        @include('modals.newsletter')
         @include('components.cart-sidebar')
+        @auth
+            @include('user.notifications.index')
+        @endauth
+        @include('modals.cookies')
+        @include('modals.guest-favorite-warning')
         
         <script>
             function setCurrency(currency) {

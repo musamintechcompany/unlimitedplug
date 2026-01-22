@@ -9,14 +9,29 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MarketplaceController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\EmailPreviewController;
+use App\Http\Controllers\NewsletterController;
 use Illuminate\Support\Facades\Route;
 
 // ============================================================================
 // PUBLIC ROUTES
 // ============================================================================
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// SEO Routes
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// Email Preview Routes (Development Only - Remove in Production)
+Route::prefix('email-preview')->group(function () {
+    Route::get('/', [EmailPreviewController::class, 'index'])->name('email.preview.index');
+    Route::get('/welcome', [EmailPreviewController::class, 'welcome'])->name('email.preview.welcome');
+    Route::get('/verification', [EmailPreviewController::class, 'verification'])->name('email.preview.verification');
+    Route::get('/password-reset', [EmailPreviewController::class, 'passwordReset'])->name('email.preview.password-reset');
+    Route::get('/purchase', [EmailPreviewController::class, 'purchase'])->name('email.preview.purchase');
+});
 
 Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace');
 Route::get('/marketplace/search', [MarketplaceController::class, 'search'])->name('marketplace.search');
@@ -26,6 +41,10 @@ Route::get('/cart/items', [App\Http\Controllers\CartController::class, 'getItems
 Route::post('/cart/update', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
+
+// Favorites
+Route::post('/favorites/toggle', [App\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorites.toggle');
+Route::get('/favorites/check', [App\Http\Controllers\FavoriteController::class, 'check'])->name('favorites.check');
 
 // Currency switching
 Route::post('/currency/set', [App\Http\Controllers\CurrencyController::class, 'setCurrency'])->name('currency.set');
@@ -53,7 +72,11 @@ Route::get('/payment/failed', function () {
 
 Route::get('/marketplace/product/{id}', [MarketplaceController::class, 'show'])->name('product.detail');
 
-Route::get('/software', [App\Http\Controllers\HomeController::class, 'software'])->name('software');
+Route::get('/c/{slug}', [CategoryController::class, 'show'])->name('category.show');
+Route::get('/c/{slug}/{productId}', [CategoryController::class, 'showProduct'])->name('category.product.detail');
+
+// Newsletter Routes
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 Route::get('/how-it-works', function () {
     return view('how-it-works');
@@ -62,6 +85,14 @@ Route::get('/how-it-works', function () {
 Route::get('/license-terms', function () {
     return view('license-terms');
 })->name('license.terms');
+
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+
+Route::get('/policy', function () {
+    return view('policy');
+})->name('policy');
 
 // ============================================================================
 // GUEST ROUTES (Not logged in)
@@ -88,6 +119,12 @@ Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->middleware('verified')->name('dashboard');
 
+    // Notifications
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread', [App\Http\Controllers\NotificationController::class, 'unread'])->name('notifications.unread');
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -111,9 +148,6 @@ Route::middleware('auth')->group(function () {
     // Password Confirmation
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
-
-    // Products Management
-    Route::resource('products', ProductController::class);
     
     // Checkout (requires authentication)
     Route::get('/checkout', function () {
@@ -139,4 +173,7 @@ Route::middleware('auth')->group(function () {
 
     // Logout
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    
+    // Favorites
+    Route::get('/favorites', [App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
 });

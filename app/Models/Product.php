@@ -38,6 +38,7 @@ class Product extends Model
         'media' => 'array',
         'tags' => 'array',
         'features' => 'array',
+        'requirements' => 'array',
         'file' => 'array',
         'price' => 'decimal:2',
         'list_price' => 'decimal:2',
@@ -61,12 +62,12 @@ class Product extends Model
 
     public function reviews()
     {
-        return $this->hasMany(Review::class);
+        return $this->morphMany(Review::class, 'reviewable');
     }
 
     public function approvedReviews()
     {
-        return $this->hasMany(Review::class)->where('is_approved', true);
+        return $this->morphMany(Review::class, 'reviewable')->where('is_approved', true);
     }
 
     public function getAverageRating()

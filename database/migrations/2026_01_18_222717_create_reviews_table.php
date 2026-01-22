@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
-            $table->uuid('product_id');
-            $table->json('review_data'); // Stores rating, comment, and any future fields
+            $table->uuidMorphs('reviewer'); // User or Admin who wrote the review
+            $table->uuidMorphs('reviewable'); // Product, Service, Seller, etc.
+            $table->json('review_data'); // Stores rating, comment, images, and any future fields
             $table->boolean('is_approved')->default(false);
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->unique(['user_id', 'product_id']); // One review per user per product
+            $table->unique(['reviewer_type', 'reviewer_id', 'reviewable_type', 'reviewable_id'], 'unique_review');
+            $table->index('is_approved');
         });
     }
 

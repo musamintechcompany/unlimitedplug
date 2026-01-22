@@ -57,3 +57,35 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+
+## Guest Favorite Warning Modal
+
+### Overview
+The guest favorite warning modal alerts unauthenticated users that their favorites will only be saved for 7 days unless they sign in or register.
+
+### Implementation Pattern
+
+**In Layouts (guest1.blade.php & marketplace.blade.php):**
+- Modal HTML + JavaScript functions are included once via `@include('modals.guest-favorite-warning')`
+- Functions `showGuestFavoriteWarning()` and `closeGuestWarning()` are globally available
+
+**In Pages (marketplace/index.blade.php, categories/index.blade.php, etc.):**
+- Each page's `toggleFavorite()` function checks the API response
+- When `data.isGuest` is true, it calls the global `showGuestFavoriteWarning()` function
+
+### Why This Pattern?
+- **Layout** = Defines the tool (modal + functions) once
+- **Pages** = Use the tool when needed (call the function)
+- Future pages using these layouts automatically have access to the modal
+- No code duplication - the modal exists once, pages just call it
+
+### API Response
+The `FavoriteController::toggle()` returns:
+```json
+{
+    "favorited": true,
+    "isGuest": true
+}
+```

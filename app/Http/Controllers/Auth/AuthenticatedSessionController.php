@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Cart;
+use App\Models\Favorite;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +33,9 @@ class AuthenticatedSessionController extends Controller
         
         // Transfer cart items from old session to user
         $this->transferCartItems($oldSessionId, Auth::id());
+        
+        // Transfer favorites from old session to user
+        $this->transferFavorites($oldSessionId, Auth::id());
 
         $request->session()->regenerate();
 
@@ -61,6 +65,35 @@ class AuthenticatedSessionController extends Controller
             } else {
                 // Transfer item to user
                 $sessionItem->update([
+                    'user_id' => $userId,
+                    'session_id' => null
+                ]);
+            }
+        }
+    }
+    
+    /**
+     * Transfer favorites from session to authenticated user
+     */
+    private function transferFavorites($sessionId, $userId)
+    {
+        // Get session favorites
+        $sessionFavorites = Favorite::where('session_id', $sessionId)
+            ->whereNull('user_id')
+            ->get();
+        
+        foreach ($sessionFavorites as $sessionFavorite) {
+            // Check if user already has this favorite
+            $existingFavorite = Favorite::where('user_id', $userId)
+                ->where('product_id', $sessionFavorite->product_id)
+                ->first();
+                
+            if ($existingFavorite) {
+                // Delete duplicate
+                $sessionFavorite->delete();
+            } else {
+                // Transfer favorite to user
+                $sessionFavorite->update([
                     'user_id' => $userId,
                     'session_id' => null
                 ]);

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
@@ -12,7 +13,9 @@ class Category extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
+        'tag',
         'is_active',
         'sort_order',
         'created_by_type',
@@ -22,6 +25,23 @@ class Category extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($category) {
+            if (empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+
+        static::updating(function ($category) {
+            if ($category->isDirty('name') && empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+    }
 
     public function subcategories()
     {

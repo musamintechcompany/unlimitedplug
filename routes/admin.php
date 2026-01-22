@@ -29,6 +29,8 @@ Route::prefix('management/portal/admin')->middleware('auth:admin')->name('admin.
     Route::get('products/select-type', function () {
         return view('management.portal.admin.products.select-type');
     })->name('products.select-type');
+    Route::post('products/bulk-action', [ProductController::class, 'bulkAction'])->name('products.bulk-action');
+    Route::get('products/export', [ProductController::class, 'export'])->name('products.export');
     Route::resource('products', ProductController::class);
     Route::delete('products/{product}/delete-banner', [ProductController::class, 'deleteBanner'])->name('products.delete-banner');
     Route::delete('products/{product}/delete-media/{index}', [ProductController::class, 'deleteMedia'])->name('products.delete-media');
@@ -61,6 +63,12 @@ Route::prefix('management/portal/admin')->middleware('auth:admin')->name('admin.
     
     // Coupons Management
     Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class);
+    
+    // Notifications Management
+    Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/count', [\App\Http\Controllers\Admin\NotificationController::class, 'count'])->name('notifications.count');
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     
     // Analytics
     Route::get('/analytics/chart-data', [AnalyticsController::class, 'getChartData'])->name('analytics.chart-data');

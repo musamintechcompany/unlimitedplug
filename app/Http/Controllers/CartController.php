@@ -38,7 +38,8 @@ class CartController extends Controller
             }
             
             // Check if item already in cart
-            $existingItem = Cart::where('product_id', $assetId)
+            $existingItem = Cart::where('cartable_type', 'App\\Models\\Product')
+                ->where('cartable_id', $assetId)
                 ->where(function($query) use ($userId, $sessionId) {
                     if ($userId) {
                         $query->where('user_id', $userId);
@@ -54,7 +55,8 @@ class CartController extends Controller
                 Cart::create([
                     'user_id' => $userId,
                     'session_id' => $userId ? null : $sessionId,
-                    'product_id' => $assetId,
+                    'cartable_type' => 'App\\Models\\Product',
+                    'cartable_id' => $assetId,
                     'quantity' => 1,
                     'price' => $price,
                 ]);
@@ -93,7 +95,7 @@ class CartController extends Controller
         $currency = session('currency', 'USD');
         $currencySymbol = config('payment.currencies.' . $currency . '.symbol');
         
-        $cartItems = Cart::with('product.prices')
+        $cartItems = Cart::with('cartable')
             ->where(function($query) use ($userId, $sessionId) {
                 if ($userId) {
                     $query->where('user_id', $userId);
@@ -104,8 +106,10 @@ class CartController extends Controller
             ->get();
             
         $items = $cartItems->map(function($item) use ($currency, $currencySymbol) {
-            $currentPrice = $item->product->getPriceForCurrency($currency);
-            $asset = $item->product;
+            $asset = $item->cartable;
+            if (!$asset) return null;
+            
+            $currentPrice = $asset->getPriceForCurrency($currency);
             $image = $asset->banner ? \Storage::url($asset->banner) : ($asset->media && count($asset->media) > 0 ? \Storage::url($asset->media[0]) : 'https://via.placeholder.com/60x60?text=No+Image');
             
             return [
@@ -117,15 +121,16 @@ class CartController extends Controller
                 'currencySymbol' => $currencySymbol,
                 'image' => $image,
             ];
-        });
+        })->filter();
         
         $total = $cartItems->sum(function($item) use ($currency) {
-            $currentPrice = $item->product->getPriceForCurrency($currency);
+            if (!$item->cartable) return 0;
+            $currentPrice = $item->cartable->getPriceForCurrency($currency);
             return $currentPrice * $item->quantity;
         });
         
         return response()->json([
-            'items' => $items,
+            'items' => $items->values(),
             'total' => number_format($total, 2),
             'currencySymbol' => $currencySymbol
         ]);
@@ -203,7 +208,8 @@ class CartController extends Controller
         foreach ($guestCartItems as $guestItem) {
             // Check if user already has this item
             $existingItem = Cart::where('user_id', $userId)
-                ->where('product_id', $guestItem->product_id)
+                ->where('cartable_type', $guestItem->cartable_type)
+                ->where('cartable_id', $guestItem->cartable_id)
                 ->first();
             
             if ($existingItem) {

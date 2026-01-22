@@ -41,5 +41,18 @@
         </div>
         
         @include('components.cart-sidebar')
+        @include('user.notifications.index')
+        @include('modals.newsletter')
+        @include('modals.cookies')
+        
+        @if(session('show_newsletter_modal'))
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('newsletter-modal'));
+                }, 1000);
+            });
+        </script>
+        @endif
     </body>
 </html>

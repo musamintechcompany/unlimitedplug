@@ -4,7 +4,7 @@
         <a href="{{ route('admin.products.index') }}" class="text-blue-600 hover:text-blue-800">&larr; Back to Products</a>
     </div>
 
-    <form id="assetForm" action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data" x-data="{ uploading: false, progress: 0, currentFile: '', showDemoUrl: {{ $product->demo_url ? 'true' : 'false' }}, showBadge: {{ $product->badge ? 'true' : 'false' }}, showFeatures: {{ $product->features ? 'true' : 'false' }}, showRequirements: {{ $product->requirements ? 'true' : 'false' }}, mediaFiles: [], productFiles: [], tags: {{ json_encode($product->tags ?? []) }}, tagInput: '', features: {{ json_encode($product->features ?? ['']) }}, requirements: {{ json_encode($product->requirements ? explode("\n", $product->requirements) : ['']) }} }">
+    <form id="assetForm" action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data" x-data="{ uploading: false, progress: 0, currentFile: '', showDemoUrl: {{ $product->demo_url ? 'true' : 'false' }}, showBadge: {{ $product->badge ? 'true' : 'false' }}, showFeatures: {{ $product->features ? 'true' : 'false' }}, showRequirements: {{ $product->requirements ? 'true' : 'false' }}, mediaFiles: [], productFiles: [], tags: {{ json_encode($product->tags ?? []) }}, tagInput: '', features: {{ json_encode($product->features ?? ['']) }}, requirements: {{ json_encode(is_array($product->requirements) ? $product->requirements : ['']) }} }">
         @csrf
         @method('PUT')
         <input type="hidden" name="type" value="{{ $product->type }}">
@@ -427,7 +427,7 @@
             </div>
 
             <!-- Requirements Toggle -->
-            <div>
+            <div class="mb-5">
                 <div class="flex items-center justify-between mb-3">
                     <label class="text-sm font-semibold text-gray-900">Add requirements</label>
                     <button type="button" @click="showRequirements = !showRequirements" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" :class="showRequirements ? 'bg-blue-600' : 'bg-gray-300'">
@@ -442,6 +442,71 @@
                         </div>
                     </template>
                     <button type="button" @click="requirements.push('')" class="text-sm text-blue-600 hover:text-blue-800 font-medium">+ Add Field</button>
+                </div>
+            </div>
+
+            <!-- License Type Toggle -->
+            <div x-data="{ showLicense: {{ $product->license_type ? 'true' : 'false' }} }">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-sm font-semibold text-gray-900">Add license type</label>
+                    <button type="button" @click="showLicense = !showLicense" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" :class="showLicense ? 'bg-blue-600' : 'bg-gray-300'">
+                        <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform" :class="showLicense ? 'translate-x-6' : 'translate-x-1'"></span>
+                    </button>
+                </div>
+                <div x-show="showLicense" x-transition class="mt-3">
+                    <select name="license_type" :required="showLicense" class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg">
+                        <option value="">Select License Type</option>
+                        @foreach(config('licenses') as $key => $license)
+                            <option value="{{ $key }}" {{ $product->license_type == $key ? 'selected' : '' }}>{{ $license['icon'] }} {{ $license['name'] }}</option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Choose the license type for this digital product</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Controls Card -->
+        <div class="bg-white border border-gray-200 rounded-none sm:rounded-lg p-4 sm:p-8 mb-4 sm:mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-1">Admin controls</h2>
+            <p class="text-sm text-gray-500 mb-6">Manage product visibility and status.</p>
+
+            <!-- Status Dropdown -->
+            <div class="mb-5">
+                <label class="block text-sm font-semibold text-gray-900 mb-2">Product Status</label>
+                <select name="status" class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg">
+                    <option value="draft" {{ $product->status == 'draft' ? 'selected' : '' }}>Draft</option>
+                    <option value="pending" {{ $product->status == 'pending' ? 'selected' : '' }}>Pending Review</option>
+                    <option value="approved" {{ $product->status == 'approved' ? 'selected' : '' }}>Approved</option>
+                    <option value="rejected" {{ $product->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Set the approval status for this product</p>
+            </div>
+
+            <!-- Featured Toggle -->
+            <div class="mb-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-900">Featured Product</label>
+                        <p class="text-xs text-gray-500 mt-1">Show this product in featured section</p>
+                    </div>
+                    <label class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer" :class="$el.querySelector('input').checked ? 'bg-blue-600' : 'bg-gray-300'">
+                        <input type="checkbox" name="is_featured" value="1" {{ $product->is_featured ? 'checked' : '' }} class="sr-only peer" onchange="this.parentElement.className = this.checked ? 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer bg-blue-600' : 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer bg-gray-300'">
+                        <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform peer-checked:translate-x-6 translate-x-1"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Active Toggle -->
+            <div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-900">Active Product</label>
+                        <p class="text-xs text-gray-500 mt-1">Make product visible in marketplace</p>
+                    </div>
+                    <label class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer" :class="$el.querySelector('input').checked ? 'bg-blue-600' : 'bg-gray-300'">
+                        <input type="checkbox" name="is_active" value="1" {{ $product->is_active ? 'checked' : '' }} class="sr-only peer" onchange="this.parentElement.className = this.checked ? 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer bg-blue-600' : 'relative inline-flex h-6 w-11 items-centers rounded-full transition-colors cursor-pointer bg-gray-300'">
+                        <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform peer-checked:translate-x-6 translate-x-1"></span>
+                    </label>
                 </div>
             </div>
         </div>

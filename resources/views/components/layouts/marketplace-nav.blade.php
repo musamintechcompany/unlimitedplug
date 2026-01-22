@@ -25,14 +25,13 @@ class="bg-white/95 backdrop-blur-sm border-b border-gray-200 fixed top-0 w-full 
                 </button>
                 
                 <a href="/" class="flex items-center hover:opacity-80 transition-opacity">
-                    <x-application-logo class="h-8 w-auto mr-3" />
-                    <span class="text-lg font-bold bg-gradient-to-r from-blue-600 to-black bg-clip-text text-transparent">Unlimited Plug</span>
+                    <x-application-logo class="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 flex-shrink-0" />
+                    <span class="text-sm sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-black bg-clip-text text-transparent whitespace-nowrap">Unlimited Plug</span>
                 </a>
             </div>
 
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center space-x-8">
-                <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
                 <a href="/marketplace" class="text-blue-600 font-medium">MarketPlace</a>
             </div>
 
@@ -58,12 +57,18 @@ class="bg-white/95 backdrop-blur-sm border-b border-gray-200 fixed top-0 w-full 
             <!-- Auth Buttons & Cart -->
             <div class="hidden md:flex items-center space-x-4">
                 <button onclick="toggleCartSidebar()" class="relative text-gray-700 hover:text-blue-600 transition-colors">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                     <span class="cart-count absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" style="display: none;">0</span>
                 </button>
                 @auth
+                    <button onclick="toggleUserNotifications()" class="relative text-gray-700 hover:text-blue-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span id="user-notification-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" style="display: none;">0</span>
+                    </button>
                     <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-blue-600 transition-colors">Dashboard</a>
                 @else
                     <button @click="$dispatch('open-login-modal')" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors">
@@ -102,9 +107,18 @@ class="bg-white/95 backdrop-blur-sm border-b border-gray-200 fixed top-0 w-full 
                     </button>
                 @endguest
                 
+                @auth
+                    <button onclick="toggleUserNotifications()" class="relative text-gray-700 hover:text-blue-600 p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span id="user-notification-count-mobile" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" style="display: none;">0</span>
+                    </button>
+                @endauth
+                
                 <button onclick="toggleCartSidebar()" class="relative text-gray-700 hover:text-blue-600 p-2">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                     <span class="cart-count absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" style="display: none;">0</span>
                 </button>

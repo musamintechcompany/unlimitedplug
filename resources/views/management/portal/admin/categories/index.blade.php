@@ -17,10 +17,16 @@
                 </button>
             </div>
         </div>
+        
+        <!-- Search Bar -->
+        <div class="mt-4">
+            <input type="text" id="searchInput" onkeyup="searchCategories()" placeholder="Search categories..." 
+                   class="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+        </div>
     </div>
 
     <!-- Categories List -->
-    <div class="space-y-6">
+    <div class="space-y-6" id="categoriesList">
         @foreach($categories as $category)
         <div class="bg-white border border-gray-200 rounded-lg p-6">
             <div class="flex justify-between items-start mb-4">
@@ -41,7 +47,7 @@
                             @endif
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="editCategory('{{ $category->id }}', '{{ $category->name }}', '{{ $category->description }}', {{ $category->is_active ? 'true' : 'false' }})" 
+                            <button onclick="editCategory('{{ $category->id }}', '{{ $category->name }}', '{{ $category->description }}', {{ $category->is_active ? 'true' : 'false' }}, {{ $category->sort_order }}, '{{ $category->tag }}')" 
                                     class="text-blue-600 hover:text-blue-900 text-sm">Edit</button>
                             <form method="POST" action="{{ route('admin.categories.destroy-category', $category) }}" class="inline">
                                 @csrf @method('DELETE')
@@ -73,7 +79,7 @@
                                 @endif
                             </div>
                             <div class="flex space-x-1">
-                                <button onclick="editSubcategory('{{ $subcategory->id }}', '{{ $category->id }}', '{{ $subcategory->name }}', '{{ $subcategory->description }}')" 
+                                <button onclick="editSubcategory('{{ $subcategory->id }}', '{{ $category->id }}', '{{ $subcategory->name }}', '{{ $subcategory->description }}', {{ $subcategory->is_active ? 'true' : 'false' }}, {{ $subcategory->sort_order }})" 
                                         class="text-blue-600 hover:text-blue-900 text-xs">Edit</button>
                                 <form method="POST" action="{{ route('admin.categories.destroy-subcategory', $subcategory) }}" class="inline">
                                     @csrf @method('DELETE')
@@ -110,6 +116,24 @@
                         <label class="block text-sm font-medium text-gray-700">Description (Optional)</label>
                         <textarea name="description" rows="3"
                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">SEO Tags (Optional)</label>
+                        <input type="text" name="tag" placeholder="e.g. software, apps, digital tools"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Comma-separated keywords for SEO</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Sort Order</label>
+                        <input type="number" name="sort_order" value="0" min="0" 
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="is_active" value="1" checked 
+                                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Active</span>
+                        </label>
                     </div>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
@@ -157,6 +181,18 @@
                         <textarea name="description" rows="3"
                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Sort Order</label>
+                        <input type="number" name="sort_order" value="0" min="0" 
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="is_active" value="1" checked 
+                                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Active</span>
+                        </label>
+                    </div>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
                     <button type="button" onclick="closeCreateSubcategoryModal()" 
@@ -192,6 +228,17 @@
                         <label class="block text-sm font-medium text-gray-700">Description (Optional)</label>
                         <textarea name="description" id="editCategoryDescription" rows="3"
                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">SEO Tags (Optional)</label>
+                        <input type="text" name="tag" id="editCategoryTag" placeholder="e.g. software, apps, digital tools"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Comma-separated keywords for SEO</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Sort Order</label>
+                        <input type="number" name="sort_order" id="editCategorySortOrder" min="0" 
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
                         <label class="flex items-center">
@@ -245,6 +292,18 @@
                         <textarea name="description" id="editSubcategoryDescription" rows="3"
                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Sort Order</label>
+                        <input type="number" name="sort_order" id="editSubcategorySortOrder" min="0" 
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="is_active" id="editSubcategoryActive" value="1" 
+                                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Active</span>
+                        </label>
+                    </div>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
                     <button type="button" onclick="closeEditSubcategoryModal()" 
@@ -278,10 +337,12 @@ function closeCreateSubcategoryModal() {
     document.getElementById('createSubcategoryModal').classList.add('hidden');
 }
 
-function editCategory(id, name, description, isActive) {
+function editCategory(id, name, description, isActive, sortOrder, tag) {
     document.getElementById('editCategoryForm').action = `/management/portal/admin/categories/category/${id}`;
     document.getElementById('editCategoryName').value = name;
     document.getElementById('editCategoryDescription').value = description || '';
+    document.getElementById('editCategoryTag').value = tag || '';
+    document.getElementById('editCategorySortOrder').value = sortOrder || 0;
     document.getElementById('editCategoryActive').checked = isActive;
     document.getElementById('editCategoryModal').classList.remove('hidden');
 }
@@ -290,11 +351,13 @@ function closeEditCategoryModal() {
     document.getElementById('editCategoryModal').classList.add('hidden');
 }
 
-function editSubcategory(id, categoryId, name, description) {
+function editSubcategory(id, categoryId, name, description, isActive, sortOrder) {
     document.getElementById('editSubcategoryForm').action = `/management/portal/admin/categories/subcategory/${id}`;
     document.getElementById('editSubcategoryCategory').value = categoryId;
     document.getElementById('editSubcategoryName').value = name;
     document.getElementById('editSubcategoryDescription').value = description || '';
+    document.getElementById('editSubcategorySortOrder').value = sortOrder || 0;
+    document.getElementById('editSubcategoryActive').checked = isActive;
     document.getElementById('editSubcategoryModal').classList.remove('hidden');
 }
 
@@ -312,6 +375,22 @@ function toggleSubcategories(categoryId) {
     } else {
         subcategoriesDiv.classList.add('hidden');
         toggleIcon.style.transform = 'rotate(0deg)';
+    }
+}
+
+function searchCategories() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const categoriesList = document.getElementById('categoriesList');
+    const categories = categoriesList.getElementsByClassName('bg-white');
+    
+    for (let i = 0; i < categories.length; i++) {
+        const categoryName = categories[i].querySelector('h3').textContent.toLowerCase();
+        if (categoryName.includes(filter)) {
+            categories[i].style.display = '';
+        } else {
+            categories[i].style.display = 'none';
+        }
     }
 }
 </script>
