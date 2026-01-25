@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\Admin::class,
         ]);
         
+        $middleware->web(append: [
+            \App\Http\Middleware\TrackVisitor::class,
+        ]);
+        
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
