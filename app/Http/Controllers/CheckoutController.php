@@ -96,7 +96,11 @@ class CheckoutController extends Controller
             
             $order->load(['items.product', 'orderable']);
             Mail::to($user->email)->queue(new OrderConfirmed($order));
-            Mail::to(env('ADMIN_EMAIL'))->queue(new NewOrderReceived($order));
+            
+            $admin = \App\Models\Admin::first();
+            if ($admin && $admin->email) {
+                Mail::to($admin->email)->queue(new NewOrderReceived($order));
+            }
             
             $this->notifyAdmins($order);
             

@@ -365,10 +365,10 @@ class FlutterwaveController extends Controller
         broadcast(new AnalyticsUpdated());
         
         // Send email notification to admin
-        $adminEmail = env('ADMIN_EMAIL');
-        if ($adminEmail) {
+        $admin = Admin::first();
+        if ($admin && $admin->email) {
             try {
-                Mail::to($adminEmail)->send(new NewOrderReceived($order));
+                Mail::to($admin->email)->send(new NewOrderReceived($order));
             } catch (\Exception $e) {
                 Log::error('Failed to send admin notification email: ' . $e->getMessage());
             }

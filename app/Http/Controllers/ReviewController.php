@@ -107,10 +107,10 @@ class ReviewController extends Controller
         }
         
         // Send email notification to admin
-        $adminEmail = env('ADMIN_EMAIL');
-        if ($adminEmail) {
+        $admin = \App\Models\Admin::first();
+        if ($admin && $admin->email) {
             try {
-                Mail::to($adminEmail)->send(new NewReviewReceived($review));
+                Mail::to($admin->email)->send(new NewReviewReceived($review));
             } catch (\Exception $e) {
                 \Log::error('Failed to send admin review notification email: ' . $e->getMessage());
             }
