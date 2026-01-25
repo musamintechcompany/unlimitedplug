@@ -11,8 +11,12 @@ class TrackVisitor
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->is('admin/*') && !$request->is('api/*')) {
-            $this->trackVisit($request);
+        try {
+            if (!$request->is('admin/*') && !$request->is('api/*')) {
+                $this->trackVisit($request);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Visitor tracking failed: ' . $e->getMessage());
         }
         
         return $next($request);
