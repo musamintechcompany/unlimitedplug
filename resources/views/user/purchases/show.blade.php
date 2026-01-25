@@ -22,12 +22,17 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <!-- File Preview Section -->
-                @if($product->file && count($product->file) > 0)
+                @php
+                    $productData = $orderItem->product_files;
+                    $files = is_array($productData) && isset($productData['files']) ? $productData['files'] : $productData;
+                    $licenseType = is_array($productData) && isset($productData['license_type']) ? $productData['license_type'] : null;
+                @endphp
+                @if($files && count($files) > 0)
                     <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-8">
                         <div class="max-w-2xl mx-auto">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">Download Package Contents</h3>
                             <div class="bg-white rounded-lg shadow-sm border p-6 space-y-3">
-                                @foreach($product->file as $filePath)
+                                @foreach($files as $filePath)
                                     @php
                                         $fileName = basename($filePath);
                                         $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
@@ -94,9 +99,8 @@
                     </div>
 
                     <!-- License Info -->
-                    @if($product->license_type)
+                    @if($licenseType)
                         @php
-                            $licenseType = $product->license_type;
                             $license = config('licenses.' . $licenseType, config('licenses.regular'));
                         @endphp
                         <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
@@ -113,13 +117,19 @@
                         <a href="{{ route('download', $orderItem->id) }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
                             Download Now
                         </a>
-                        <button onclick="document.getElementById('reviewModal').classList.remove('hidden')" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition text-center font-semibold">
-                            @if($userReview)
-                                Edit Your Review
-                            @else
-                                Rate & Review
-                            @endif
-                        </button>
+                        @if($userReview && $userReview->created_at->diffInMinutes(now()) <= 3)
+                            <button onclick="document.getElementById('reviewModal').classList.remove('hidden')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition text-center font-semibold shadow-lg animate-pulse">
+                                Edit Your Review ({{ 3 - $userReview->created_at->diffInMinutes(now()) }} min left)
+                            </button>
+                        @elseif($userReview)
+                            <button onclick="document.getElementById('viewReviewModal').classList.remove('hidden')" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition text-center font-semibold">
+                                View Your Review
+                            </button>
+                        @else
+                            <button onclick="document.getElementById('reviewModal').classList.remove('hidden')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition text-center font-semibold shadow-lg animate-pulse">
+                                ⭐ Rate & Review
+                            </button>
+                        @endif
                     </div>
 
                     <div class="border-t pt-6" x-data="{ open: false }">
@@ -161,7 +171,11 @@
                             @if($product->requirements)
                                 <div>
                                     <h4 class="font-semibold mb-2">Requirements</h4>
-                                    <div class="text-gray-700 prose max-w-none">{!! $product->requirements !!}</div>
+                                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                        @foreach($product->requirements as $requirement)
+                                            <li>{{ $requirement }}</li>
+                                        @endforeach
+                                    </ul>
                                 </div>
                             @endif
 
@@ -195,7 +209,7 @@
                 </button>
             </div>
 
-            <form action="{{ route('reviews.store', $product) }}" method="POST">
+            <form action="{{ route('reviews.store', $product) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-4">
                     <label class="block text-sm font-semibold mb-2">Rating</label>
@@ -214,6 +228,12 @@
                     <textarea name="comment" rows="4" class="w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="Share your experience with this product...">{{ $userReview ? $userReview->review_data['comment'] : '' }}</textarea>
                 </div>
 
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-2">Photos (Optional)</label>
+                    <input type="file" name="images[]" multiple accept="image/*" class="w-full border border-gray-300 rounded-lg p-2 text-sm">
+                    <p class="text-xs text-gray-500 mt-1">You can upload up to 5 images (max 2MB each)</p>
+                </div>
+
                 <div class="flex gap-3">
                     <button type="button" onclick="document.getElementById('reviewModal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
                         Cancel
@@ -223,6 +243,57 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- View Review Modal -->
+    <div id="viewReviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Your Review</h3>
+                <button onclick="document.getElementById('viewReviewModal').classList.add('hidden')" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            @if($userReview)
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm font-semibold mb-1">Rating</p>
+                        <div class="flex gap-1">
+                            @for($i = 1; $i <= 5; $i++)
+                                <span class="text-2xl {{ $i <= $userReview->review_data['rating'] ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
+                            @endfor
+                        </div>
+                    </div>
+
+                    @if(!empty($userReview->review_data['comment']))
+                        <div>
+                            <p class="text-sm font-semibold mb-1">Comment</p>
+                            <p class="text-gray-700">{{ $userReview->review_data['comment'] }}</p>
+                        </div>
+                    @endif
+
+                    @if(!empty($userReview->review_data['images']))
+                        <div>
+                            <p class="text-sm font-semibold mb-2">Photos</p>
+                            <div class="grid grid-cols-3 gap-2">
+                                @foreach($userReview->review_data['images'] as $image)
+                                    <img src="{{ Storage::url($image) }}" alt="Review image" class="w-full h-20 object-cover rounded">
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <p class="text-xs text-gray-500">Posted {{ $userReview->created_at->diffForHumans() }}</p>
+                </div>
+            @endif
+
+            <button onclick="document.getElementById('viewReviewModal').classList.add('hidden')" class="w-full mt-4 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
+                Close
+            </button>
         </div>
     </div>
 </x-app-layout>

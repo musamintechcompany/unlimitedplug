@@ -3,15 +3,16 @@
 return [
     'default_currency' => 'USD',
     
-    'paystack' => [
-        'public_key' => env('PAYSTACK_PUBLIC_KEY'),
-        'secret_key' => env('PAYSTACK_SECRET_KEY'),
-    ],
-    
     'flutterwave' => [
-        'public_key' => env('FLUTTERWAVE_PUBLIC_KEY'),
-        'secret_key' => env('FLUTTERWAVE_SECRET_KEY'),
-        'encryption_key' => env('FLUTTERWAVE_ENCRYPTION_KEY'),
+        'public_key' => env('APP_ENV') === 'production' 
+            ? env('FLUTTERWAVE_LIVE_PUBLIC_KEY') 
+            : env('FLUTTERWAVE_TEST_PUBLIC_KEY'),
+        'secret_key' => env('APP_ENV') === 'production' 
+            ? env('FLUTTERWAVE_LIVE_SECRET_KEY') 
+            : env('FLUTTERWAVE_TEST_SECRET_KEY'),
+        'encryption_key' => env('APP_ENV') === 'production' 
+            ? env('FLUTTERWAVE_LIVE_ENCRYPTION_KEY') 
+            : env('FLUTTERWAVE_TEST_ENCRYPTION_KEY'),
     ],
     
     'currencies' => [
@@ -48,7 +49,6 @@ return [
     ],
     
     'payment_gateways' => [
-        'NGN' => 'paystack',
         'default' => 'flutterwave'
     ]
 ];

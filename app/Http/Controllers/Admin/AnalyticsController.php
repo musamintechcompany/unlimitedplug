@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Visitor;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -38,6 +39,32 @@ class AnalyticsController extends Controller
             'labels' => $labels,
             'orders' => $orders,
             'users' => $users
+        ]);
+    }
+    
+    public function getVisitorChartData(Request $request)
+    {
+        $period = $request->input('period', 30);
+        
+        $labels = [];
+        $total = [];
+        $unique = [];
+        
+        $dateRange = $this->getDateRange($period);
+        
+        foreach ($dateRange as $date) {
+            $labels[] = $date['label'];
+            
+            $total[] = Visitor::whereBetween('created_at', [$date['start'], $date['end']])->count();
+            $unique[] = Visitor::whereBetween('created_at', [$date['start'], $date['end']])
+                ->distinct('visitor_id')
+                ->count('visitor_id');
+        }
+        
+        return response()->json([
+            'labels' => $labels,
+            'total' => $total,
+            'unique' => $unique
         ]);
     }
     

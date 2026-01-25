@@ -19,6 +19,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comment</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Images</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -28,11 +29,11 @@
                             @foreach($reviews as $review)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ $review->user->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $review->user->email }}</div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $review->reviewer ? $review->reviewer->name : 'N/A' }}</div>
+                                        <div class="text-sm text-gray-500">{{ $review->reviewer ? $review->reviewer->email : 'N/A' }}</div>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-900">{{ $review->product->name }}</div>
+                                        <div class="text-sm text-gray-900">{{ $review->reviewable ? $review->reviewable->name : 'N/A' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -46,6 +47,22 @@
                                         <div class="text-sm text-gray-900 max-w-xs truncate">
                                             {{ $review->review_data['comment'] ?? 'No comment' }}
                                         </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if(!empty($review->review_data['images']))
+                                            <div class="flex gap-1">
+                                                @foreach(array_slice($review->review_data['images'], 0, 3) as $image)
+                                                    <img src="{{ asset('storage/' . $image) }}" alt="Review image" class="w-12 h-12 object-cover rounded">
+                                                @endforeach
+                                                @if(count($review->review_data['images']) > 3)
+                                                    <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-600">
+                                                        +{{ count($review->review_data['images']) - 3 }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <span class="text-sm text-gray-400">No images</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($review->is_approved)

@@ -10,7 +10,7 @@ class ReviewController extends Controller
 {
     public function index()
     {
-        $reviews = Review::with(['user', 'product'])
+        $reviews = Review::with(['reviewer', 'reviewable'])
             ->orderBy('is_approved', 'asc')
             ->orderBy('created_at', 'desc')
             ->paginate(20);

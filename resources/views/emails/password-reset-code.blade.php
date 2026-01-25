@@ -3,22 +3,70 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Password Reset Code</title>
+    <title>Password Reset - {{ config('app.name') }}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; margin: 0; padding: 0; background: #f3f4f6; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+        .logo-section { text-align: center; padding: 20px 20px 10px; }
+        .logo-img { height: 40px; margin-bottom: 0; margin-right: 10px; }
+        .logo-text { font-size: 24px; font-weight: bold; background: linear-gradient(135deg, #3b82f6 0%, #000000 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; display: inline-block; }
+        .divider { border: none; height: 3px; background: linear-gradient(90deg, #3b82f6 0%, #000000 100%); margin: 0; }
+        .content { padding: 40px 30px; text-align: center; }
+        .title { font-size: 28px; color: #111827; margin: 0 0 15px 0; font-weight: 600; }
+        .subtitle { color: #6b7280; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0; }
+        .code-box { background: #f3f4f6; border: 2px dashed #ef4444; border-radius: 8px; padding: 20px; margin: 30px auto; max-width: 300px; }
+        .code { font-size: 32px; font-weight: bold; color: #ef4444; letter-spacing: 4px; margin: 0; font-family: 'Courier New', monospace; word-break: break-all; }
+        @media only screen and (max-width: 600px) {
+            .code { font-size: 28px; letter-spacing: 3px; }
+            .code-box { padding: 15px; max-width: 250px; }
+        }
+        @media only screen and (max-width: 400px) {
+            .code { font-size: 24px; letter-spacing: 2px; }
+            .code-box { max-width: 200px; }
+        }
+        .expiry { color: #6b7280; font-size: 14px; margin: 20px 0 0 0; }
+        .info { color: #6b7280; font-size: 14px; line-height: 1.6; margin: 20px 0; }
+        .warning { background: #fef2f2; padding: 15px; margin: 20px 0; text-align: left; border-radius: 8px; }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-    <h1 style="text-align: center; margin: 0 0 10px 0; font-size: 28px; color: #333;">Unlimited Plug</h1>
-    <hr style="border: none; border-top: 3px solid #007bff; margin: 0 0 30px 0;">
-    
-    <h2 style="color: #333; margin-bottom: 20px;">Password Reset Code</h2>
-    
-    <p>You requested to reset your password. Use the verification code below:</p>
-    
-    <div style="text-align: center; margin: 25px 0;">
-        <h3 style="margin: 0; color: #007bff; font-size: 32px; letter-spacing: 4px; font-weight: bold;">{{ $code }}</h3>
+<body>
+    <div class="container">
+        <div class="logo-section">
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <img src="{{ asset('images/logos/logo1.png') }}" alt="UnlimitedPlug" class="logo-img">
+                <h1 class="logo-text">UnlimitedPlug</h1>
+            </div>
+        </div>
+        
+        <hr class="divider">
+        
+        <div class="content">
+            <h2 class="title">Reset Your Password 🔑</h2>
+            <p class="subtitle">
+                We received a request to reset your password. Use the code below to create a new password.
+            </p>
+            
+            <div class="code-box">
+                <p class="code">{{ $code }}</p>
+            </div>
+            
+            <p class="expiry">⏰ This code expires in 10 minutes</p>
+            
+            <div class="warning">
+                <p style="margin: 0; color: #991b1b; font-weight: 600; font-size: 14px;">⚠️ Security Notice</p>
+                <p style="margin: 5px 0 0 0; color: #7f1d1d; font-size: 13px;">If you didn't request a password reset, please ignore this email and ensure your account is secure.</p>
+            </div>
+            
+            <p class="info">
+                Enter this code on the password reset page to set your new password.
+            </p>
+            
+            <p class="info" style="color: #9ca3af; font-size: 13px;">
+                Need help? <a href="https://wa.me/{{ config('services.whatsapp.support_number') }}?text={{ urlencode('Hi UnlimitedPlug Support, I need help with password reset.') }}" style="color: #3b82f6; text-decoration: none;">Contact our support team</a>.
+            </p>
+        </div>
+        
+        @include('emails.partials.footer')
     </div>
-    
-    <p><strong>This code will expire in 10 minutes.</strong></p>
-    
-    <p>If you didn't request this, please ignore this email.</p>
 </body>
 </html>

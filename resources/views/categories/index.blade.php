@@ -39,7 +39,11 @@
                                 @if($product['oldPrice'])
                                     <span class="text-xs text-gray-400 line-through">{{ $product['currencySymbol'] }}{{ number_format($product['oldPrice'], 2) }}</span>
                                 @endif
+                                @if($product['price'] == 0)
+                                <span class="text-sm font-bold text-green-600">FREE</span>
+                                @else
                                 <span class="text-sm font-bold text-black dark:text-white">{{ $product['currencySymbol'] }}{{ number_format($product['price'], 2) }}</span>
+                                @endif
                                 @if($product['oldPrice'])
                                     <span class="text-xs font-bold text-red-600">({{ round((($product['oldPrice'] - $product['price']) / $product['oldPrice']) * 100) }}% OFF)</span>
                                 @endif

@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('newsletter_subscribers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuidMorphs('subscriber'); // user_id or null for guests
+            $table->nullableUuidMorphs('subscriber'); // user_id or null for guests
             $table->string('email')->unique();
             $table->string('name')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('confirmation_token')->nullable();
+            $table->timestamp('confirmed_at')->nullable();
+            $table->boolean('is_active')->default(false);
             $table->timestamp('subscribed_at')->useCurrent();
             $table->timestamps();
             
             $table->index('email');
             $table->index('is_active');
+            $table->index('confirmation_token');
         });
     }
 

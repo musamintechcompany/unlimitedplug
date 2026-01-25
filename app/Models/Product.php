@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -16,6 +17,7 @@ class Product extends Model
         'description',
         'type',
         'category_id',
+        'subcategory_id',
         'subcategory',
         'price',
         'list_price',
@@ -28,7 +30,9 @@ class Product extends Model
         'requirements',
         'status',
         'is_featured',
+        'is_active',
         'badge',
+        'license_type',
         'admin_id',
         'reviewed_at',
         'downloads',
@@ -43,6 +47,7 @@ class Product extends Model
         'price' => 'decimal:2',
         'list_price' => 'decimal:2',
         'is_featured' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function user()

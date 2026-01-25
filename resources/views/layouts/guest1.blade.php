@@ -36,6 +36,7 @@
             {{ $slot }}
         </main>
         
+        @include('components.newsletter-section')
         <x-layouts.footer />
         
         @include('modals.login')

@@ -72,4 +72,5 @@ Route::prefix('management/portal/admin')->middleware('auth:admin')->name('admin.
     
     // Analytics
     Route::get('/analytics/chart-data', [AnalyticsController::class, 'getChartData'])->name('analytics.chart-data');
+    Route::get('/analytics/visitor-chart-data', [AnalyticsController::class, 'getVisitorChartData'])->name('analytics.visitor-chart-data');
 });

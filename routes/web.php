@@ -12,7 +12,6 @@ use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\EmailPreviewController;
 use App\Http\Controllers\NewsletterController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,15 +22,6 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 
 // SEO Routes
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
-
-// Email Preview Routes (Development Only - Remove in Production)
-Route::prefix('email-preview')->group(function () {
-    Route::get('/', [EmailPreviewController::class, 'index'])->name('email.preview.index');
-    Route::get('/welcome', [EmailPreviewController::class, 'welcome'])->name('email.preview.welcome');
-    Route::get('/verification', [EmailPreviewController::class, 'verification'])->name('email.preview.verification');
-    Route::get('/password-reset', [EmailPreviewController::class, 'passwordReset'])->name('email.preview.password-reset');
-    Route::get('/purchase', [EmailPreviewController::class, 'purchase'])->name('email.preview.purchase');
-});
 
 Route::get('/marketplace', [MarketplaceController::class, 'index'])->name('marketplace');
 Route::get('/marketplace/search', [MarketplaceController::class, 'search'])->name('marketplace.search');
@@ -48,11 +38,6 @@ Route::get('/favorites/check', [App\Http\Controllers\FavoriteController::class, 
 
 // Currency switching
 Route::post('/currency/set', [App\Http\Controllers\CurrencyController::class, 'setCurrency'])->name('currency.set');
-
-// Paystack Routes
-Route::post('/paystack/initialize', [App\Http\Controllers\PaystackController::class, 'initializePayment'])->name('paystack.initialize');
-Route::get('/paystack/callback', [App\Http\Controllers\PaystackController::class, 'handleCallback'])->name('paystack.callback');
-Route::post('/paystack/webhook', [App\Http\Controllers\PaystackController::class, 'webhook'])->name('paystack.webhook');
 
 // Flutterwave Routes
 Route::post('/flutterwave/initialize', [App\Http\Controllers\FlutterwaveController::class, 'initializePayment'])->name('flutterwave.initialize');
@@ -77,6 +62,8 @@ Route::get('/c/{slug}/{productId}', [CategoryController::class, 'showProduct'])-
 
 // Newsletter Routes
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/confirm/{token}', [NewsletterController::class, 'confirm'])->name('newsletter.confirm');
+Route::get('/newsletter/unsubscribe/{email}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
 
 Route::get('/how-it-works', function () {
     return view('how-it-works');
@@ -84,7 +71,7 @@ Route::get('/how-it-works', function () {
 
 Route::get('/license-terms', function () {
     return view('license-terms');
-})->name('license.terms');
+})->middleware('auth')->name('license.terms');
 
 Route::get('/terms', function () {
     return view('terms');
@@ -153,6 +140,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout', function () {
         return view('user.checkout');
     })->name('checkout');
+    Route::post('/order/create-free', [App\Http\Controllers\CheckoutController::class, 'createFreeOrder'])->name('order.create-free');
 
     // My Purchases
     Route::get('/my-purchases', [App\Http\Controllers\PurchaseController::class, 'index'])->name('purchases.index');

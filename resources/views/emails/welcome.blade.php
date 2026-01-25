@@ -33,20 +33,22 @@
 <body>
     <div class="container">
         <div class="logo-section">
-            <img src="{{ asset('images/logos/logo1.png') }}" alt="UnlimitedPlug" class="logo-img">
-            <h1 class="logo-text">UnlimitedPlug</h1>
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <img src="{{ asset('images/logos/logo1.png') }}" alt="UnlimitedPlug" class="logo-img" style="margin-bottom: 0; margin-right: 10px;">
+                <h1 class="logo-text">UnlimitedPlug</h1>
+            </div>
             <p class="tagline">Your Marketplace for Everything</p>
         </div>
-        
+
         <hr class="divider">
-        
+
         <div class="content">
             <h2 class="welcome-text">Welcome, {{ $user->name }}! 👋</h2>
             <p class="subtitle">
-                Thank you for joining UnlimitedPlug! We're excited to have you as part of our growing community. 
-                Your account has been successfully created with <strong>{{ $user->email }}</strong>
+                Thank you for joining UnlimitedPlug! We're excited to have you as part of our growing community.
+                Your account has been successfully created with the email <strong>{{ $user->email }}</strong>
             </p>
-            
+
             @if($products->count() > 0)
                 <h3 style="color: #111827; font-size: 20px; margin: 30px 0 15px 0;">Check Out Our Marketplace</h3>
                 <div class="products-grid">
@@ -75,27 +77,17 @@
                     <p style="color: #9ca3af; font-size: 14px; margin: 0;">Our marketplace is growing daily. Check back soon for amazing products!</p>
                 </div>
             @endif
-            
-            <div style="text-align: center;">
-                <a href="{{ config('app.url') }}/marketplace" class="button">Explore Marketplace</a>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{ config('app.url') }}/marketplace" style="display: inline-block; padding: 12px 30px; background-color: #3b82f6; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px;">Explore Marketplace</a>
             </div>
-            
+
             <p style="color: #6b7280; font-size: 14px; margin-top: 30px; line-height: 1.6;">
-                Need help getting started? Visit our <a href="{{ config('app.url') }}/how-it-works" style="color: #3b82f6;">How It Works</a> page or contact our support team.
+                Need help getting started? Visit our <a href="{{ config('app.url') }}/how-it-works" style="color: #3b82f6;">How It Works</a> page or <a href="https://wa.me/{{ config('services.whatsapp.support_number') }}?text={{ urlencode('Hi UnlimitedPlug Support, I need help getting started.') }}" style="color: #3b82f6; text-decoration: none;">contact our support team</a>.
             </p>
         </div>
-        
-        <div class="footer">
-            <p style="margin: 0 0 10px 0;">&copy; {{ date('Y') }} UnlimitedPlug. All rights reserved.</p>
-            <div class="social-links">
-                <a href="#">Twitter</a> • 
-                <a href="#">Instagram</a> • 
-                <a href="#">Facebook</a>
-            </div>
-            <p style="font-size: 12px; color: #d1d5db; margin: 15px 0 0 0;">
-                You're receiving this email because you created an account at UnlimitedPlug.com
-            </p>
-        </div>
+
+        @include('emails.partials.footer')
     </div>
 </body>
 </html>

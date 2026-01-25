@@ -1,6 +1,6 @@
-<footer class="bg-gray-900 text-gray-300 py-12 mt-20">
+<footer class="bg-gray-900 text-gray-300 py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <!-- Brand -->
             <div>
                 <h3 class="text-white font-bold text-lg mb-4">Unlimited Plug</h3>
@@ -23,22 +23,6 @@
                     <li><a href="#" class="hover:text-white">Help Center</a></li>
                     <li><a href="#" class="hover:text-white">Contact Us</a></li>
                 </ul>
-            </div>
-            
-            <!-- Newsletter -->
-            <div>
-                <h4 class="text-white font-semibold mb-4">Stay Updated</h4>
-                <form id="footer-newsletter-form" class="space-y-2">
-                    @csrf
-                    <input type="text" name="name" placeholder="Name (optional)" 
-                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm focus:ring-blue-500 focus:border-blue-500">
-                    <input type="email" name="email" required placeholder="Your email" 
-                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm focus:ring-blue-500 focus:border-blue-500">
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm font-semibold transition">
-                        Subscribe
-                    </button>
-                    <p id="footer-newsletter-msg" class="text-xs hidden"></p>
-                </form>
             </div>
         </div>
         

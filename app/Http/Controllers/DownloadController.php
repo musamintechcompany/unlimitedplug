@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\OrderItem;
-use App\Models\Product;
 
 class DownloadController extends Controller
 {
@@ -14,19 +13,20 @@ class DownloadController extends Controller
     {
         $user = Auth::user();
         
-        // Verify ownership
-        if ($orderItem->order->user_id !== $user->id || $orderItem->order->payment_status !== 'completed') {
+        // Verify ownership using polymorphic relationship
+        if ($orderItem->order->orderable_id !== $user->id || 
+            $orderItem->order->orderable_type !== get_class($user) ||
+            $orderItem->order->payment_status !== 'completed') {
             abort(403, 'Unauthorized');
         }
 
-        $asset = $orderItem->product;
+        // Use snapshot files from order item
+        $productData = $orderItem->product_files;
         
-        if (!$asset || !$asset->file) {
-            abort(404, 'Product or file not found');
-        }
-
-        // Get the first file from the JSON array
-        $files = is_array($asset->file) ? $asset->file : json_decode($asset->file, true);
+        // Handle both old format (array) and new format (object)
+        $files = is_array($productData) && isset($productData['files']) 
+            ? $productData['files'] 
+            : $productData;
         
         if (empty($files)) {
             abort(404, 'No files available for download');
@@ -34,14 +34,18 @@ class DownloadController extends Controller
 
         $filePath = $files[0]; // Download first file
         
-        // Check if file exists in storage (files are stored privately)
+        // Check if file exists in storage
         if (!Storage::exists($filePath)) {
             abort(404, 'File not found on server');
         }
 
         // Increment download count
         $orderItem->incrementDownloadCount();
-        $asset->increment('downloads');
+        
+        // Increment product downloads if product still exists
+        if ($orderItem->product) {
+            $orderItem->product->increment('downloads');
+        }
 
         // Return file download
         return Storage::download($filePath, basename($filePath));

@@ -21,6 +21,10 @@ class ProductController extends Controller
             $query->where('category_id', $request->category);
         }
         
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+        
         if ($request->search) {
             $query->where(function($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
@@ -231,6 +235,7 @@ class ProductController extends Controller
             'description' => $validated['description'],
             'type' => $validated['type'],
             'category_id' => $validated['category_id'],
+            'subcategory_id' => $validated['subcategory_id'],
             'subcategory' => $subcategory ? $subcategory->name : null, // Store subcategory name for compatibility
             'price' => $validated['usd_price'], // Default price in USD
             'list_price' => $validated['usd_list_price'],
@@ -308,6 +313,7 @@ class ProductController extends Controller
             'subcategory_id' => 'nullable|exists:subcategories,id',
             'usd_price' => 'required|numeric|min:0',
             'usd_list_price' => 'nullable|numeric|min:0',
+            'status' => 'required|in:draft,pending,approved,rejected',
             'is_featured' => 'boolean',
             'badge' => 'nullable|string|in:NEW,HOT,BESTSELLER,POPULAR,TRENDING,PREMIUM,EXCLUSIVE,LIMITED,FEATURED,TOP RATED,EDITOR\'S CHOICE,UPDATED,FREE',
             'license_type' => 'nullable|string|in:regular,extended,commercial',
@@ -387,8 +393,10 @@ class ProductController extends Controller
             'type' => $validated['type'],
             'category_id' => $validated['category_id'],
             'subcategory' => $subcategory ? $subcategory->name : null,
+            'subcategory_id' => $validated['subcategory_id'],
             'price' => $validated['usd_price'],
             'list_price' => $validated['usd_list_price'],
+            'status' => $validated['status'],
             'is_featured' => $request->has('is_featured'),
             'is_active' => $request->has('is_active'),
             'badge' => $validated['badge'],

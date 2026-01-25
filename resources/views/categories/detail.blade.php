@@ -84,7 +84,11 @@
                 <!-- Price -->
                 <div class="mb-6">
                     <div class="flex items-baseline gap-3 mb-2">
+                        @if($product['price'] == 0)
+                        <span class="text-3xl font-bold text-green-600">FREE</span>
+                        @else
                         <span class="text-3xl font-bold text-gray-900 dark:text-white">{{ $product['currencySymbol'] }}{{ number_format($product['price'], 2) }}</span>
+                        @endif
                         @if($product['oldPrice'])
                         <span class="text-xl text-gray-400 line-through">{{ $product['currencySymbol'] }}{{ number_format($product['oldPrice'], 2) }}</span>
                         @endif
@@ -127,7 +131,7 @@
 
                         <div class="pt-4">
                             <div class="text-gray-700 dark:text-gray-300 leading-relaxed max-h-48 overflow-hidden" id="description-text">
-                                {!! nl2br(e($product['description'])) !!}
+                                {!! $product['description'] !!}
                             </div>
                             <button onclick="toggleReadMore()" class="text-sm text-gray-900 dark:text-white hover:underline mt-2 font-semibold" id="read-more-btn">
                                 Learn more about this item

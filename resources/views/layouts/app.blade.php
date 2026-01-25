@@ -40,6 +40,9 @@
             </main>
         </div>
         
+        @include('components.newsletter-section')
+        <x-layouts.footer />
+        
         @include('components.cart-sidebar')
         @include('user.notifications.index')
         @include('modals.newsletter')

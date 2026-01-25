@@ -14,6 +14,7 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'product_name',
+        'product_files',
         'quantity',
         'price',
         'download_count',
@@ -22,6 +23,7 @@ class OrderItem extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'product_files' => 'array',
         'last_downloaded_at' => 'datetime',
     ];
 

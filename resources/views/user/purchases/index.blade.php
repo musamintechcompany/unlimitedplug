@@ -65,8 +65,8 @@
                                                         @endphp
                                                         <p class="text-sm text-gray-600">{{ $currencySymbol }}{{ number_format($item->price, 2) }} {{ $order->currency }}</p>
                                                         <!-- Mobile Link -->
-                                                        @if($item->product)
-                                                            <a href="{{ route('purchases.show', $item->product->id) }}" 
+                                                        @if($item->product_id)
+                                                            <a href="{{ route('purchases.show', $item->product_id) }}" 
                                                                class="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2 inline-block sm:hidden">
                                                                 View Details →
                                                             </a>
@@ -75,8 +75,8 @@
 
                                                     <!-- Desktop Button -->
                                                     <div class="hidden sm:block flex-shrink-0">
-                                                        @if($item->product)
-                                                            <a href="{{ route('purchases.show', $item->product->id) }}" 
+                                                        @if($item->product_id)
+                                                            <a href="{{ route('purchases.show', $item->product_id) }}" 
                                                                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium">
                                                                 View Details
                                                             </a>

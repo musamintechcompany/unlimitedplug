@@ -145,12 +145,13 @@ class MarketplaceController extends Controller
             'is_featured' => $asset->is_featured
         ];
         
-        $reviews = $asset->approvedReviews()->with('user')->latest()->get()->map(function($review) {
+        $reviews = $asset->reviews()->where('is_approved', true)->with('reviewer')->latest()->get()->map(function($review) {
             return [
-                'user_name' => $review->user->name,
+                'user_name' => $review->reviewer ? $review->reviewer->name : 'Anonymous',
                 'rating' => $review->review_data['rating'] ?? 0,
                 'comment' => $review->review_data['comment'] ?? '',
-                'created_at' => $review->created_at->format('M d, Y')
+                'images' => $review->review_data['images'] ?? [],
+                'created_at' => $review->created_at->diffForHumans()
             ];
         });
         

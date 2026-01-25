@@ -84,7 +84,7 @@
             </section>
 
             <!-- Products by Category Section -->
-            <section class="py-20 bg-gray-100">
+            <section class="pt-12 pb-8 bg-gray-100">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     @if($categorizedProducts->isEmpty())
                         <!-- Empty state -->
@@ -100,36 +100,40 @@
                                 @endphp
                                 
                                 <!-- Card with dynamic grid based on product count -->
-                                <div class="bg-white rounded-lg p-6 flex flex-col justify-between min-h-[420px]">
-                                    <div>
+                                <div class="bg-white rounded-lg p-4 flex flex-col justify-between h-[380px]">
+                                    <div class="overflow-hidden">
                                         <h3 class="text-lg font-bold text-gray-900 mb-4">{{ $categoryName }}</h3>
                                         
                                         @if($productCount == 1)
                                             <!-- Single product - large image -->
-                                            <a href="{{ route('product.detail', $products->first()['id']) }}" class="block mb-4">
-                                                <img src="{{ $products->first()['image'] }}" alt="{{ $products->first()['title'] }}" class="w-full h-64 object-cover rounded">
-                                            </a>
+                                            <div class="mb-4">
+                                                <a href="javascript:void(0)" onclick="filterByCategory('{{ $categoryName }}')" class="block">
+                                                    <img src="{{ $products->first()['image'] }}" alt="{{ $products->first()['title'] }}" class="w-full h-64 object-cover rounded mb-1">
+                                                    <p class="text-xs font-medium text-gray-900 line-clamp-1">{{ $products->first()['title'] }}</p>
+                                                </a>
+                                            </div>
                                         @elseif($productCount == 2)
-                                            <!-- Two products - 2 column grid -->
-                                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                            <!-- Two products - stacked vertically -->
+                                            <div class="space-y-3 mb-4">
                                                 @foreach($products as $product)
-                                                    <a href="{{ route('product.detail', $product['id']) }}" class="block">
-                                                        <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-32 object-cover rounded mb-2">
-                                                        <span class="text-xs text-gray-700 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
+                                                    <a href="javascript:void(0)" onclick="filterByCategory('{{ $categoryName }}')" class="block">
+                                                        <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-32 object-cover rounded mb-1">
+                                                        <p class="text-xs font-medium text-gray-900 line-clamp-1">{{ $product['title'] }}</p>
                                                     </a>
                                                 @endforeach
                                             </div>
                                         @elseif($productCount == 3)
                                             <!-- Three products - first large, then 2 small -->
                                             <div class="mb-4">
-                                                <a href="{{ route('product.detail', $products->first()['id']) }}" class="block mb-3">
-                                                    <img src="{{ $products->first()['image'] }}" alt="{{ $products->first()['title'] }}" class="w-full h-40 object-cover rounded">
+                                                <a href="javascript:void(0)" onclick="filterByCategory('{{ $categoryName }}')" class="block mb-3">
+                                                    <img src="{{ $products->first()['image'] }}" alt="{{ $products->first()['title'] }}" class="w-full h-40 object-cover rounded mb-1">
+                                                    <p class="text-xs font-medium text-gray-900 line-clamp-1">{{ $products->first()['title'] }}</p>
                                                 </a>
                                                 <div class="grid grid-cols-2 gap-3">
                                                     @foreach($products->skip(1) as $product)
-                                                        <a href="{{ route('product.detail', $product['id']) }}" class="block">
+                                                        <a href="javascript:void(0)" onclick="filterByCategory('{{ $categoryName }}')" class="block">
                                                             <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-24 object-cover rounded mb-1">
-                                                            <span class="text-xs text-gray-700 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
+                                                            <p class="text-xs font-medium text-gray-900 line-clamp-1">{{ $product['title'] }}</p>
                                                         </a>
                                                     @endforeach
                                                 </div>
@@ -138,9 +142,9 @@
                                             <!-- Four or more products - 2x2 grid -->
                                             <div class="grid grid-cols-2 gap-3 mb-4">
                                                 @foreach($products->take(4) as $product)
-                                                    <a href="{{ route('product.detail', $product['id']) }}" class="block">
-                                                        <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-28 object-cover rounded mb-2">
-                                                        <span class="text-xs text-gray-700 line-clamp-1">{{ $product['subcategory'] ?? $product['title'] }}</span>
+                                                    <a href="javascript:void(0)" onclick="filterByCategory('{{ $categoryName }}')" class="block">
+                                                        <img src="{{ $product['image'] }}" alt="{{ $product['title'] }}" class="w-full h-28 object-cover rounded mb-1">
+                                                        <p class="text-xs font-medium text-gray-900 line-clamp-1">{{ $product['title'] }}</p>
                                                     </a>
                                                 @endforeach
                                             </div>

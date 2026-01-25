@@ -37,9 +37,6 @@ class="w-full bg-white/80 backdrop-blur-md border-b border-gray-200 z-40 transit
                     <a href="{{ route('marketplace') }}" target="_blank" class="{{ request()->is('marketplace*') ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900' }} transition-colors pb-1">
                         MarketPlace
                     </a>
-                    <a href="{{ route('how-it-works') }}" target="_blank" class="{{ request()->is('how-it-works') ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900' }} transition-colors pb-1">
-                        How It Works
-                    </a>
                     
                     <!-- Currency Selector -->
                     <div x-data="{ open: false }" class="relative">

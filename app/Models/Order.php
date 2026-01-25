@@ -11,7 +11,8 @@ class Order extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
-        'user_id',
+        'orderable_type',
+        'orderable_id',
         'order_number',
         'payment_id',
         'total_amount',
@@ -26,9 +27,14 @@ class Order extends Model
         'total_amount' => 'decimal:2',
     ];
 
+    public function orderable()
+    {
+        return $this->morphTo();
+    }
+
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->orderable();
     }
 
     public function payment()

@@ -39,6 +39,9 @@
         {{ $slot }}
     </main>
 
+    @include('components.newsletter-section')
+    <x-layouts.footer />
+
     @include('components.cart-sidebar')
     @auth
         @include('user.notifications.index')

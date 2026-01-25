@@ -11,7 +11,13 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
-use App\Mail\PurchaseConfirmation;
+use App\Models\User;
+use App\Models\Admin;
+use App\Models\Notification;
+use App\Events\AdminNotificationCreated;
+use App\Events\AnalyticsUpdated;
+use App\Mail\OrderConfirmed;
+use App\Mail\Admin\NewOrderReceived;
 
 class FlutterwaveController extends Controller
 {
@@ -147,7 +153,15 @@ class FlutterwaveController extends Controller
             if ($response->successful()) {
                 $data = $response->json();
                 
-                if ($data['status'] === 'success' && isset($data['data']['status']) && $data['data']['status'] === 'successful') {
+                Log::info('Full verification response', ['data' => $data]);
+                
+                // Check multiple possible success conditions
+                $isSuccess = (
+                    ($data['status'] === 'success' && isset($data['data']['status']) && $data['data']['status'] === 'successful') ||
+                    ($data['status'] === 'success' && isset($data['data']['status']) && $data['data']['status'] === 'success')
+                );
+                
+                if ($isSuccess) {
                     // Check if order already exists
                     $existingOrder = Order::where('transaction_reference', $txRef)->first();
                     
@@ -158,8 +172,8 @@ class FlutterwaveController extends Controller
                         $order = $this->createOrder($data['data']);
                         
                         if ($order) {
-                            // Clear cart
-                            $this->clearUserCart($order->user_id);
+                            // Clear cart  
+                            $this->clearUserCart(Auth::id());
                             
                             session(['payment_success' => true]);
                             Log::info('Order created successfully, redirecting to success');
@@ -230,7 +244,7 @@ class FlutterwaveController extends Controller
 
         // Get cart items with currency
         $currency = session('currency', 'USD');
-        $cartItems = Cart::with('product.prices')
+        $cartItems = Cart::with('cartable.prices')
             ->where('user_id', $userId)
             ->get();
 
@@ -241,7 +255,11 @@ class FlutterwaveController extends Controller
 
         // Calculate total using current currency
         $total = $cartItems->sum(function($item) use ($currency) {
-            $price = $item->product->getPriceForCurrency($currency);
+            if (!$item->cartable) {
+                Log::warning('Cart item has no cartable', ['cart_id' => $item->id]);
+                return 0;
+            }
+            $price = $item->cartable->getPriceForCurrency($currency);
             return $price * $item->quantity;
         });
 
@@ -259,7 +277,8 @@ class FlutterwaveController extends Controller
 
         // Create order
         $order = Order::create([
-            'user_id' => $userId,
+            'orderable_type' => User::class,
+            'orderable_id' => $userId,
             'order_number' => Order::generateOrderNumber(),
             'payment_id' => $payment->id,
             'total_amount' => $total,
@@ -272,12 +291,16 @@ class FlutterwaveController extends Controller
 
         // Create order items
         foreach ($cartItems as $cartItem) {
-            $price = $cartItem->product->getPriceForCurrency($currency);
+            $price = $cartItem->cartable->getPriceForCurrency($currency);
             
             OrderItem::create([
                 'order_id' => $order->id,
-                'product_id' => $cartItem->product_id,
-                'product_name' => $cartItem->product->name,
+                'product_id' => $cartItem->cartable_id,
+                'product_name' => $cartItem->cartable->name,
+                'product_files' => [
+                    'files' => $cartItem->cartable->file,
+                    'license_type' => $cartItem->cartable->license_type
+                ],
                 'quantity' => $cartItem->quantity,
                 'price' => $price,
             ]);
@@ -286,15 +309,20 @@ class FlutterwaveController extends Controller
         Log::info('Order created successfully', ['order_id' => $order->id]);
         
         // Load relationships for email
-        $order->load(['user', 'items.product']);
+        $order->load(['orderable', 'items.product']);
         
         // Send purchase confirmation email
         try {
-            Mail::to($order->user->email)->send(new PurchaseConfirmation($order));
-            Log::info('Purchase confirmation email sent', ['order_id' => $order->id]);
+            if ($order->orderable) {
+                Mail::to($order->orderable->email)->send(new OrderConfirmed($order));
+                Log::info('Purchase confirmation email sent', ['order_id' => $order->id]);
+            }
         } catch (\Exception $e) {
             Log::error('Failed to send purchase confirmation email: ' . $e->getMessage());
         }
+        
+        // Notify all admins about new purchase
+        $this->notifyAdmins($order);
         
         return $order;
     }
@@ -305,6 +333,45 @@ class FlutterwaveController extends Controller
         if ($userId) {
             Cart::where('user_id', $userId)->delete();
             Log::info('Cart cleared for user', ['user_id' => $userId]);
+        }
+    }
+    
+    /**
+     * Notify all admins about new purchase
+     */
+    private function notifyAdmins($order)
+    {
+        $admins = Admin::all();
+        $user = $order->orderable;
+        
+        if (!$user) {
+            Log::error('Cannot notify admins: Order has no user');
+            return;
+        }
+        
+        foreach ($admins as $admin) {
+            $notification = Notification::create([
+                'notifiable_type' => Admin::class,
+                'notifiable_id' => $admin->id,
+                'type' => 'order_placed',
+                'title' => 'New Order Received',
+                'message' => 'Order #' . $order->order_number . ' placed by ' . $user->name . ' for ' . $order->currency . ' ' . number_format($order->total_amount, 2),
+                'data' => json_encode(['order_id' => $order->id, 'order_number' => $order->order_number])
+            ]);
+            
+            broadcast(new AdminNotificationCreated($notification));
+        }
+        
+        broadcast(new AnalyticsUpdated());
+        
+        // Send email notification to admin
+        $adminEmail = env('ADMIN_EMAIL');
+        if ($adminEmail) {
+            try {
+                Mail::to($adminEmail)->send(new NewOrderReceived($order));
+            } catch (\Exception $e) {
+                Log::error('Failed to send admin notification email: ' . $e->getMessage());
+            }
         }
     }
 }

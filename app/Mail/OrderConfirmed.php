@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Order;
 
-class PurchaseConfirmation extends Mailable implements ShouldQueue
+class OrderConfirmed extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -24,14 +24,14 @@ class PurchaseConfirmation extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Purchase Confirmation - Order #' . $this->order->order_number,
+            subject: 'Order Confirmed - Order #' . $this->order->order_number,
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.purchase-confirmation',
+            view: 'emails.order-confirmed',
         );
     }
 

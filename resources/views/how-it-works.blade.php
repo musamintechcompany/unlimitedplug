@@ -3,78 +3,112 @@
     <x-slot name="description">Learn how to get started with Unlimited Plug in three simple steps.</x-slot>
 
     <!-- Hero Section -->
-    <section class="relative bg-gradient-to-b from-blue-900 via-blue-900 to-gray-900 text-white py-20">
-        <div class="absolute inset-0 bg-black opacity-20"></div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl font-bold mb-6">How It Works</h1>
-            <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto opacity-90">
-                Get started with Unlimited Plug in three simple steps. It's easy to find, purchase, and use the tools you need.
-            </p>
+    <section class="bg-gradient-to-b from-blue-900 to-gray-900 text-white py-16">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-4">How It Works</h1>
+            <p class="text-lg opacity-90">Three simple steps to get started</p>
         </div>
     </section>
 
     <!-- Steps Section -->
-    <section class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-3 gap-12">
-                <div class="text-center">
-                    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-3xl font-bold text-white">1</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Browse & Choose</h3>
-                    <p class="text-gray-600 mb-6">
-                        Explore our marketplace of premium software and templates. Use filters and search to find exactly what you need for your project.
-                    </p>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500">
-                            Browse categories like Software, Templates, and Digital Products
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="text-center">
-                    <div class="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-3xl font-bold text-white">2</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Buy or Rent</h3>
-                    <p class="text-gray-600 mb-6">
-                        Choose to purchase outright or rent monthly. Pay securely with cryptocurrency or traditional payment methods.
-                    </p>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500">
-                            Crypto payments supported: Bitcoin, Ethereum, and 300+ coins
-                        </p>
+    <section class="py-8 bg-white">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="space-y-4">
+                <!-- Step 1 -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button onclick="toggleStep(1)" class="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                <span class="text-lg font-bold text-white">1</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900">Browse</h3>
+                        </div>
+                        <svg id="arrow-1" class="w-6 h-6 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                    <div id="step-1" class="hidden px-6 pb-6">
+                        <p class="text-gray-600 mb-3">Explore our marketplace and discover what you need. Use categories, filters, and search to find exactly what you're looking for. Save your favorites to review later.</p>
+                        <ul class="text-sm text-gray-500 space-y-1">
+                            <li>• Browse by category and subcategory</li>
+                            <li>• Filter by price, rating, and features</li>
+                            <li>• Read reviews from other buyers</li>
+                            <li>• Save favorites for later</li>
+                        </ul>
                     </div>
                 </div>
-                
-                <div class="text-center">
-                    <div class="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-3xl font-bold text-white">3</span>
+
+                <!-- Step 2 -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button onclick="toggleStep(2)" class="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                <span class="text-lg font-bold text-white">2</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900">Purchase</h3>
+                        </div>
+                        <svg id="arrow-2" class="w-6 h-6 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                    <div id="step-2" class="hidden px-6 pb-6">
+                        <p class="text-gray-600 mb-3">Add to your cart and complete checkout securely. Choose from multiple payment methods and currencies. Get instant access after payment confirmation.</p>
+                        <ul class="text-sm text-gray-500 space-y-1">
+                            <li>• Secure payment processing</li>
+                            <li>• Multiple currency support</li>
+                            <li>• Instant purchase confirmation</li>
+                            <li>• Order history tracking</li>
+                        </ul>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Download & Use</h3>
-                    <p class="text-gray-600 mb-6">
-                        Instantly access your purchase. Download files, get license keys, and start using your new tools right away.
-                    </p>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-500">
-                            Lifetime access to downloads and updates included
-                        </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button onclick="toggleStep(3)" class="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                <span class="text-lg font-bold text-white">3</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900">Download</h3>
+                        </div>
+                        <svg id="arrow-3" class="w-6 h-6 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                    <div id="step-3" class="hidden px-6 pb-6">
+                        <p class="text-gray-600 mb-3">Access your purchases instantly from your account. Download anytime with unlimited access. Get license information and support when needed.</p>
+                        <ul class="text-sm text-gray-500 space-y-1">
+                            <li>• Instant access after purchase</li>
+                            <li>• Unlimited downloads</li>
+                            <li>• License details included</li>
+                            <li>• Access from your account anytime</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <script>
+        function toggleStep(step) {
+            const content = document.getElementById(`step-${step}`);
+            const arrow = document.getElementById(`arrow-${step}`);
+            
+            content.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-90');
+        }
+    </script>
+
     <!-- CTA Section -->
-    <section class="py-16 bg-gray-50">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Ready to Get Started?</h2>
-            <p class="text-xl text-gray-600 mb-8">
-                Join thousands of users who trust Unlimited Plug for their software and template needs.
-            </p>
-            <a href="{{ route('marketplace') }}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                Browse Marketplace
-            </a>
+    <section class="pt-8 pb-4 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="border border-gray-200 rounded-lg p-8 bg-white text-center">
+                <h2 class="text-2xl font-bold text-gray-900 mb-3">Start Exploring</h2>
+                <p class="text-gray-600 mb-6">Discover what our marketplace has to offer.</p>
+                <a href="{{ route('marketplace') }}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Visit Marketplace
+                </a>
+            </div>
         </div>
     </section>
 </x-guest1-layout>

@@ -76,6 +76,7 @@ class CategorySeeder extends Seeder
         foreach ($categories as $categoryData) {
             $category = Category::create([
                 'name' => $categoryData['name'],
+                'slug' => \Illuminate\Support\Str::slug($categoryData['name']),
                 'description' => $categoryData['description'],
                 'tag' => $categoryData['tag'] ?? null,
                 'is_active' => true

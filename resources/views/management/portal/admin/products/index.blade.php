@@ -24,6 +24,7 @@
     <div id="filters" class="flex flex-col sm:flex-row gap-4 mb-6">
         <div class="flex-1">
             <form method="GET" action="{{ route('admin.products.index') }}#filters">
+                <input type="hidden" name="is_active" value="{{ request('is_active') }}">
                 <input type="hidden" name="status" value="{{ request('status') }}">
                 <input type="hidden" name="category" value="{{ request('category') }}">
                 <input type="hidden" name="sort" value="{{ request('sort') }}">
@@ -55,6 +56,25 @@
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Approved</a>
                 <a href="{{ route('admin.products.index', ['status' => 'rejected', 'search' => request('search'), 'category' => request('category'), 'sort' => request('sort')]) }}#filters" 
                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Rejected</a>
+            </div>
+        </div>
+        <div x-data="{ open: false }" class="relative">
+            <button @click="open = !open" type="button"
+                    class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white flex items-center justify-between gap-2">
+                <span>{{ request('is_active') === '1' ? 'Active' : (request('is_active') === '0' ? 'Inactive' : 'All Products') }}</span>
+                <svg class="w-4 h-4 text-gray-600 transition-transform duration-200" :class="open ? 'rotate-90' : ''"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+            <div x-show="open" @click.away="open = false" x-transition
+                 class="absolute left-0 sm:right-0 sm:left-auto mt-2 w-full sm:w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                <a href="{{ route('admin.products.index', ['search' => request('search'), 'status' => request('status'), 'category' => request('category'), 'sort' => request('sort')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Products</a>
+                <a href="{{ route('admin.products.index', ['is_active' => '1', 'search' => request('search'), 'status' => request('status'), 'category' => request('category'), 'sort' => request('sort')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Active</a>
+                <a href="{{ route('admin.products.index', ['is_active' => '0', 'search' => request('search'), 'status' => request('status'), 'category' => request('category'), 'sort' => request('sort')]) }}#filters" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Inactive</a>
             </div>
         </div>
         <div x-data="{ open: false }" class="relative">
@@ -149,6 +169,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Type</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Price</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Active</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Downloads</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r border-gray-200">Created</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -211,6 +232,13 @@
                                     {{ ucfirst($asset->status) }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap border-r border-gray-200">
+                                @if($asset->is_active)
+                                    <span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">Active</span>
+                                @else
+                                    <span class="px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-800">Inactive</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                 {{ $asset->downloads ?? 0 }}
                             </td>
@@ -236,7 +264,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="10" class="px-6 py-4 text-center text-gray-500">
                                 No products found.
                             </td>
                         </tr>

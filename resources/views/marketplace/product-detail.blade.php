@@ -88,7 +88,11 @@
                 <!-- Price -->
                 <div class="mb-6">
                     <div class="flex items-baseline gap-3 mb-2">
+                        @if($product['price'] == 0)
+                        <span class="text-3xl font-bold text-green-600">FREE</span>
+                        @else
                         <span class="text-3xl font-bold text-gray-900">{{ $product['currencySymbol'] }}{{ number_format($product['price'], 2) }}</span>
+                        @endif
                         @if($product['oldPrice'])
                         <span class="text-xl text-gray-400 line-through">{{ $product['currencySymbol'] }}{{ number_format($product['oldPrice'], 2) }}</span>
                         @endif
@@ -135,7 +139,7 @@
 
                         <div class="pt-4">
                             <div class="text-gray-700 leading-relaxed max-h-48 overflow-hidden" id="description-text">
-                                {!! nl2br(e($product['description'])) !!}
+                                {!! $product['description'] !!}
                             </div>
                             <button onclick="toggleReadMore()" class="text-sm text-gray-900 hover:underline mt-2 font-semibold" id="read-more-btn">
                                 Learn more about this item
@@ -190,8 +194,8 @@
                     </button>
                     <div id="meet-sellers" class="hidden">
                         <div class="flex items-center gap-4 mb-4">
-                            <div class="w-16 h-16 bg-gray-200 rounded-full overflow-hidden flex-shrink-0">
-                                <img src="{{ $product['seller_avatar'] ?? 'https://via.placeholder.com/64' }}" alt="Seller" class="w-full h-full object-cover">
+                            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-black rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                <img src="{{ asset('images/logos/logo1.png') }}" alt="UnlimitedPlug" class="w-10 h-10 object-contain">
                             </div>
                             <div>
                                 <p class="font-semibold text-gray-900">{{ $product['seller'] ?? 'UnlimitedPlug' }}</p>
@@ -202,9 +206,9 @@
                                 </button>
                             </div>
                         </div>
-                        <button class="w-full border-2 border-gray-900 hover:bg-gray-900 hover:text-white text-gray-900 px-6 py-3 rounded-full font-semibold transition-colors">
+                        <a href="https://wa.me/{{ config('services.whatsapp.support_number') }}?text={{ urlencode('Hi, I\'m interested in: ' . $product['title'] . ' - ' . url()->current()) }}" target="_blank" class="w-full border-2 border-gray-900 hover:bg-gray-900 hover:text-white text-gray-900 px-6 py-3 rounded-full font-semibold transition-colors inline-block text-center">
                             Message {{ $product['seller'] ?? 'Seller' }}
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -235,6 +239,13 @@
                                         <span class="text-sm text-gray-500">{{ $review['created_at'] }}</span>
                                     </div>
                                     <p class="text-gray-600">{{ $review['comment'] }}</p>
+                                    @if(!empty($review['images']))
+                                        <div class="grid grid-cols-4 gap-2 mt-3">
+                                            @foreach($review['images'] as $image)
+                                                <img src="{{ Storage::url($image) }}" alt="Review image" class="w-full h-20 object-cover rounded cursor-pointer hover:opacity-75" onclick="openFullscreen()">
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -267,7 +278,11 @@
                     <div class="p-3">
                         <h3 class="text-sm font-medium text-gray-900 mb-2 line-clamp-2">{{ $related['title'] }}</h3>
                         <div class="flex items-center justify-between">
+                            @if($related['price'] == 0)
+                            <span class="text-lg font-bold text-green-600">FREE</span>
+                            @else
                             <span class="text-lg font-bold text-gray-900">{{ $related['currencySymbol'] }}{{ number_format($related['price'], 2) }}</span>
+                            @endif
                             <div class="flex items-center text-xs text-gray-600">
                                 <span class="text-yellow-400 mr-1">★</span>
                                 <span>{{ number_format($related['rating'], 1) }}</span>

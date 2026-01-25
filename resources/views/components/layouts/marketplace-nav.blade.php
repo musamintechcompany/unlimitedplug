@@ -129,6 +129,3 @@ class="bg-white/95 backdrop-blur-sm border-b border-gray-200 fixed top-0 w-full 
 
 @include('components.layouts.marketplace-sidebar')
 </nav>
-
-<!-- Login Modal -->
-@include('modals.login')

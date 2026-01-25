@@ -64,7 +64,7 @@
 
 <!-- Desktop Categories -->
 <ul class="hidden lg:block space-y-1">
-    <li><a href="#" class="block px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" onclick="setActiveCategory(this); window.showAllProducts(); return false;">All Categories</a></li>
+    <li><a href="#" class="block px-3 py-2 text-sm hover:bg-gray-100 rounded bg-blue-100 text-blue-700" onclick="setActiveCategory(this); window.showAllProducts(); return false;">All Categories</a></li>
     
     @php
         $categories = \App\Models\Category::with('subcategories')->where('is_active', true)->orderBy('sort_order')->get();
@@ -73,7 +73,7 @@
     @foreach($categories as $category)
         @if($category->subcategories->count() > 0)
             <li>
-                <button class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onclick="toggleSubcategory('{{ $category->id }}'); setActiveCategory(this); window.filterByCategory('{{ $category->name }}')">
+                <button class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded" onclick="toggleSubcategory('{{ $category->id }}'); setActiveCategory(this); window.filterByCategory('{{ $category->name }}')">
                     <span>{{ $category->name }}</span>
                     <svg id="{{ $category->id }}-icon" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -81,12 +81,12 @@
                 </button>
                 <ul id="{{ $category->id }}-sub" class="hidden mt-1 space-y-1">
                     @foreach($category->subcategories as $subcategory)
-                        <li><a href="#" class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onclick="setActiveCategory(this); window.filterBySubcategory('{{ $subcategory->name }}'); return false;">{{ $subcategory->name }}</a></li>
+                        <li><a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded" onclick="setActiveCategory(this); window.filterBySubcategory('{{ $subcategory->name }}'); return false;">{{ $subcategory->name }}</a></li>
                     @endforeach
                 </ul>
             </li>
         @else
-            <li><a href="#" class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onclick="setActiveCategory(this); window.filterByCategory('{{ $category->name }}'); return false;">{{ $category->name }}</a></li>
+            <li><a href="#" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded" onclick="setActiveCategory(this); window.filterByCategory('{{ $category->name }}'); return false;">{{ $category->name }}</a></li>
         @endif
     @endforeach
 </ul>
@@ -201,11 +201,11 @@
     function setActiveCategory(element) {
         // Remove active class from all categories
         document.querySelectorAll('.lg\\:block a, .lg\\:block button').forEach(el => {
-            el.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
+            el.classList.remove('bg-blue-100', 'text-blue-700');
         });
         
         // Add active class to clicked element
-        element.classList.add('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
+        element.classList.add('bg-blue-100', 'text-blue-700');
     }
     
     function setActiveMobileCategory(element) {

@@ -21,12 +21,16 @@
         <x-widgets.stats.rejected-products />
         <x-widgets.stats.total-categories />
         <x-widgets.stats.total-orders />
+        <x-widgets.stats.total-visitors />
     </div>
     
     <!-- Currency Balances -->
     <x-widgets.stats.currency-balances :period="$period" />
     
-    <!-- Analytics Chart -->
-    <x-widgets.charts.simple-line-chart />
+    <!-- Analytics Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <x-widgets.charts.simple-line-chart />
+        <x-widgets.charts.visitor-line-chart />
+    </div>
 </div>
 </x-admin.app-layout>

@@ -12,9 +12,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('order_id');
             $table->uuid('product_id')->nullable();
-            $table->string('product_name'); // Store name in case product is deleted
+            $table->string('product_name');
+            $table->json('product_files')->nullable(); // Snapshot of files at purchase time
             $table->integer('quantity')->default(1);
-            $table->decimal('price', 10, 2); // Price at time of purchase
+            $table->decimal('price', 10, 2);
             $table->integer('download_count')->default(0);
             $table->timestamp('last_downloaded_at')->nullable();
             $table->timestamps();

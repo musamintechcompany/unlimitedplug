@@ -121,7 +121,7 @@
                     ${product.badge ? `<div class="text-xs font-semibold text-blue-600 uppercase mb-1">${product.badge}</div>` : ''}
                     <div class="flex items-center gap-2 mb-1">
                         ${product.oldPrice ? `<span class="text-xs text-gray-400 line-through">${product.currencySymbol}${product.oldPrice}</span>` : ''}
-                        <span class="text-sm font-bold text-black">${product.currencySymbol}${product.price}</span>
+                        ${product.price == 0 ? '<span class="text-sm font-bold text-green-600">FREE</span>' : `<span class="text-sm font-bold text-black">${product.currencySymbol}${product.price}</span>`}
                         ${product.percentageOff ? `<span class="text-xs font-bold text-red-600">(${product.percentageOff}% OFF)</span>` : ''}
                     </div>
                     <div class="text-xs text-gray-600 flex items-center gap-1.5 mb-2.5">

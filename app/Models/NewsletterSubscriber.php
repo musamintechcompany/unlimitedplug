@@ -16,6 +16,8 @@ class NewsletterSubscriber extends Model
         'name',
         'is_active',
         'subscribed_at',
+        'confirmation_token',
+        'confirmed_at',
     ];
 
     protected $casts = [

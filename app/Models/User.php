@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Mail;
@@ -15,7 +16,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids, HasRoles;
+    use HasFactory, Notifiable, HasUuids, HasRoles, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -107,12 +108,19 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function orders()
     {
-        return $this->hasMany(Order::class);
+        return $this->morphMany(Order::class, 'orderable');
     }
 
     public function orderItems()
     {
-        return $this->hasManyThrough(OrderItem::class, Order::class);
+        return $this->hasManyThrough(
+            OrderItem::class,
+            Order::class,
+            'orderable_id',
+            'order_id',
+            'id',
+            'id'
+        )->where('orders.orderable_type', self::class);
     }
 
     public function notifications()

@@ -234,7 +234,7 @@
             <label class="block text-sm font-semibold text-gray-900 mb-2">Name of product <span class="text-red-600">*</span></label>
             <input type="text" name="name" value="{{ old('name', $product->name) }}" placeholder="Name of product *" required class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg mb-5">
 
-            <label class="block text-sm font-semibold text-gray-900 mb-2">Sale Price (All currency prices required)</label>
+            <label class="block text-sm font-semibold text-gray-900 mb-2">Sale Price (All currency prices required) <span class="text-red-600">*</span></label>
             <div x-data="{ showListPrice: {{ $product->list_price ? 'true' : 'false' }} }">
                 <div class="overflow-x-auto mb-2" style="scrollbar-width: none; -ms-overflow-style: none;">
                     <style>
@@ -246,8 +246,19 @@
                                 @php
                                     $pricing = $product->prices()->where('currency_code', $code)->first();
                                 @endphp
-                                <div class="flex-shrink-0 w-32">
-                                    <label class="block text-xs font-medium mb-1">{{ $code }} *</label>
+                                <div class="flex-shrink-0 w-32 relative">
+                                    <label class="block text-xs font-medium mb-1">
+                                        {{ $code }} <span class="text-red-600">*</span>
+                                        <button type="button" class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-gray-400 text-gray-600 hover:bg-gray-100 text-[10px] ml-0.5 relative group" onclick="event.preventDefault()">
+                                            ?
+                                            <div class="absolute left-full top-0 ml-2 w-48 bg-white border border-gray-300 shadow-lg text-gray-900 text-xs rounded py-2 px-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity pointer-events-none whitespace-normal" style="z-index: 9999;">
+                                                <div class="font-semibold mb-1">{{ $currency['name'] }}</div>
+                                                <div class="text-gray-600">Set to 0 for free product</div>
+                                                <div class="absolute right-full top-2 border-4 border-transparent border-r-white"></div>
+                                                <div class="absolute right-full top-2 border-4 border-transparent border-r-gray-300" style="margin-right: 1px;"></div>
+                                            </div>
+                                        </button>
+                                    </label>
                                     <input type="number" name="{{ strtolower($code) }}_price" value="{{ old(strtolower($code) . '_price', $pricing->price ?? ($code === 'USD' ? $product->price : '')) }}" step="0.01" min="0" required class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded" placeholder="0.00">
                                 </div>
                             @endforeach
@@ -257,8 +268,19 @@
                                 @php
                                     $pricing = $product->prices()->where('currency_code', $code)->first();
                                 @endphp
-                                <div class="flex-shrink-0 w-32">
-                                    <label class="block text-xs font-medium mb-1">{{ $code }} List</label>
+                                <div class="flex-shrink-0 w-32 relative">
+                                    <label class="block text-xs font-medium mb-1">
+                                        {{ $code }} List
+                                        <button type="button" class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-gray-400 text-gray-600 hover:bg-gray-100 text-[10px] ml-0.5 relative group" onclick="event.preventDefault()">
+                                            ?
+                                            <div class="absolute left-full top-0 ml-2 w-48 bg-white border border-gray-300 shadow-lg text-gray-900 text-xs rounded py-2 px-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity pointer-events-none whitespace-normal" style="z-index: 9999;">
+                                                <div class="font-semibold mb-1">{{ $currency['name'] }}</div>
+                                                <div class="text-gray-600">Original price (strikethrough)</div>
+                                                <div class="absolute right-full top-2 border-4 border-transparent border-r-white"></div>
+                                                <div class="absolute right-full top-2 border-4 border-transparent border-r-gray-300" style="margin-right: 1px;"></div>
+                                            </div>
+                                        </button>
+                                    </label>
                                     <input type="number" name="{{ strtolower($code) }}_list_price" value="{{ old(strtolower($code) . '_list_price', $pricing->list_price ?? ($code === 'USD' ? $product->list_price : '')) }}" step="0.01" min="0" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded" placeholder="0.00">
                                 </div>
                             @endforeach
@@ -314,11 +336,16 @@
             <label class="block text-sm font-semibold text-gray-900 mb-2">Sub Category</label>
             <select name="subcategory_id" id="subcategorySelect" class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg mb-5" style="max-width: 400px;">
                 <option value="">Select sub category</option>
+                @if($product->subcategory_id)
+                    @foreach(\App\Models\Subcategory::where('category_id', $product->category_id)->get() as $sub)
+                        <option value="{{ $sub->id }}" {{ $product->subcategory_id == $sub->id ? 'selected' : '' }}>{{ $sub->name }}</option>
+                    @endforeach
+                @endif
             </select>
             <script>
-            function loadSubcategories(categoryId, selectedSubcategoryId = null) {
+            function loadSubcategories(categoryId) {
                 const subcategorySelect = document.getElementById('subcategorySelect');
-                subcategorySelect.innerHTML = '<option value="">Loading...</option>';
+                const currentSubcategoryId = '{{ $product->subcategory_id }}';
                 
                 if (categoryId) {
                     fetch('/api/categories/' + categoryId + '/subcategories')
@@ -326,7 +353,7 @@
                         .then(data => {
                             subcategorySelect.innerHTML = '<option value="">Select sub category</option>';
                             data.forEach(sub => {
-                                const selected = selectedSubcategoryId && sub.id == selectedSubcategoryId ? 'selected' : '';
+                                const selected = currentSubcategoryId && sub.id == currentSubcategoryId ? 'selected' : '';
                                 subcategorySelect.innerHTML += '<option value="' + sub.id + '" ' + selected + '>' + sub.name + '</option>';
                             });
                         });
@@ -334,17 +361,6 @@
                     subcategorySelect.innerHTML = '<option value="">Select sub category</option>';
                 }
             }
-            
-            // Load subcategories on page load if category is selected
-            document.addEventListener('DOMContentLoaded', function() {
-                const categorySelect = document.getElementById('categorySelect');
-                const selectedCategory = categorySelect.value;
-                const selectedSubcategory = {{ $product->subcategory_id ?? 'null' }};
-                
-                if (selectedCategory) {
-                    loadSubcategories(selectedCategory, selectedSubcategory);
-                }
-            });
             </script>
         </div>
 

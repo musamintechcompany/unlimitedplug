@@ -21,55 +21,22 @@
                 <div class="bg-white rounded-lg shadow p-6">
                     <h2 class="text-lg font-semibold mb-4">Payment Method</h2>
                     
-                    @if($currency === 'NGN')
-                        <!-- Paystack Payment -->
-                        <div class="border border-gray-200 rounded-lg p-4 mb-4 cursor-pointer hover:border-blue-500 transition" onclick="selectPayment('paystack')">
-                            <div class="flex items-center mb-2">
-                                <input type="radio" name="payment" value="paystack" id="paystack" checked class="text-blue-600">
-                                <label for="paystack" class="ml-3 flex items-center cursor-pointer">
-                                    <svg class="h-8" viewBox="0 0 120 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M8.5 0C3.8 0 0 3.8 0 8.5V21.5C0 26.2 3.8 30 8.5 30H21.5C26.2 30 30 26.2 30 21.5V8.5C30 3.8 26.2 0 21.5 0H8.5ZM15 7C18.9 7 22 10.1 22 14C22 17.9 18.9 21 15 21C11.1 21 8 17.9 8 14C8 10.1 11.1 7 15 7Z" fill="#00C3F7"/>
-                                        <text x="35" y="20" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#00C3F7">Paystack</text>
-                                    </svg>
-                                </label>
-                            </div>
-                            <div class="ml-6 text-xs text-gray-600">
-                                <p class="text-xs">Pay securely with Paystack</p>
-                                <p class="text-[10px] text-gray-500">Cards, Bank Transfer, USSD</p>
-                            </div>
+                    <!-- Flutterwave Payment Only -->
+                    <div id="payment-method-section" class="border border-gray-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-center mb-2">
+                            <input type="radio" name="payment" value="flutterwave" checked class="text-blue-600">
+                            <label class="ml-3 flex items-center">
+                                <img src="https://flutterwave.com/images/logo/full.svg" alt="Flutterwave" class="h-10">
+                            </label>
                         </div>
-                        
-                        <!-- Flutterwave Payment -->
-                        <div class="border border-gray-200 rounded-lg p-4 mb-6 cursor-pointer hover:border-blue-500 transition" onclick="selectPayment('flutterwave')">
-                            <div class="flex items-center mb-2">
-                                <input type="radio" name="payment" value="flutterwave" id="flutterwave" class="text-blue-600">
-                                <label for="flutterwave" class="ml-3 flex items-center cursor-pointer">
-                                    <img src="https://flutterwave.com/images/logo/full.svg" alt="Flutterwave" class="h-10">
-                                </label>
-                            </div>
-                            <div class="ml-6 text-xs text-gray-600">
-                                <p class="text-xs">Pay securely with Flutterwave</p>
-                                <p class="text-[10px] text-gray-500">Cards, Bank Transfer, Mobile Money</p>
-                            </div>
+                        <div class="ml-6 text-xs text-gray-600">
+                            <p class="text-xs">Pay securely with Flutterwave</p>
+                            <p class="text-[10px] text-gray-500">Supports 150+ currencies worldwide</p>
                         </div>
-                    @else
-                        <!-- Flutterwave Payment Only -->
-                        <div class="border border-gray-200 rounded-lg p-4 mb-6">
-                            <div class="flex items-center mb-2">
-                                <input type="radio" name="payment" value="flutterwave" checked class="text-blue-600">
-                                <label class="ml-3 flex items-center">
-                                    <img src="https://flutterwave.com/images/logo/full.svg" alt="Flutterwave" class="h-10">
-                                </label>
-                            </div>
-                            <div class="ml-6 text-xs text-gray-600">
-                                <p class="text-xs">Pay securely with Flutterwave</p>
-                                <p class="text-[10px] text-gray-500">Supports 150+ currencies worldwide</p>
-                            </div>
-                        </div>
-                    @endif
+                    </div>
                     
                     <!-- Coupon Code -->
-                    <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                    <div id="coupon-section" class="border border-gray-200 rounded-lg p-4 mb-4">
                         <div id="coupon-input-section">
                             <label class="block text-sm font-semibold mb-2">Have a coupon code?</label>
                             <div class="flex gap-2">
@@ -101,7 +68,7 @@
                                 <span id="total" data-currency="{{ $currency }}">{{ $currencySymbol }}0.00</span>
                             </div>
                         </div>
-                        <button onclick="processPayment()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold">
+                        <button onclick="processPayment()" id="checkout-btn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold">
                             Pay Now
                         </button>
                     </div>
@@ -113,11 +80,7 @@
     @include('modals.payment-warning')
 
     <script>
-        // Select payment method
-        function selectPayment(method) {
-            document.getElementById(method).checked = true;
-        }
-        
+
         // Load checkout items
         function loadCheckoutItems() {
             fetch('/cart/items')
@@ -147,6 +110,13 @@
                     totalEl.textContent = `${data.currencySymbol}${data.total}`;
                     window.cartSubtotal = parseFloat(data.total);
                     window.currencySymbol = data.currencySymbol;
+                    
+                    // Hide payment method and coupon for free orders
+                    if (parseFloat(data.total) === 0) {
+                        document.getElementById('payment-method-section').style.display = 'none';
+                        document.getElementById('coupon-section').style.display = 'none';
+                        document.getElementById('checkout-btn').textContent = 'Access Now';
+                    }
                 })
                 .catch(error => console.error('Error loading checkout items:', error));
         }
@@ -234,8 +204,20 @@
         
         // Process payment
         function processPayment() {
-            // Show modal instead of processing immediately
-            document.getElementById('payment-modal').classList.remove('hidden');
+            const totalEl = document.getElementById('total');
+            const totalText = totalEl.textContent.replace(/[^0-9.]/g, '');
+            const amount = parseFloat(totalText);
+            
+            // If free order, process directly without modal
+            if (amount === 0) {
+                const button = document.querySelector('#checkout-btn');
+                button.disabled = true;
+                button.textContent = 'Processing...';
+                processFreeOrder(button);
+            } else {
+                // Show modal for paid orders
+                document.getElementById('payment-modal').classList.remove('hidden');
+            }
         }
         
         function closePaymentModal() {
@@ -248,13 +230,12 @@
             const button = document.querySelector('button[onclick="processPayment()"]');
             const totalEl = document.getElementById('total');
             const currency = totalEl.dataset.currency;
-            const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
             
             // Get total amount
             const totalText = totalEl.textContent.replace(/[^0-9.]/g, '');
             const amount = parseFloat(totalText);
             
-            if (!amount || amount <= 0) {
+            if (amount < 0) {
                 alert('Invalid amount. Please refresh and try again.');
                 return;
             }
@@ -262,42 +243,12 @@
             button.disabled = true;
             button.textContent = 'Processing...';
             
-            if (selectedPayment === 'paystack') {
-                processPaystackPayment(amount, button);
+            // If total is 0, process as free order
+            if (amount === 0) {
+                processFreeOrder(button);
             } else {
                 processFlutterwavePayment(amount, button, currency);
             }
-        }
-        
-        // Process Paystack Payment
-        function processPaystackPayment(amount, button) {
-            fetch('/paystack/initialize', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    email: @auth '{{ auth()->user()->email }}' @else 'guest@example.com' @endauth,
-                    amount: amount,
-                    currency: 'NGN'
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.authorization_url) {
-                    button.textContent = 'Redirecting...';
-                    window.location.href = data.authorization_url;
-                } else {
-                    alert('Payment initialization failed: ' + (data.message || 'Unknown error'));
-                    resetButton(button);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Payment failed. Please try again.');
-                resetButton(button);
-            });
         }
         
         // Process Flutterwave Payment
@@ -327,6 +278,32 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('Payment failed. Please try again.');
+                resetButton(button);
+            });
+        }
+        
+        // Process Free Order
+        function processFreeOrder(button) {
+            fetch('/order/create-free', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.textContent = 'Redirecting...';
+                    window.location.href = '/checkout/success';
+                } else {
+                    alert('Order creation failed: ' + (data.message || 'Unknown error'));
+                    resetButton(button);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Order creation failed. Please try again.');
                 resetButton(button);
             });
         }

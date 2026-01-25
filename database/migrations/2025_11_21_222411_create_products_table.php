@@ -15,6 +15,7 @@ return new class extends Migration
             $table->text('description');
             $table->string('type'); // website, template, plugin, service, digital
             $table->uuid('category_id')->nullable();
+            $table->uuid('subcategory_id')->nullable();
             $table->string('subcategory')->nullable();
             $table->decimal('price', 10, 2);
             $table->decimal('list_price', 10, 2)->nullable();
@@ -47,6 +48,7 @@ return new class extends Migration
             $table->integer('downloads')->default(0);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('admin_id')->references('id')->on('admins')->onDelete('set null');

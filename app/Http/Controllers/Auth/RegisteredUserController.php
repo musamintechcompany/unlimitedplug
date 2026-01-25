@@ -85,7 +85,8 @@ class RegisteredUserController extends Controller
         foreach ($sessionCartItems as $sessionItem) {
             // Check if user already has this item in cart
             $existingItem = Cart::where('user_id', $userId)
-                ->where('product_id', $sessionItem->product_id)
+                ->where('cartable_type', $sessionItem->cartable_type)
+                ->where('cartable_id', $sessionItem->cartable_id)
                 ->first();
                 
             if ($existingItem) {

@@ -55,9 +55,15 @@
                 
                 <div class="space-y-3">
                     @if($order && $order->items->isNotEmpty())
-                        <a href="{{ route('purchases.show', $order->items->first()->product_id) }}" class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold text-center">
-                            Download Your Purchase
-                        </a>
+                        @if($order->items->count() === 1)
+                            <a href="{{ route('purchases.show', $order->items->first()->product_id) }}" class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold text-center">
+                                Access Your Purchase
+                            </a>
+                        @else
+                            <a href="{{ route('purchases.index') }}" class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold text-center">
+                                Access Your Purchases
+                            </a>
+                        @endif
                     @else
                         <a href="{{ route('purchases.index') }}" class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold text-center">
                             View My Purchases

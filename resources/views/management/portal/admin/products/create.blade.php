@@ -142,7 +142,7 @@
             <label class="block text-sm font-semibold text-gray-900 mb-2">Name of product <span class="text-red-600">*</span></label>
             <input type="text" name="name" value="{{ old('name') }}" placeholder="Name of product *" required class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg mb-5">
 
-            <label class="block text-sm font-semibold text-gray-900 mb-2">Sale Price (All currency prices required)</label>
+            <label class="block text-sm font-semibold text-gray-900 mb-2">Sale Price (All currency prices required) <span class="text-red-600">*</span></label>
             <div x-data="{ showListPrice: false }">
                 <div class="overflow-x-auto mb-2" style="scrollbar-width: none; -ms-overflow-style: none;">
                     <style>
@@ -152,8 +152,19 @@
                         <!-- Sale Price Row -->
                         <div class="flex gap-3">
                             @foreach(config('payment.currencies') as $code => $currency)
-                                <div class="flex-shrink-0 w-32">
-                                    <label class="block text-xs font-medium mb-1">{{ $code }} *</label>
+                                <div class="flex-shrink-0 w-32 relative">
+                                    <label class="block text-xs font-medium mb-1">
+                                        {{ $code }} <span class="text-red-600">*</span>
+                                        <button type="button" class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-gray-400 text-gray-600 hover:bg-gray-100 text-[10px] ml-0.5 relative group" onclick="event.preventDefault()">
+                                            ?
+                                            <div class="absolute left-full top-0 ml-2 w-48 bg-white border border-gray-300 shadow-lg text-gray-900 text-xs rounded py-2 px-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity pointer-events-none whitespace-normal" style="z-index: 9999;">
+                                                <div class="font-semibold mb-1">{{ $currency['name'] }}</div>
+                                                <div class="text-gray-600">Set to 0 for free product</div>
+                                                <div class="absolute right-full top-2 border-4 border-transparent border-r-white"></div>
+                                                <div class="absolute right-full top-2 border-4 border-transparent border-r-gray-300" style="margin-right: 1px;"></div>
+                                            </div>
+                                        </button>
+                                    </label>
                                     <input type="number" name="{{ strtolower($code) }}_price" value="{{ old(strtolower($code) . '_price') }}" step="0.01" min="0" required class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded" placeholder="0.00">
                                 </div>
                             @endforeach
@@ -161,8 +172,19 @@
                         <!-- List Price Row (Hidden by default) -->
                         <div x-show="showListPrice" class="flex gap-3">
                             @foreach(config('payment.currencies') as $code => $currency)
-                                <div class="flex-shrink-0 w-32">
-                                    <label class="block text-xs font-medium mb-1">{{ $code }} List</label>
+                                <div class="flex-shrink-0 w-32 relative">
+                                    <label class="block text-xs font-medium mb-1">
+                                        {{ $code }} List
+                                        <button type="button" class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-gray-400 text-gray-600 hover:bg-gray-100 text-[10px] ml-0.5 relative group" onclick="event.preventDefault()">
+                                            ?
+                                            <div class="absolute left-full top-0 ml-2 w-48 bg-white border border-gray-300 shadow-lg text-gray-900 text-xs rounded py-2 px-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity pointer-events-none whitespace-normal" style="z-index: 9999;">
+                                                <div class="font-semibold mb-1">{{ $currency['name'] }}</div>
+                                                <div class="text-gray-600">Original price (strikethrough)</div>
+                                                <div class="absolute right-full top-2 border-4 border-transparent border-r-white"></div>
+                                                <div class="absolute right-full top-2 border-4 border-transparent border-r-gray-300" style="margin-right: 1px;"></div>
+                                            </div>
+                                        </button>
+                                    </label>
                                     <input type="number" name="{{ strtolower($code) }}_list_price" value="{{ old(strtolower($code) . '_list_price') }}" step="0.01" min="0" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded" placeholder="0.00">
                                 </div>
                             @endforeach
