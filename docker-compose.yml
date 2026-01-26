@@ -82,8 +82,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:
       - mysql-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     networks:
       - unlimitedplug-network
 
@@ -91,8 +89,6 @@ services:
     image: redis:alpine
     container_name: unlimitedplug-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - redis-data:/data
     networks:
