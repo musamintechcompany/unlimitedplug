@@ -18,7 +18,7 @@ services:
       - DB_HOST=mysql
       - DB_DATABASE=unlimitedplug
       - DB_USERNAME=unlimitedplug_user
-      - DB_PASSWORD=your_secure_password
+      - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - QUEUE_CONNECTION=redis
@@ -45,7 +45,7 @@ services:
       - DB_HOST=mysql
       - DB_DATABASE=unlimitedplug
       - DB_USERNAME=unlimitedplug_user
-      - DB_PASSWORD=your_secure_password
+      - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - QUEUE_CONNECTION=redis
@@ -78,8 +78,8 @@ services:
     environment:
       MYSQL_DATABASE: unlimitedplug
       MYSQL_USER: unlimitedplug_user
-      MYSQL_PASSWORD: your_secure_password
-      MYSQL_ROOT_PASSWORD: your_root_password
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:
       - mysql-data:/var/lib/mysql
     ports:
@@ -106,7 +106,7 @@ services:
       PMA_HOST: mysql
       PMA_PORT: 3306
       PMA_USER: root
-      PMA_PASSWORD: your_root_password
+      PMA_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
       - "8080:80"
     depends_on:
