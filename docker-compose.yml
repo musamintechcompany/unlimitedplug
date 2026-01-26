@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unlimitedplug-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=mysql
+      - DB_DATABASE=unlimitedplug
+      - DB_USERNAME=unlimitedplug_user
+      - DB_PASSWORD=your_secure_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=redis
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - unlimitedplug-network
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unlimitedplug-queue
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    environment:
+      - APP_ENV=production
+      - DB_HOST=mysql
+      - DB_DATABASE=unlimitedplug
+      - DB_USERNAME=unlimitedplug_user
+      - DB_PASSWORD=your_secure_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - unlimitedplug-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: unlimitedplug-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - app
+    networks:
+      - unlimitedplug-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: unlimitedplug-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: unlimitedplug
+      MYSQL_USER: unlimitedplug_user
+      MYSQL_PASSWORD: your_secure_password
+      MYSQL_ROOT_PASSWORD: your_root_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - unlimitedplug-network
+
+  redis:
+    image: redis:alpine
+    container_name: unlimitedplug-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - unlimitedplug-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: unlimitedplug-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: your_root_password
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - unlimitedplug-network
+
+networks:
+  unlimitedplug-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
