@@ -70,7 +70,37 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        $user->update([
+            'deleted_by' => [
+                'type' => 'admin',
+                'id' => auth()->guard('admin')->id(),
+                'name' => auth()->guard('admin')->user()->name,
+                'deleted_at' => now()->toDateTimeString()
+            ]
+        ]);
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully!');
+    }
+    
+    public function deleted()
+    {
+        $users = User::onlyTrashed()->paginate(20);
+        return view('management.portal.admin.users.deleted', compact('users'));
+    }
+    
+    public function restore($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+        
+        return back()->with('success', 'User restored successfully');
+    }
+    
+    public function forceDelete($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->forceDelete();
+        
+        return back()->with('success', 'User permanently deleted');
     }
 }

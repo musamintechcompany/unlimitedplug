@@ -48,7 +48,8 @@ class VerifyEmailController extends Controller
             ]);
             event(new Verified($user));
             
-            Mail::to($user->email)->send(new WelcomeEmail($user));
+            Mail::to($user->email)->queue(new WelcomeEmail($user));
+            $user->update(['welcome_email_sent_at' => now()]);
             
             return redirect()->route('dashboard')->with('success', 'Email verified successfully!');
         }

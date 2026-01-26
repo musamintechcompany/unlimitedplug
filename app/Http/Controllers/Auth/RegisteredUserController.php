@@ -65,9 +65,6 @@ class RegisteredUserController extends Controller
         
         // Transfer favorites from old session to user
         $this->transferFavorites($oldSessionId, $user->id);
-        
-        // Send welcome email
-        Mail::to($user->email)->send(new WelcomeEmail($user));
 
         return redirect(route('dashboard', absolute: false))->with('show_newsletter_modal', true);
     }

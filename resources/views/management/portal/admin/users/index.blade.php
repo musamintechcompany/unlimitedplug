@@ -6,10 +6,16 @@
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
                 <p class="text-gray-600 mt-2">Manage all users in the system</p>
             </div>
-            <button onclick="openCreateUserModal()" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
-                + Create User
-            </button>
+            <div class="flex gap-3">
+                <a href="{{ route('admin.users.deleted') }}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
+                    🗑️ Deleted Users
+                </a>
+                <button onclick="openCreateUserModal()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
+                    + Create User
+                </button>
+            </div>
         </div>
     </div>
 

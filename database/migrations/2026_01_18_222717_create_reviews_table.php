@@ -17,10 +17,12 @@ return new class extends Migration
             $table->uuidMorphs('reviewable'); // Product, Service, Seller, etc.
             $table->json('review_data'); // Stores rating, comment, images, and any future fields
             $table->boolean('is_approved')->default(false);
+            $table->string('status')->default('pending'); // pending, approved, held, rejected
             $table->timestamps();
 
             $table->unique(['reviewer_type', 'reviewer_id', 'reviewable_type', 'reviewable_id'], 'unique_review');
             $table->index('is_approved');
+            $table->index('status');
         });
     }
 

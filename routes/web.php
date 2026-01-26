@@ -69,9 +69,17 @@ Route::get('/how-it-works', function () {
     return view('how-it-works');
 })->name('how-it-works');
 
-Route::get('/license-terms', function () {
-    return view('license-terms');
-})->middleware('auth')->name('license.terms');
+Route::get('/licenses/regular', function () {
+    return view('licenses.regular');
+})->middleware('auth')->name('license.regular');
+
+Route::get('/licenses/extended', function () {
+    return view('licenses.extended');
+})->middleware('auth')->name('license.extended');
+
+Route::get('/licenses/commercial', function () {
+    return view('licenses.commercial');
+})->middleware('auth')->name('license.commercial');
 
 Route::get('/terms', function () {
     return view('terms');

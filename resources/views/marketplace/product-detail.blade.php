@@ -95,6 +95,10 @@
                         @endif
                         @if($product['oldPrice'])
                         <span class="text-xl text-gray-400 line-through">{{ $product['currencySymbol'] }}{{ number_format($product['oldPrice'], 2) }}</span>
+                        @php
+                            $percentageOff = round((($product['oldPrice'] - $product['price']) / $product['oldPrice']) * 100);
+                        @endphp
+                        <span class="text-lg font-bold text-red-600">({{ $percentageOff }}% OFF)</span>
                         @endif
                     </div>
                     <p class="text-sm text-gray-600">VAT Included</p>
@@ -130,10 +134,10 @@
                                     <svg class="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M21 12.32a7 7 0 0 0 0-.82A7.5 7.5 0 0 0 8.71 5.73a6.63 6.63 0 0 1 3.06 1.75c.13.12.24.26.36.39l-.89.89A6 6 0 1 0 7 19h12.5a3.5 3.5 0 0 0 1.5-6.68m-9 5.35-3.51-2.11 1-1.72 1.49.89V11h2v3.73l1.49-.89 1 1.72z"></path></svg>
                                     <span class="text-gray-700">Digital download</span>
                                 </li>
-                                <li class="flex items-start gap-2">
+                                {{-- <li class="flex items-start gap-2">
                                     <svg class="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2c2.21 0 4 1.79 4 4v10.5c0 3.03-2.47 5.5-5.5 5.5A5.51 5.51 0 0 1 7 16.5V7c0-.55.45-1 1-1s1 .45 1 1v9.5c0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5V6c0-1.1-.9-2-2-2s-2 .9-2 2v9.5c0 .28.22.5.5.5s.5-.22.5-.5V7c0-.55.45-1 1-1s1 .45 1 1v8.5a2.5 2.5 0 0 1-5 0V6c0-2.21 1.79-4 4-4"></path></svg>
                                     <span class="text-gray-700">Digital file type(s): 1 PDF</span>
-                                </li>
+                                </li> --}}
                             </ul>
                         </div>
 
@@ -215,38 +219,41 @@
         </div>
 
         <!-- Reviews Section -->
-        <div class="mt-12 max-w-5xl">
+        <div class="mt-12">
             <div class="bg-white border border-gray-200 rounded-lg p-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Reviews</h2>
                 @if(count($reviews) > 0)
-                    <div class="space-y-6">
+                    <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
                         @foreach($reviews as $review)
-                        <div class="border-b border-gray-200 pb-6 last:border-0">
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-lg flex-shrink-0">
+                        <div class="flex-shrink-0 w-96 border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-start gap-3 mb-3">
+                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
                                     {{ strtoupper(substr($review['user_name'], 0, 1)) }}
                                 </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <div>
-                                            <h4 class="font-semibold text-gray-900">{{ $review['user_name'] }}</h4>
-                                            <div class="flex items-center">
-                                                @for($i = 1; $i <= 5; $i++)
-                                                    <span class="{{ $i <= $review['rating'] ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
-                                                @endfor
-                                            </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-gray-900 truncate">{{ $review['user_name'] }}</h4>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <span class="{{ $i <= $review['rating'] ? 'text-yellow-400' : 'text-gray-300' }} text-sm">★</span>
+                                            @endfor
                                         </div>
-                                        <span class="text-sm text-gray-500">{{ $review['created_at'] }}</span>
+                                        <span class="text-xs text-gray-500">{{ $review['created_at'] }}</span>
                                     </div>
-                                    <p class="text-gray-600">{{ $review['comment'] }}</p>
-                                    @if(!empty($review['images']))
-                                        <div class="grid grid-cols-4 gap-2 mt-3">
-                                            @foreach($review['images'] as $image)
-                                                <img src="{{ Storage::url($image) }}" alt="Review image" class="w-full h-20 object-cover rounded cursor-pointer hover:opacity-75" onclick="openFullscreen()">
-                                            @endforeach
-                                        </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-600 line-clamp-4">{{ $review['comment'] }}</p>
+                                </div>
+                                @if(!empty($review['images']))
+                                <div class="flex-shrink-0 w-20">
+                                    <img src="{{ Storage::url($review['images'][0]) }}" alt="Review image" class="w-20 h-20 object-cover rounded cursor-pointer hover:opacity-75" onclick="openFullscreenImage('{{ Storage::url($review['images'][0]) }}')">
+                                    @if(count($review['images']) > 1)
+                                    <div class="text-xs text-center text-gray-500 mt-1">+{{ count($review['images']) - 1 }} more</div>
                                     @endif
                                 </div>
+                                @endif
                             </div>
                         </div>
                         @endforeach
@@ -320,6 +327,14 @@
             const modal = document.getElementById('fullscreen-modal');
             const fullscreenImage = document.getElementById('fullscreen-image');
             fullscreenImage.src = mainImage.src;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openFullscreenImage(imageSrc) {
+            const modal = document.getElementById('fullscreen-modal');
+            const fullscreenImage = document.getElementById('fullscreen-image');
+            fullscreenImage.src = imageSrc;
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }

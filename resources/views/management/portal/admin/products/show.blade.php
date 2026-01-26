@@ -120,7 +120,15 @@
                 @if($product->requirements)
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold mb-2">Requirements</h3>
-                        <p class="text-gray-700">{{ $product->requirements }}</p>
+                        @if(is_array($product->requirements))
+                            <ul class="list-disc list-inside text-gray-700">
+                                @foreach($product->requirements as $requirement)
+                                    <li>{{ $requirement }}</li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p class="text-gray-700">{{ $product->requirements }}</p>
+                        @endif
                     </div>
                 @endif
             </div>

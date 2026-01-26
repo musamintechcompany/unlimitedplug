@@ -37,6 +37,9 @@ Route::prefix('management/portal/admin')->middleware('auth:admin')->name('admin.
     Route::delete('products/{product}/delete-file/{index}', [ProductController::class, 'deleteFile'])->name('products.delete-file');
     
     // User Management
+    Route::get('users/deleted', [\App\Http\Controllers\Admin\UserController::class, 'deleted'])->name('users.deleted');
+    Route::post('users/deleted/{id}/restore', [\App\Http\Controllers\Admin\UserController::class, 'restore'])->name('users.deleted.restore');
+    Route::delete('users/deleted/{id}/force-delete', [\App\Http\Controllers\Admin\UserController::class, 'forceDelete'])->name('users.deleted.force-delete');
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     
     // Category Management

@@ -124,11 +124,14 @@
                         ${product.price == 0 ? '<span class="text-sm font-bold text-green-600">FREE</span>' : `<span class="text-sm font-bold text-black">${product.currencySymbol}${product.price}</span>`}
                         ${product.percentageOff ? `<span class="text-xs font-bold text-red-600">(${product.percentageOff}% OFF)</span>` : ''}
                     </div>
-                    <div class="text-xs text-gray-600 flex items-center gap-1.5 mb-2.5">
-                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
-                        </svg>
-                        Digital Download
+                    <div class="flex items-center justify-between mb-2.5">
+                        <div class="text-xs text-gray-600 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+                            </svg>
+                            Digital Download
+                        </div>
+                        ${product.reviews > 0 ? `<div class="flex items-center gap-1"><span class="text-yellow-400 text-sm">★</span><span class="text-xs text-gray-600">${product.rating.toFixed(1)} (${product.reviews})</span></div>` : ''}
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="addToCart('${product.id}'); event.stopPropagation();" class="flex-1 py-2 px-4 rounded-full border border-black bg-white hover:bg-black hover:text-white transition-colors text-xs font-medium">

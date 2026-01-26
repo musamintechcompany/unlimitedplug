@@ -32,8 +32,12 @@
                             @foreach($purchaseDetails as $detail)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ $detail->order->user->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $detail->order->user->email }}</div>
+                                        @if($detail->order->user)
+                                            <div class="text-sm font-medium text-gray-900">{{ $detail->order->user->name }}</div>
+                                            <div class="text-sm text-gray-500">{{ $detail->order->user->email }}</div>
+                                        @else
+                                            <div class="text-sm font-medium text-gray-500">Deleted User</div>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {{ $detail->order->order_number }}

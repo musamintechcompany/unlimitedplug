@@ -107,7 +107,7 @@
                             <p class="text-sm text-blue-900 font-semibold mb-1">{{ $license['icon'] }} {{ $license['name'] }} Included</p>
                             <p class="text-xs text-blue-800">
                                 {{ $license['description'] }}
-                                <a href="{{ route('license.terms') }}" class="underline font-medium">View full terms</a>
+                                <a href="{{ route('license.' . $licenseType) }}" class="underline font-medium">View full terms</a>
                             </p>
                         </div>
                     @endif
@@ -117,12 +117,12 @@
                         <a href="{{ route('download', $orderItem->id) }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition text-center font-semibold">
                             Download Now
                         </a>
-                        @if($userReview && $userReview->created_at->diffInMinutes(now()) <= 3)
+                        @if($userReview && $userReview->created_at->diffInMinutes(now()) <= 5)
                             @php
-                                $secondsLeft = 180 - $userReview->created_at->diffInSeconds(now());
+                                $secondsLeft = 300 - $userReview->created_at->diffInSeconds(now());
                             @endphp
                             <button onclick="document.getElementById('reviewModal').classList.remove('hidden')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition text-center font-semibold shadow-lg animate-pulse" x-data="{ seconds: {{ $secondsLeft }} }" x-init="setInterval(() => { if(seconds > 0) seconds--; else location.reload(); }, 1000)">
-                                <span x-text="'Edit Your Review (' + Math.floor(seconds / 60) + ':' + (seconds % 60).toString().padStart(2, '0') + ' left)'"></span>
+                                <span x-text="'Edit Your Review (' + Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0') + ' left)'"></span>
                             </button>
                         @elseif($userReview)
                             <button onclick="document.getElementById('viewReviewModal').classList.remove('hidden')" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition text-center font-semibold">

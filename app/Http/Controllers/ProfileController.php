@@ -47,6 +47,18 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+        
+        $user->update([
+            'deleted_by' => [
+                'type' => 'user',
+                'id' => $user->id,
+                'name' => $user->name,
+                'deleted_at' => now()->toDateTimeString()
+            ]
+        ]);
+        
+        // Notify admins about account deletion
+        $this->notifyAdmins($user);
 
         Auth::logout();
 
@@ -56,5 +68,25 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+    
+    private function notifyAdmins($user)
+    {
+        $admins = \App\Models\Admin::all();
+        
+        foreach ($admins as $admin) {
+            $notification = \App\Models\Notification::create([
+                'notifiable_type' => \App\Models\Admin::class,
+                'notifiable_id' => $admin->id,
+                'type' => 'user_deleted_account',
+                'title' => 'User Deleted Account',
+                'message' => $user->name . ' (' . $user->email . ') deleted their account.',
+                'data' => json_encode(['user_id' => $user->id, 'user_email' => $user->email])
+            ]);
+            
+            broadcast(new \App\Events\AdminNotificationCreated($notification));
+        }
+        
+        broadcast(new \App\Events\AnalyticsUpdated());
     }
 }
