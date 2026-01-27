@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     supervisor \
     nginx \
+    nodejs \
+    npm \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
@@ -26,9 +28,18 @@ COPY . .
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Build frontend assets
+RUN npm install && npm run build
+
+# Generate Laravel key and optimize
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan view:cache
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN mkdir -p /var/www/html/storage/logs
+RUN chown -R www-data:www-data /var/www/html/public
 
 # Copy supervisor config
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
