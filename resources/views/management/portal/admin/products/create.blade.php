@@ -94,6 +94,14 @@
                 });
 
                 function handleFileSelect(file) {
+                    // Validate banner image size (5MB max)
+                    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                    if (file.size > maxSize) {
+                        alert('Banner image must be 5MB or smaller. Please choose a smaller image.');
+                        fileInput.value = '';
+                        return;
+                    }
+                    
                     uploadText.classList.add('hidden');
                     progress.classList.remove('hidden');
                     
@@ -484,6 +492,24 @@
             });
 
             function handleMediaFiles(files) {
+                const maxImageSize = 5 * 1024 * 1024; // 5MB
+                const maxVideoSize = 50 * 1024 * 1024; // 50MB
+                const invalidFiles = [];
+                
+                Array.from(files).forEach(file => {
+                    if (file.type.startsWith('image/') && file.size > maxImageSize) {
+                        invalidFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB - exceeds 5MB limit)`);
+                    } else if (file.type.startsWith('video/') && file.size > maxVideoSize) {
+                        invalidFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB - exceeds 50MB limit)`);
+                    }
+                });
+                
+                if (invalidFiles.length > 0) {
+                    alert('The following files exceed size limits:\n\n' + invalidFiles.join('\n') + '\n\nPlease choose smaller files or remove these files.');
+                    mediaInput.value = '';
+                    return;
+                }
+                
                 mediaFilesArray = Array.from(files);
                 showMediaProgress();
             }
@@ -516,13 +542,32 @@
                     return;
                 }
                 mediaFilesList.classList.remove('hidden');
-                mediaFilesList.innerHTML = mediaFilesArray.map((file, index) => `
-                    <div class="flex items-center gap-3 p-2 bg-white rounded border border-gray-200">
-                        <span class="text-xl">🖼️</span>
-                        <span class="text-sm flex-1 break-all">${file.name}</span>
-                        <button type="button" onclick="removeMediaFile(${index})" class="text-red-600 hover:text-red-800 text-xl font-bold">×</button>
-                    </div>
-                `).join('');
+                mediaFilesList.innerHTML = '';
+                
+                mediaFilesArray.forEach((file, index) => {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'flex items-center gap-3 p-2 bg-white rounded border border-gray-200';
+                    
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            fileDiv.innerHTML = `
+                                <img src="${e.target.result}" class="w-10 h-10 object-cover rounded flex-shrink-0" />
+                                <span class="text-sm flex-1 break-all">${file.name}</span>
+                                <button type="button" onclick="removeMediaFile(${index})" class="text-red-600 hover:text-red-800 text-xl font-bold">×</button>
+                            `;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        fileDiv.innerHTML = `
+                            <span class="text-xl">🎬</span>
+                            <span class="text-sm flex-1 break-all">${file.name}</span>
+                            <button type="button" onclick="removeMediaFile(${index})" class="text-red-600 hover:text-red-800 text-xl font-bold">×</button>
+                        `;
+                    }
+                    
+                    mediaFilesList.appendChild(fileDiv);
+                });
             }
 
             window.removeMediaFile = function(index) {
@@ -556,6 +601,21 @@
             });
 
             function handleProductFiles(files) {
+                const maxFileSize = 750 * 1024 * 1024; // 750MB
+                const invalidFiles = [];
+                
+                Array.from(files).forEach(file => {
+                    if (file.size > maxFileSize) {
+                        invalidFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB - exceeds 750MB limit)`);
+                    }
+                });
+                
+                if (invalidFiles.length > 0) {
+                    alert('The following files exceed 750MB limit:\n\n' + invalidFiles.join('\n') + '\n\nPlease choose smaller files.');
+                    filesInput.value = '';
+                    return;
+                }
+                
                 productFilesArray = Array.from(files);
                 showFilesProgress();
             }

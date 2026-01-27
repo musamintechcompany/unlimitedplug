@@ -47,6 +47,9 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Copy nginx config
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 
+# Copy PHP config
+COPY docker/php.ini /usr/local/etc/php/conf.d/uploads.ini
+
 # Expose port 80
 EXPOSE 80
 

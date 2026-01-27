@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('banner')->nullable();
             $table->json('media')->nullable();
             $table->json('file')->nullable();
+            $table->string('file_type')->nullable(); // File extension/MIME type
             $table->string('demo_url')->nullable();
             $table->json('tags')->nullable();
             $table->json('highlights')->nullable();
