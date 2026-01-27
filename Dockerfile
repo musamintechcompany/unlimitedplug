@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
+    supervisor \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
@@ -26,8 +27,12 @@ RUN composer install --no-dev --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN mkdir -p /var/www/html/storage/logs
+
+# Copy supervisor config
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expose port 9000
 EXPOSE 9000
 
-CMD ["php-fpm"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
