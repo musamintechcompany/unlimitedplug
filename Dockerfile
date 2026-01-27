@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     libzip-dev \
     supervisor \
+    nginx \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
@@ -32,7 +33,10 @@ RUN mkdir -p /var/www/html/storage/logs
 # Copy supervisor config
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose port 9000
-EXPOSE 9000
+# Copy nginx config
+COPY docker/nginx.conf /etc/nginx/sites-available/default
+
+# Expose port 80
+EXPOSE 80
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
