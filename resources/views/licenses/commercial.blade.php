@@ -22,19 +22,21 @@
                         <ul class="space-y-2 text-gray-700">
                             <li>✅ Use for UNLIMITED projects</li>
                             <li>✅ Full commercial usage rights</li>
-                            <li>✅ Can resell as part of your product</li>
-                            <li>✅ Can redistribute with modifications</li>
                             <li>✅ Modify and customize as needed</li>
                         </ul>
                     </div>
 
-                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 mb-6">
-                        <h2 class="text-xl font-bold text-yellow-900 mb-4">⚠️ Important Notes</h2>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-6 mb-6">
+                        <h2 class="text-xl font-bold text-red-900 mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            What You CANNOT Do ❌
+                        </h2>
                         <ul class="space-y-2 text-gray-700">
-                            <li>• You can resell the product as part of your own product</li>
-                            <li>• You can redistribute with modifications</li>
-                            <li>• You cannot claim original authorship</li>
-                            <li>• Attribution to original creator is appreciated but not required</li>
+                            <li>❌ Cannot resell or redistribute original files</li>
+                            <li>❌ Cannot share download with others</li>
+                            <li>❌ Cannot claim original authorship</li>
                         </ul>
                     </div>
 
@@ -42,9 +44,10 @@
                         <h2 class="text-xl font-bold text-blue-900 mb-4">📖 Example</h2>
                         <div class="text-gray-700 space-y-3">
                             <p class="text-green-700">✅ <strong>OK:</strong> Use it in unlimited projects</p>
-                            <p class="text-green-700">✅ <strong>OK:</strong> Resell as part of your product/service</p>
-                            <p class="text-green-700">✅ <strong>OK:</strong> Redistribute modified versions</p>
-                            <p class="text-green-700">✅ <strong>OK:</strong> Include in SaaS products</p>
+                            <p class="text-green-700">✅ <strong>OK:</strong> Use for multiple client projects</p>
+                            <p class="text-green-700">✅ <strong>OK:</strong> Build and sell services using this product</p>
+                            <p class="text-red-700">❌ <strong>NOT OK:</strong> Resell the original files</p>
+                            <p class="text-red-700">❌ <strong>NOT OK:</strong> Redistribute to others</p>
                         </div>
                     </div>
 

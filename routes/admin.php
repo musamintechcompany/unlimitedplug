@@ -76,4 +76,9 @@ Route::prefix('management/portal/admin')->middleware('auth:admin')->name('admin.
     // Analytics
     Route::get('/analytics/chart-data', [AnalyticsController::class, 'getChartData'])->name('analytics.chart-data');
     Route::get('/analytics/visitor-chart-data', [AnalyticsController::class, 'getVisitorChartData'])->name('analytics.visitor-chart-data');
+    
+    // Reports Management
+    Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::patch('/reports/{report}/status', [\App\Http\Controllers\Admin\ReportController::class, 'updateStatus'])->name('reports.update-status');
+    Route::delete('/reports/{report}', [\App\Http\Controllers\Admin\ReportController::class, 'destroy'])->name('reports.destroy');
 });

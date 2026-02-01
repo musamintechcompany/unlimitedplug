@@ -172,4 +172,7 @@ Route::middleware('auth')->group(function () {
     
     // Favorites
     Route::get('/favorites', [App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
+    
+    // Reports
+    Route::post('/reports', [App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
 });

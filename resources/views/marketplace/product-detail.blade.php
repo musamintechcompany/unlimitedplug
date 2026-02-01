@@ -43,7 +43,7 @@
                     @endif
 
                     <div class="mt-4 text-right">
-                        <a href="#" class="text-sm text-gray-600 hover:text-gray-900 inline-flex items-center gap-1">
+                        <a href="#" onclick="event.preventDefault(); openReportModal('{{ $product['id'] }}');" class="text-sm text-gray-600 hover:text-gray-900 inline-flex items-center gap-1 border border-gray-300 px-3 py-1.5 rounded hover:border-gray-400 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
                             Report this item
                         </a>
@@ -177,8 +177,8 @@
                     </button>
                     <div id="did-you-know">
                         <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-                            <svg class="w-12 h-12 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 48 48">
-                                <path d="M32.3,15.1L23,19.8c-1.7,1.2-4.2.8-5.4-.9v0c-1.2-1.7-.8-4.1.9-5.4c2.1-1.5,4.7-3.4,5.6-3.9C28.7,6.7,35,7.4,39,11.4v0"></path>
+                            <svg class="w-12 h-12 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
                             <div>
                                 <p class="font-semibold text-gray-900 mb-1">Purchase Protection</p>
@@ -459,4 +459,7 @@
         }
         .animate-fade-in { animation: fade-in 0.3s ease-out; }
     </style>
+
+    <!-- Report Item Modal -->
+    @include('modals.report-item')
 </x-marketplace-layout>
