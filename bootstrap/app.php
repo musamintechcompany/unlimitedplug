@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         
         $middleware->web(append: [
             \App\Http\Middleware\TrackVisitor::class,
+            \App\Http\Middleware\AutoDetectCurrency::class,
         ]);
         
         $middleware->api(prepend: [

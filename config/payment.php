@@ -48,6 +48,23 @@ return [
         'MXN' => ['name' => 'Mexican Peso', 'symbol' => 'MX$'],
     ],
     
+    // Country to Currency mapping for auto-detection
+    'country_currency_map' => [
+        'US' => 'USD', 'CA' => 'CAD', 'GB' => 'GBP', 'AU' => 'AUD', 'NZ' => 'AUD',
+        'NG' => 'NGN', 'GH' => 'GHS', 'KE' => 'KES', 'UG' => 'UGX', 'TZ' => 'TZS',
+        'ZA' => 'ZAR', 'RW' => 'RWF', 'ZM' => 'ZMW',
+        'AE' => 'AED', 'SA' => 'SAR', 'IN' => 'INR', 'CN' => 'CNY', 'JP' => 'JPY',
+        'BR' => 'BRL', 'MX' => 'MXN', 'CH' => 'CHF',
+        // European countries using EUR
+        'DE' => 'EUR', 'FR' => 'EUR', 'IT' => 'EUR', 'ES' => 'EUR', 'NL' => 'EUR',
+        'BE' => 'EUR', 'AT' => 'EUR', 'PT' => 'EUR', 'IE' => 'EUR', 'GR' => 'EUR',
+        // West African CFA countries
+        'SN' => 'XOF', 'CI' => 'XOF', 'BJ' => 'XOF', 'TG' => 'XOF', 'BF' => 'XOF',
+        'ML' => 'XOF', 'NE' => 'XOF', 'GW' => 'XOF',
+        // Central African CFA countries
+        'CM' => 'XAF', 'GA' => 'XAF', 'CG' => 'XAF', 'TD' => 'XAF', 'CF' => 'XAF', 'GQ' => 'XAF',
+    ],
+    
     'payment_gateways' => [
         'default' => 'flutterwave'
     ]
