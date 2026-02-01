@@ -304,7 +304,7 @@
     </div>
 
     <!-- Fullscreen Modal -->
-    <div id="fullscreen-modal" class="hidden fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-4" onclick="closeFullscreen()">
+    <div id="fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden items-center justify-center p-4" onclick="closeFullscreen()">
         <button onclick="closeFullscreen()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10 bg-white/10 hover:bg-white/20 p-2 rounded-full">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>

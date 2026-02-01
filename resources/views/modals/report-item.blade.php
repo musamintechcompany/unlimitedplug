@@ -1,5 +1,5 @@
 <!-- Report Item Modal -->
-<div id="reportItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+<div id="reportItemModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-lg max-w-md w-full p-6" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-semibold text-gray-900">Report this item</h3>
