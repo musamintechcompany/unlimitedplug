@@ -26,15 +26,89 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user = $request->user();
+        
+        // Check if email is being changed
+        if ($request->email !== $user->email) {
+            // Generate and send verification code
+            $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $user->email_verification_code = $code;
+            $user->verification_code_expires_at = now()->addMinutes(10);
+            $user->save();
+            
+            // Send verification code to NEW email
+            \Illuminate\Support\Facades\Mail::to($request->email)->send(
+                new \App\Mail\EmailChangeVerification($code)
+            );
+            
+            // Store new email in session temporarily
+            session(['pending_email' => $request->email]);
+            
+            return Redirect::route('profile.edit')->with('status', 'verification-code-sent');
         }
-
-        $request->user()->save();
+        
+        // Update other fields
+        $user->fill($request->validated());
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+    
+    /**
+     * Verify email change code.
+     */
+    public function verifyEmailChange(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'code' => 'required|string|size:6',
+        ]);
+        
+        $user = $request->user();
+        
+        if (!$user->email_verification_code || $user->verification_code_expires_at < now()) {
+            return back()->withErrors(['code' => 'Verification code has expired.']);
+        }
+        
+        if ($user->email_verification_code !== $request->code) {
+            return back()->withErrors(['code' => 'Invalid verification code.']);
+        }
+        
+        // Update email
+        $user->email = session('pending_email');
+        $user->email_verified_at = now();
+        $user->email_verification_code = null;
+        $user->verification_code_expires_at = null;
+        $user->save();
+        
+        session()->forget('pending_email');
+        
+        return Redirect::route('profile.edit')->with('status', 'email-updated');
+    }
+    
+    /**
+     * Resend email verification code.
+     */
+    public function resendCode(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $pendingEmail = session('pending_email');
+        
+        if (!$pendingEmail) {
+            return Redirect::route('profile.edit');
+        }
+        
+        // Generate new code
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $user->email_verification_code = $code;
+        $user->verification_code_expires_at = now()->addMinutes(10);
+        $user->save();
+        
+        // Resend to pending email
+        \Illuminate\Support\Facades\Mail::to($pendingEmail)->send(
+            new \App\Mail\EmailChangeVerification($code)
+        );
+        
+        return Redirect::route('profile.edit')->with('status', 'verification-code-sent');
     }
 
     /**
