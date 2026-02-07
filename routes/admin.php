@@ -17,6 +17,8 @@ Route::prefix('management/portal/admin')->group(function () {
 Route::prefix('management/portal/admin')->group(function () {
     Route::get('/login', [LoginController::class, 'showLogin'])->name('admin.login');
     Route::post('/login', [LoginController::class, 'authenticate'])->name('admin.authenticate');
+    Route::get('/verify', [LoginController::class, 'showVerify'])->name('admin.verify.show');
+    Route::post('/verify', [LoginController::class, 'verifyCode'])->name('admin.verify.code');
     Route::post('/logout', [LoginController::class, 'logout'])->name('admin.logout');
 });
 

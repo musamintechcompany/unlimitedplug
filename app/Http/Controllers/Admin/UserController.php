@@ -50,6 +50,11 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'status' => 'active',
             'email_verified_at' => now(),
+            'created_by' => [
+                'type' => 'admin',
+                'name' => auth()->guard('admin')->user()->name,
+                'email' => auth()->guard('admin')->user()->email,
+            ],
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully!');

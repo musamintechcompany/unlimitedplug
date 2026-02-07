@@ -42,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verification_code',
         'verification_code_expires_at',
         'welcome_email_sent_at',
+        'created_by',
         'deleted_by',
     ];
 
@@ -67,6 +68,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'verification_code_expires_at' => 'datetime',
             'password' => 'hashed',
             'welcome_email_sent_at' => 'datetime',
+            'created_by' => 'array',
             'deleted_by' => 'array',
         ];
     }

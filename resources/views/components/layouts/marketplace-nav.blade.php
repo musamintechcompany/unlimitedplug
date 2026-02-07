@@ -25,7 +25,7 @@ class="bg-white/95 backdrop-blur-sm border-b border-gray-200 fixed top-0 w-full 
                 </button>
                 
                 <a href="/" class="flex items-center hover:opacity-80 transition-opacity">
-                    <x-application-logo class="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 flex-shrink-0" />
+                    <x-application-logo class="h-8 w-8 sm:h-10 sm:w-10 mr-2 sm:mr-3 flex-shrink-0" />
                     <span class="text-sm sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-black bg-clip-text text-transparent whitespace-nowrap">Unlimited Plug</span>
                 </a>
             </div>

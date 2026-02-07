@@ -13,7 +13,7 @@
     <!-- Main Content -->
     <div>
             <!-- Hero Section -->
-            <section class="relative py-20 bg-gradient-to-b from-blue-900 via-blue-900 via-90% to-gray-800 text-white">
+            <section class="relative py-20 bg-gradient-to-b from-blue-900 via-blue-900 to-gray-900 text-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <div class="mb-12">
                         <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">

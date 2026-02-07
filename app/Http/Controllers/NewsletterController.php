@@ -34,6 +34,7 @@ class NewsletterController extends Controller
         // Guest subscription
         $request->validate([
             'email' => 'required|email',
+            'name' => 'nullable|string|max:255',
         ]);
         
         // Check if already subscribed
@@ -50,6 +51,7 @@ class NewsletterController extends Controller
         $subscriber = NewsletterSubscriber::updateOrCreate(
             ['email' => $request->email],
             [
+                'name' => $request->name,
                 'confirmation_token' => $token,
                 'is_active' => false,
                 'subscriber_type' => null,

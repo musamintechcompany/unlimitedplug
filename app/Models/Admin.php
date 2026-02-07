@@ -19,6 +19,17 @@ class Admin extends Authenticatable
         'password',
         'status',
         'email_verified_at',
+        'login_verification_code',
+        'login_verification_code_expires_at',
+        'password_reset_code',
+        'password_reset_code_expires_at',
+        'username',
+        'phone',
+        'theme',
+        'two_factor_method',
+        'welcome_email_sent_at',
+        'created_by',
+        'deleted_by',
     ];
 
     protected $hidden = [
@@ -30,6 +41,11 @@ class Admin extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'login_verification_code_expires_at' => 'datetime',
+            'password_reset_code_expires_at' => 'datetime',
+            'welcome_email_sent_at' => 'datetime',
+            'created_by' => 'array',
+            'deleted_by' => 'array',
             'password' => 'hashed',
         ];
     }
@@ -42,5 +58,30 @@ class Admin extends Authenticatable
     public function isSuperAdmin()
     {
         return $this->hasRole('super-admin');
+    }
+
+    public static function generateUsername($name)
+    {
+        $baseUsername = 'admin_' . strtolower(str_replace(' ', '_', $name));
+        $username = $baseUsername;
+        $counter = 1;
+        
+        while (self::where('username', $username)->exists()) {
+            $username = $baseUsername . '_' . $counter;
+            $counter++;
+        }
+        
+        return $username;
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($admin) {
+            if (empty($admin->username)) {
+                $admin->username = self::generateUsername($admin->name);
+            }
+        });
     }
 }
