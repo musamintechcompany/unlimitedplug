@@ -30,12 +30,12 @@
                     
                     <!-- Thumbnails -->
                     @if(isset($product['media']) && count($product['media']) > 0)
-                    <div class="flex gap-2 overflow-x-auto pb-2">
-                        <div class="flex-shrink-0 w-20 h-20 bg-white rounded border-2 border-blue-600 cursor-pointer overflow-hidden" onclick="changeImage('{{ $product['image'] }}', this)">
+                    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        <div class="flex-shrink-0 w-16 h-16 bg-white rounded border-2 border-blue-600 cursor-pointer overflow-hidden" onclick="changeImage('{{ $product['image'] }}', this)">
                             <img src="{{ $product['image'] }}" alt="Thumbnail" class="w-full h-full object-cover">
                         </div>
                         @foreach($product['media'] as $media)
-                        <div class="flex-shrink-0 w-20 h-20 bg-white rounded border-2 border-gray-200 hover:border-blue-600 cursor-pointer overflow-hidden" onclick="changeImage('{{ $media }}', this)">
+                        <div class="flex-shrink-0 w-16 h-16 bg-white rounded border-2 border-gray-200 hover:border-blue-600 cursor-pointer overflow-hidden" onclick="changeImage('{{ $media }}', this)">
                             <img src="{{ $media }}" alt="Thumbnail" class="w-full h-full object-cover">
                         </div>
                         @endforeach
@@ -198,7 +198,7 @@
                     </button>
                     <div id="meet-sellers" class="hidden">
                         <div class="flex items-center gap-4 mb-4">
-                            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-black rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <div class="w-16 h-16 bg-gray-100 border-2 border-gray-300 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center">
                                 <img src="{{ asset('images/logos/logo1.png') }}" alt="UnlimitedPlug" class="w-10 h-10 object-contain">
                             </div>
                             <div>
@@ -304,14 +304,28 @@
     </div>
 
     <!-- Fullscreen Modal -->
-    <div id="fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden items-center justify-center p-4" onclick="closeFullscreen()">
+    <div id="fullscreen-modal" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden flex items-center justify-center p-4" onclick="closeFullscreen()">
         <button onclick="closeFullscreen()" class="absolute top-4 right-4 text-white hover:text-gray-300 z-10 bg-white/10 hover:bg-white/20 p-2 rounded-full">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
+        
+        <!-- Previous Button -->
+        <button id="prev-btn" onclick="previousImage(event)" class="absolute left-4 text-white hover:text-gray-300 z-10 bg-white/10 hover:bg-white/20 p-3 rounded-full hidden">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        
+        <!-- Next Button -->
+        <button id="next-btn" onclick="nextImage(event)" class="absolute right-4 text-white hover:text-gray-300 z-10 bg-white/10 hover:bg-white/20 p-3 rounded-full hidden">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+        
         <img id="fullscreen-image" src="" alt="" class="max-w-full max-h-full object-contain" onclick="event.stopPropagation()">
     </div>
 
     <script>
+        let currentImageIndex = 0;
+        let allImages = [];
+        
         function changeImage(src, element) {
             document.getElementById('main-image').src = src;
             document.querySelectorAll('#thumbnail-container > div, .flex.gap-2 > div').forEach(el => {
@@ -326,9 +340,24 @@
             const mainImage = document.getElementById('main-image');
             const modal = document.getElementById('fullscreen-modal');
             const fullscreenImage = document.getElementById('fullscreen-image');
+            
+            // Build array of all images
+            allImages = ['{{ $product['image'] }}'];
+            @if(isset($product['media']) && count($product['media']) > 0)
+                @foreach($product['media'] as $media)
+                    allImages.push('{{ $media }}');
+                @endforeach
+            @endif
+            
+            // Find current image index
+            currentImageIndex = allImages.indexOf(mainImage.src);
+            if (currentImageIndex === -1) currentImageIndex = 0;
+            
             fullscreenImage.src = mainImage.src;
             modal.classList.remove('hidden');
+            modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
+            updateNavigationButtons();
         }
 
         function openFullscreenImage(imageSrc) {
@@ -336,12 +365,57 @@
             const fullscreenImage = document.getElementById('fullscreen-image');
             fullscreenImage.src = imageSrc;
             modal.classList.remove('hidden');
+            modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
         }
 
         function closeFullscreen() {
-            document.getElementById('fullscreen-modal').classList.add('hidden');
+            const modal = document.getElementById('fullscreen-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
             document.body.style.overflow = '';
+        }
+        
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            // Hide buttons if only one image
+            if (allImages.length <= 1) {
+                prevBtn.classList.add('hidden');
+                nextBtn.classList.add('hidden');
+                return;
+            }
+            
+            // Show/hide prev button based on index
+            if (currentImageIndex === 0) {
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+            }
+            
+            // Show/hide next button based on index
+            if (currentImageIndex === allImages.length - 1) {
+                nextBtn.classList.add('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+            }
+        }
+        
+        function previousImage(event) {
+            event.stopPropagation();
+            if (allImages.length === 0 || currentImageIndex === 0) return;
+            currentImageIndex--;
+            document.getElementById('fullscreen-image').src = allImages[currentImageIndex];
+            updateNavigationButtons();
+        }
+        
+        function nextImage(event) {
+            event.stopPropagation();
+            if (allImages.length === 0 || currentImageIndex === allImages.length - 1) return;
+            currentImageIndex++;
+            document.getElementById('fullscreen-image').src = allImages[currentImageIndex];
+            updateNavigationButtons();
         }
 
         function toggleSection(sectionId) {
